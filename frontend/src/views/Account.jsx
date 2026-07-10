@@ -7,6 +7,7 @@ import {
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 const Account = ({ user, onLogout }) => {
   const [purchasedCourses, setPurchasedCourses] = useState([]);
@@ -21,7 +22,7 @@ const Account = ({ user, onLogout }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch('http://localhost:3001/api/courses/my-learning', {
+        const response = await fetch(`${API_BASE_URL}/api/courses/my-learning`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();

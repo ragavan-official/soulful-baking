@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 const AdminDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('users'); // users, courses, sales
@@ -63,7 +64,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/admin/dashboard', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/dashboard`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -82,7 +83,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/admin/courses', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/courses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -100,7 +101,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/admin/purchases', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/purchases`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -147,7 +148,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     if (!window.confirm('Are you sure you want to delete this course? This action is permanent.')) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/admin/courses/${courseId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/courses/${courseId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -179,7 +180,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       formData.append('file', file);
 
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://localhost:3001/api/media/upload');
+      xhr.open('POST', `${API_BASE_URL}/api/media/upload`);
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
       xhr.upload.onprogress = (e) => {
@@ -242,7 +243,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:3001/api/media/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/media/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -276,8 +277,8 @@ const AdminDashboard = ({ user, onLogout }) => {
     try {
       const token = localStorage.getItem('token');
       const url = editingCourse 
-        ? `http://localhost:3001/api/admin/courses/${editingCourse._id}` 
-        : 'http://localhost:3001/api/admin/courses';
+        ? `${API_BASE_URL}/api/admin/courses/${editingCourse._id}` 
+        : `${API_BASE_URL}/api/admin/courses`;
       const method = editingCourse ? 'PUT' : 'POST';
 
       const response = await fetch(url, {

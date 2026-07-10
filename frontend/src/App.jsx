@@ -10,6 +10,7 @@ import CoursesCatalog from './views/CoursesCatalog';
 import CoursePlayer from './views/CoursePlayer';
 import Payment from './views/Payment';
 import Home from './views/Home';
+import { API_BASE_URL } from './config';
 
 
 const App = () => {
@@ -26,7 +27,7 @@ const App = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/auth/me', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

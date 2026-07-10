@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 const Signup = ({ user, onLoginSuccess }) => {
   const [name, setName] = useState('');
@@ -58,7 +59,7 @@ const Signup = ({ user, onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/send-otp', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -112,7 +113,7 @@ const Signup = ({ user, onLoginSuccess }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -145,7 +146,7 @@ const Signup = ({ user, onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/google', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -4,6 +4,7 @@ import { BookOpen, ArrowLeft, Check, Sparkles, ShoppingBag, AlertCircle } from '
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 const CoursesCatalog = () => {
   const [courses, setCourses] = useState([]);
@@ -30,14 +31,14 @@ const CoursesCatalog = () => {
       }
 
       // Fetch all courses in catalog
-      const coursesResponse = await fetch('http://localhost:3001/api/courses', {
+      const coursesResponse = await fetch(`${API_BASE_URL}/api/courses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const coursesData = await coursesResponse.json();
       if (!coursesResponse.ok) throw new Error(coursesData.message);
 
       // Fetch user's purchased courses to cross-reference
-      const myLearningResponse = await fetch('http://localhost:3001/api/courses/my-learning', {
+      const myLearningResponse = await fetch(`${API_BASE_URL}/api/courses/my-learning`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const myLearningData = await myLearningResponse.json();
@@ -62,7 +63,7 @@ const CoursesCatalog = () => {
       setSuccess('');
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}/purchase`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/purchase`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

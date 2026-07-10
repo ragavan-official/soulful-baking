@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 const ForgotPassword = ({ user }) => {
   const [email, setEmail] = useState('');
@@ -58,7 +59,7 @@ const ForgotPassword = ({ user }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -113,7 +114,7 @@ const ForgotPassword = ({ user }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

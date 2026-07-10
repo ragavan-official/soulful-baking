@@ -4,6 +4,7 @@ import { CreditCard, ArrowLeft, ShieldCheck, ShoppingBag, Sparkles, AlertCircle,
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
+import { API_BASE_URL } from '../config';
 
 const Payment = ({ user }) => {
   const { courseId } = useParams();
@@ -30,7 +31,7 @@ const Payment = ({ user }) => {
       }
 
       // Fetch course information
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -60,7 +61,7 @@ const Payment = ({ user }) => {
       const token = localStorage.getItem('token');
       
       // 1. Create Razorpay order on the backend
-      const orderResponse = await fetch(`http://localhost:3001/api/courses/${courseId}/razorpay-order`, {
+      const orderResponse = await fetch(`${API_BASE_URL}/api/courses/${courseId}/razorpay-order`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -87,7 +88,7 @@ const Payment = ({ user }) => {
             setError('');
             
             // 3. Verify signature on the backend
-            const verifyResponse = await fetch(`http://localhost:3001/api/courses/${courseId}/razorpay-verify`, {
+            const verifyResponse = await fetch(`${API_BASE_URL}/api/courses/${courseId}/razorpay-verify`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${token}`,

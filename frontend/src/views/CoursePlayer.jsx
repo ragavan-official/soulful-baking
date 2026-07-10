@@ -5,6 +5,7 @@ import {
   ChevronRight, LockKeyhole, EyeOff, ShieldAlert
 } from 'lucide-react';
 import Logo from '../components/Logo';
+import { API_BASE_URL } from '../config';
 
 const CoursePlayer = () => {
   const { courseId } = useParams();
@@ -29,7 +30,7 @@ const CoursePlayer = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/courses/${courseId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

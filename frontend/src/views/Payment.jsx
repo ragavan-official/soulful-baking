@@ -4,7 +4,7 @@ import { CreditCard, ArrowLeft, ShieldCheck, ShoppingBag, Sparkles, AlertCircle,
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, RAZORPAY_KEY_ID } from '../config';
 
 const Payment = ({ user }) => {
   const { courseId } = useParams();
@@ -76,7 +76,7 @@ const Payment = ({ user }) => {
 
       // 2. Open Razorpay checkout widget
       const options = {
-        key: 'rzp_test_TAvbFyxnR5xnOZ', // Razorpay Key ID
+        key: RAZORPAY_KEY_ID, // Razorpay Key ID
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Soulful Baking Academy',

@@ -11,13 +11,35 @@ const purchaseSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
+  // Razorpay transaction identifiers — links DB record to actual Razorpay transaction
+  razorpayOrderId: {
+    type: String,
+    default: null
+  },
+  razorpayPaymentId: {
+    type: String,
+    default: null
+  },
+  amount: {
+    type: Number,
+    default: null  // stored in INR (not paise)
+  },
+  currency: {
+    type: String,
+    default: 'INR'
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'completed', 'failed'],
+    default: 'completed'
+  },
   purchasedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Avoid duplicate purchases for the same course by the same user
+// Prevent duplicate purchases for the same course by the same user
 purchaseSchema.index({ userId: 1, courseId: 1 }, { unique: true });
 
 export default mongoose.model('Purchase', purchaseSchema);

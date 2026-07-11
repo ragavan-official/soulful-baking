@@ -280,7 +280,14 @@ router.post('/:id/razorpay-verify', async (req, res) => {
     // 4. Record purchase (idempotent — safe to call multiple times)
     let purchase = await Purchase.findOne({ userId: req.user._id, courseId });
     if (!purchase) {
-      purchase = new Purchase({ userId: req.user._id, courseId });
+      purchase = new Purchase({
+        userId: req.user._id,
+        courseId,
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        amount: course.price,
+        status: 'completed'
+      });
       await purchase.save();
       console.log(`[Razorpay] ✅ Purchase recorded — user: ${req.user._id}, course: ${courseId}, payment: ${razorpay_payment_id}`);
     } else {

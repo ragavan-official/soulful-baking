@@ -129,7 +129,7 @@ const Payment = ({ user }) => {
           }
         },
         prefill: {
-          name: user?.name || '',
+          name: '',
           email: '',
           contact: ''
         },

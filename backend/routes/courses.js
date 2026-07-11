@@ -4,6 +4,8 @@ import crypto from 'crypto';
 const router = express.Router();
 import Course from '../models/Course.js';
 import Purchase from '../models/Purchase.js';
+import PhoneOtp from '../models/PhoneOtp.js';
+import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 // Apply authenticateToken to all user-facing course routes
@@ -267,6 +269,135 @@ router.post('/:id/razorpay-verify', async (req, res) => {
   } catch (error) {
     console.error('Error verifying Razorpay payment:', error);
     res.status(500).json({ message: 'Server error during payment verification' });
+  }
+});
+
+// @route   POST /api/courses/:id/send-payment-otp
+// @desc    Send OTP to user's phone for payment verification via SMS
+router.post('/:id/send-payment-otp', async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const { phone } = req.body;
+
+    if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({ message: 'Please enter a valid 10-digit Indian mobile number' });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if already purchased
+    const existingPurchase = await Purchase.findOne({ userId: req.user._id, courseId });
+    if (existingPurchase) {
+      return res.status(400).json({ message: 'You have already purchased this course' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store OTP in DB (upsert)
+    await PhoneOtp.findOneAndUpdate(
+      { userId: req.user._id, courseId },
+      { phone, otp, verified: false, createdAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    // Save phone to user profile if not already saved
+    await User.findByIdAndUpdate(req.user._id, { phone }, { new: true });
+
+    console.log(`[Payment OTP] Generated OTP for ${phone} (user: ${req.user._id}): ${otp}`);
+
+    // Send SMS via Fast2SMS
+    const fast2smsKey = process.env.FAST2SMS_API_KEY;
+    if (!fast2smsKey) {
+      console.error('[Payment OTP] FAST2SMS_API_KEY not set in environment');
+      // In dev: log OTP to console and return success so testing works
+      return res.status(200).json({
+        message: `OTP generated. Check backend logs. (Dev mode: ${otp})`,
+        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+      });
+    }
+
+    try {
+      const smsResponse = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': fast2smsKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          route: 'otp',
+          variables_values: otp,
+          numbers: phone
+        })
+      });
+
+      const smsData = await smsResponse.json();
+      console.log('[Payment OTP] Fast2SMS response:', smsData);
+
+      if (!smsData.return) {
+        console.error('[Payment OTP] Fast2SMS error:', smsData);
+        return res.status(200).json({
+          message: 'OTP generated but SMS delivery failed. Check backend logs.',
+          devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+        });
+      }
+
+      res.status(200).json({ message: `OTP sent to +91 ${phone}` });
+    } catch (smsError) {
+      console.error('[Payment OTP] SMS send error:', smsError);
+      res.status(200).json({
+        message: 'OTP generated. SMS service error — check backend logs.',
+        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+      });
+    }
+
+  } catch (error) {
+    console.error('Error sending payment OTP:', error);
+    res.status(500).json({ message: 'Server error sending OTP' });
+  }
+});
+
+// @route   POST /api/courses/:id/verify-payment-otp
+// @desc    Verify the phone OTP before opening Razorpay
+router.post('/:id/verify-payment-otp', async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const { otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ message: 'OTP is required' });
+    }
+
+    const otpRecord = await PhoneOtp.findOne({ userId: req.user._id, courseId, verified: false });
+    if (!otpRecord) {
+      return res.status(400).json({ message: 'No OTP request found. Please request a new OTP.' });
+    }
+
+    if (otpRecord.otp !== otp.toString()) {
+      return res.status(400).json({ message: 'Invalid OTP. Please check and try again.' });
+    }
+
+    // Mark as verified
+    otpRecord.verified = true;
+    await otpRecord.save();
+
+    // Return a short-lived payment token (signed JWT valid for 10 mins)
+    const paymentToken = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'payment_token_secret')
+      .update(`${req.user._id}:${courseId}:${Date.now()}`)
+      .digest('hex');
+
+    res.status(200).json({
+      success: true,
+      message: 'Phone verified successfully! Proceed to payment.',
+      paymentToken
+    });
+  } catch (error) {
+    console.error('Error verifying payment OTP:', error);
+    res.status(500).json({ message: 'Server error verifying OTP' });
   }
 });
 

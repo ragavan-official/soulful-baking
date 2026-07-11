@@ -4,7 +4,7 @@ import { CreditCard, ArrowLeft, ShieldCheck, ShoppingBag, Sparkles, AlertCircle,
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
-import { API_BASE_URL, RAZORPAY_KEY_ID } from '../config';
+import { API_BASE_URL } from '../config';
 
 const Payment = ({ user }) => {
   const { courseId } = useParams();
@@ -72,9 +72,9 @@ const Payment = ({ user }) => {
         throw new Error(orderData.message || 'Failed to create payment order');
       }
 
-      // 2. Open Razorpay checkout
+      // 2. Open Razorpay checkout — use keyId returned by backend
       const options = {
-        key: RAZORPAY_KEY_ID,
+        key: orderData.keyId, // always matches whatever key backend is using
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Soulful Baking Academy',

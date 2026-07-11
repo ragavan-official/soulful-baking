@@ -172,101 +172,129 @@ router.post('/:id/purchase', async (req, res) => {
   }
 });
 
-// Lazy initializer for Razorpay
+// ─── RAZORPAY PAYMENT GATEWAY ───────────────────────────────────────────────
+
+// Validates that Razorpay keys are configured before creating an instance
 const getRazorpayInstance = () => {
-  return new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-  });
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    throw new Error('Razorpay API keys are not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment variables.');
+  }
+
+  return new Razorpay({ key_id: keyId, key_secret: keySecret });
 };
 
 // @route   POST /api/courses/:id/razorpay-order
-// @desc    Create a new Razorpay order for purchasing a course
+// @desc    Create a Razorpay order for a course purchase
 router.post('/:id/razorpay-order', async (req, res) => {
   try {
     const courseId = req.params.id;
+
+    // 1. Validate course exists
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // Check if user already purchased
+    // 2. Check if already purchased
     const existingPurchase = await Purchase.findOne({ userId: req.user._id, courseId });
     if (existingPurchase) {
-      return res.status(400).json({ message: 'Course already purchased' });
+      return res.status(400).json({ message: 'You have already purchased this course' });
     }
 
-    const rzp = getRazorpayInstance();
-    const options = {
-      amount: Math.round(course.price * 100), // in paise
-      currency: 'INR',
-      receipt: `rcpt_${courseId.toString().slice(-8)}_${Date.now()}`
-    };
+    // 3. Validate price
+    if (!course.price || course.price <= 0) {
+      return res.status(400).json({ message: 'Invalid course price' });
+    }
 
-    console.log(`Creating Razorpay order for course: ${course.title}, amount=${options.amount} paise`);
-    const order = await rzp.orders.create(options);
-    console.log(`Razorpay order created successfully: ${order.id}`);
+    // 4. Create Razorpay order
+    const rzp = getRazorpayInstance();
+    const amountInPaise = Math.round(course.price * 100);
+    const receipt = `rcpt_${courseId.toString().slice(-6)}_${Date.now().toString().slice(-6)}`;
+
+    console.log(`[Razorpay] Creating order — course: "${course.title}", amount: ₹${course.price} (${amountInPaise} paise)`);
+
+    const order = await rzp.orders.create({
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt
+    });
+
+    console.log(`[Razorpay] Order created successfully — ID: ${order.id}`);
 
     res.json({
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
       courseTitle: course.title,
-      price: course.price
+      price: course.price,
+      keyId: process.env.RAZORPAY_KEY_ID
     });
   } catch (error) {
-    console.error('Error creating Razorpay order:', error);
-    res.status(500).json({ message: 'Error creating Razorpay order. Please try again.' });
+    console.error('[Razorpay] Order creation error:', error?.message || error);
+    const msg = error?.message?.includes('keys are not configured')
+      ? error.message
+      : 'Failed to create payment order. Please try again.';
+    res.status(500).json({ message: msg });
   }
 });
 
 // @route   POST /api/courses/:id/razorpay-verify
-// @desc    Verify Razorpay payment signature and record purchase
+// @desc    Verify Razorpay payment signature and record the purchase
 router.post('/:id/razorpay-verify', async (req, res) => {
   try {
     const courseId = req.params.id;
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
+    // 1. Validate all three fields are present
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ message: 'Missing payment signature details' });
+      return res.status(400).json({ message: 'Missing Razorpay payment details. Please try again.' });
     }
 
+    // 2. Validate course
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // Verify cryptographic signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    // 3. Verify HMAC-SHA256 signature
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      console.error('[Razorpay] RAZORPAY_KEY_SECRET not set — cannot verify signature');
+      return res.status(500).json({ message: 'Payment configuration error. Contact support.' });
+    }
+
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
+      .createHmac('sha256', keySecret)
+      .update(body)
       .digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
-      console.error('Razorpay signature validation failed');
-      return res.status(400).json({ message: 'Invalid payment signature verification failed' });
+      console.error(`[Razorpay] Signature mismatch — order: ${razorpay_order_id}, payment: ${razorpay_payment_id}`);
+      return res.status(400).json({ message: 'Payment verification failed. Signature mismatch.' });
     }
 
-    // Check if already purchased (idempotency check)
+    // 4. Record purchase (idempotent — safe to call multiple times)
     let purchase = await Purchase.findOne({ userId: req.user._id, courseId });
     if (!purchase) {
-      purchase = new Purchase({
-        userId: req.user._id,
-        courseId
-      });
+      purchase = new Purchase({ userId: req.user._id, courseId });
       await purchase.save();
-      console.log(`Purchase recorded for user ${req.user._id} on course ${courseId}`);
+      console.log(`[Razorpay] ✅ Purchase recorded — user: ${req.user._id}, course: ${courseId}, payment: ${razorpay_payment_id}`);
+    } else {
+      console.log(`[Razorpay] Purchase already exists for user: ${req.user._id}, course: ${courseId}`);
     }
 
     res.json({
       success: true,
-      message: 'Payment verified and course unlocked successfully!',
+      message: 'Payment verified! Your course is now unlocked.',
       purchase
     });
   } catch (error) {
-    console.error('Error verifying Razorpay payment:', error);
-    res.status(500).json({ message: 'Server error during payment verification' });
+    console.error('[Razorpay] Verification error:', error?.message || error);
+    res.status(500).json({ message: 'Server error during payment verification. Contact support.' });
   }
 });
 

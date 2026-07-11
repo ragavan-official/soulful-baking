@@ -29,6 +29,8 @@ router.get('/', async (req, res) => {
       };
     });
 
+    // Prevent browsers/CDNs from caching course data (admin may update at any time)
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.json(formattedCourses);
   } catch (error) {
     console.error('Error fetching catalog courses:', error);
@@ -81,6 +83,7 @@ router.get('/:id', async (req, res) => {
 
     if (!isPurchased) {
       // If not purchased, do not expose video MongoDB GridFS file IDs or stream URLs
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
       return res.json({
         ...courseObj,
         isPurchased: false,
@@ -102,16 +105,20 @@ router.get('/:id', async (req, res) => {
     const timeDiff = now.getTime() - purchasedAt.getTime();
     const daysSincePurchase = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
+    // Use env-defined backend URL or fallback to the deployed Render URL
+    const backendBaseUrl = process.env.API_BASE_URL || 'https://soulful-baking-backend.onrender.com';
+
     const processedVideos = courseObj.videos.map(v => {
       return {
         _id: v._id,
         title: v.title,
         status: 'available',
         videoFileId: v.videoFileId,
-        videoUrl: `http://localhost:3001/api/media/${v.videoFileId}`
+        videoUrl: `${backendBaseUrl}/api/media/${v.videoFileId}`
       };
     });
 
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.json({
       _id: courseObj._id,
       title: courseObj.title,

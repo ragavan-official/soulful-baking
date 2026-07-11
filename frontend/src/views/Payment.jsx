@@ -76,12 +76,21 @@ const Payment = ({ user }) => {
 
       // 2. Open Razorpay checkout widget
       const options = {
-        key: RAZORPAY_KEY_ID, // Razorpay Key ID
+        key: RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Soulful Baking Academy',
         description: `Unlock Course: ${orderData.courseTitle}`,
         order_id: orderData.orderId,
+        // Enable all payment methods including UPI, Cards, Net Banking
+        config: {
+          display: {
+            hide: [],
+            preferences: {
+              show_default_blocks: true
+            }
+          }
+        },
         handler: async function (response) {
           try {
             setPaymentLoading(true);
@@ -129,16 +138,24 @@ const Payment = ({ user }) => {
         },
         prefill: {
           name: user?.name || '',
-          email: user?.email || ''
+          email: user?.email || '',
+          contact: ''
         },
         notes: {
           courseId: courseId,
           userId: user?.id || user?._id || ''
         },
         theme: {
-          color: '#e5a93c' // Gold color theme matching the baking website!
+          color: '#e5a93c'
         },
+        retry: {
+          enabled: true,
+          max_count: 3
+        },
+        timeout: 900,
         modal: {
+          escape: true,
+          backdropclose: false,
           ondismiss: function () {
             setPaymentLoading(false);
             console.log('Payment modal dismissed');
@@ -264,6 +281,23 @@ const Payment = ({ user }) => {
           </p>
 
           <form onSubmit={handlePaymentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Test-mode notice - only shows when using test key */}
+            {RAZORPAY_KEY_ID?.startsWith('rzp_test_') && (
+              <div style={{
+                background: 'rgba(59, 130, 246, 0.08)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                borderRadius: '8px',
+                padding: '0.85rem 1rem',
+                fontSize: '0.8rem',
+                color: '#93c5fd',
+                lineHeight: '1.6'
+              }}>
+                <strong style={{ display: 'block', marginBottom: '0.3rem' }}>🔬 Test Mode Active</strong>
+                Use test card <strong>4111 1111 1111 1111</strong>, Expiry <strong>any future date</strong>, CVV <strong>any 3 digits</strong>.<br />
+                When prompted for OTP, enter <strong>1111</strong>. Real OTPs are sent only in Live mode.
+              </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px dashed var(--border-gold)', gap: '1rem', marginBottom: '1rem' }}>
               <ShieldCheck size={48} style={{ color: 'var(--gold-primary)', opacity: 0.8 }} />
               <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: '600' }}>

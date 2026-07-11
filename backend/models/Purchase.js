@@ -36,6 +36,10 @@ const purchaseSchema = new mongoose.Schema({
   purchasedAt: {
     type: Date,
     default: Date.now
+  },
+  expiresAt: {
+    type: Date,
+    default: null
   }
 });
 

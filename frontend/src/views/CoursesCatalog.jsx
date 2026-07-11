@@ -43,7 +43,8 @@ const CoursesCatalog = () => {
       });
       const myLearningData = await myLearningResponse.json();
       if (myLearningResponse.ok) {
-        const purchasedSet = new Set(myLearningData.map(c => c._id));
+        // Only mark as purchased if not expired
+        const purchasedSet = new Set(myLearningData.filter(c => !c.isExpired).map(c => c._id));
         setPurchasedIds(purchasedSet);
       }
 
@@ -210,6 +211,11 @@ const CoursesCatalog = () => {
                     </span>
                     <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.25rem' }}>
                       ₹{course.price.toFixed(2)}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-0.25rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Access Duration: <strong>{course.validityDays !== undefined ? course.validityDays : 365}</strong> Days
                     </span>
                   </div>
 

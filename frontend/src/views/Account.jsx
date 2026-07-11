@@ -156,32 +156,50 @@ const Account = ({ user, onLogout }) => {
               {purchasedCourses.map((c) => (
                 <div 
                   key={c._id} 
-                  onClick={() => navigate(`/courses/${c._id}`)}
+                  onClick={() => navigate(c.isExpired ? `/payment/${c._id}` : `/courses/${c._id}`)}
                   style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
                     gap: '0.75rem', 
-                    background: 'rgba(255,255,255,0.03)', 
+                    background: c.isExpired ? 'rgba(255, 0, 0, 0.02)' : 'rgba(255,255,255,0.03)', 
                     padding: '0.75rem', 
                     borderRadius: '8px', 
-                    border: '1px solid var(--border-gold)', 
+                    border: c.isExpired ? '1px solid rgba(255, 0, 0, 0.2)' : '1px solid var(--border-gold)', 
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    opacity: c.isExpired ? 0.75 : 1
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold-primary)'; e.currentTarget.style.background = 'rgba(229, 169, 60, 0.05)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-gold)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                  onMouseEnter={(e) => { 
+                    e.currentTarget.style.borderColor = c.isExpired ? '#ff4d4d' : 'var(--gold-primary)'; 
+                    e.currentTarget.style.background = c.isExpired ? 'rgba(255, 0, 0, 0.05)' : 'rgba(229, 169, 60, 0.05)'; 
+                  }}
+                  onMouseLeave={(e) => { 
+                    e.currentTarget.style.borderColor = c.isExpired ? 'rgba(255, 0, 0, 0.2)' : 'var(--border-gold)'; 
+                    e.currentTarget.style.background = c.isExpired ? 'rgba(255, 0, 0, 0.02)' : 'rgba(255,255,255,0.03)'; 
+                  }}
                 >
                   {c.thumbnail ? (
-                    <img src={c.thumbnail} alt={c.title} style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-gold)' }} />
+                    <img src={c.thumbnail} alt={c.title} style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: c.isExpired ? '1px solid rgba(255, 0, 0, 0.2)' : '1px solid var(--border-gold)', filter: c.isExpired ? 'grayscale(80%)' : 'none' }} />
                   ) : (
                     <div style={{ width: '45px', height: '45px', background: 'rgba(0,0,0,0.4)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-gold)' }}>
                       <Play size={16} style={{ color: 'var(--gold-primary)' }} />
                     </div>
                   )}
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-primary)', display: 'block' }}>{c.title}</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      Unlocked: {new Date(c.purchasedAt).toLocaleDateString()} | {c.videoCount} lessons
+                    <span style={{ fontSize: '0.85rem', fontWeight: '600', color: c.isExpired ? 'var(--text-secondary)' : 'var(--text-primary)', display: 'block' }}>
+                      {c.title}
+                      {c.isExpired && (
+                        <span style={{ marginLeft: '0.5rem', color: '#ff4d4d', border: '1px solid #ff4d4d', padding: '0.05rem 0.25rem', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Expired
+                        </span>
+                      )}
+                    </span>
+                    <span style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
+                      {c.isExpired ? (
+                        <span style={{ color: '#ff7b7c' }}>Expired: {new Date(c.expiresAt).toLocaleDateString()} | Click to renew</span>
+                      ) : (
+                        `Expires: ${new Date(c.expiresAt).toLocaleDateString()} | ${c.videoCount} lessons`
+                      )}
                     </span>
                   </div>
                 </div>

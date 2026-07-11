@@ -242,6 +242,13 @@ const Payment = ({ user }) => {
             </div>
 
             <div style={{ borderTop: '1px solid rgba(229, 169, 60, 0.15)', paddingTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Access Validity:</span>
+              <span style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: '1rem' }}>
+                {course?.validityDays || 365} Days
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Academy Price:</span>
               <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.5rem' }}>
                 ₹{course?.price ? course.price.toFixed(2) : '0.00'}

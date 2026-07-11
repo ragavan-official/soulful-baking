@@ -43,6 +43,11 @@ const courseSchema = new mongoose.Schema({
     default: ''
   },
   videos: [videoSchema],
+  validityDays: {
+    type: Number,
+    required: true,
+    default: 365
+  },
   createdAt: {
     type: Date,
     default: Date.now

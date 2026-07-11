@@ -30,6 +30,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [coursePrice, setCoursePrice] = useState('');
   const [courseThumbnail, setCourseThumbnail] = useState('');
   const [courseVideos, setCourseVideos] = useState([]); // array of vids
+  const [courseValidityDays, setCourseValidityDays] = useState('365');
   
   // Video upload state
   const [videoTitleInput, setVideoTitleInput] = useState('');
@@ -129,6 +130,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCoursePrice('');
     setCourseThumbnail('');
     setCourseVideos([]);
+    setCourseValidityDays('365');
     setUploadError('');
     setIsCourseModalOpen(true);
   };
@@ -140,6 +142,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCoursePrice(course.price);
     setCourseThumbnail(course.thumbnail || '');
     setCourseVideos(course.videos || []);
+    setCourseValidityDays(course.validityDays !== undefined ? String(course.validityDays) : '365');
     setUploadError('');
     setIsCourseModalOpen(true);
   };
@@ -292,7 +295,8 @@ const AdminDashboard = ({ user, onLogout }) => {
           description: courseDescription,
           price: parseFloat(coursePrice),
           thumbnail: courseThumbnail,
-          videos: courseVideos
+          videos: courseVideos,
+          validityDays: parseInt(courseValidityDays) || 365
         })
       });
 
@@ -626,25 +630,40 @@ const AdminDashboard = ({ user, onLogout }) => {
                   />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Thumbnail Image</label>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={handleThumbnailUpload}
-                      style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', width: '100%' }}
-                      disabled={isUploadingThumbnail}
-                    />
-                    {isUploadingThumbnail && <span style={{ fontSize: '0.8rem', color: 'var(--gold-primary)', whiteSpace: 'nowrap' }}>Uploading...</span>}
-                  </div>
-                  {courseThumbnail && (
-                    <img 
-                      src={courseThumbnail} 
-                      alt="Thumbnail Preview" 
-                      style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-gold)', marginTop: '0.5rem' }} 
-                    />
-                  )}
+                  <label className="input-label" htmlFor="courseValidity">Validity (Days)</label>
+                  <input 
+                    id="courseValidity"
+                    type="number" 
+                    step="1"
+                    className="input-field" 
+                    style={{ paddingLeft: '1rem' }}
+                    placeholder="365"
+                    value={courseValidityDays}
+                    onChange={e => setCourseValidityDays(e.target.value)}
+                    required 
+                  />
                 </div>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Thumbnail Image</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleThumbnailUpload}
+                    style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', width: '100%' }}
+                    disabled={isUploadingThumbnail}
+                  />
+                  {isUploadingThumbnail && <span style={{ fontSize: '0.8rem', color: 'var(--gold-primary)', whiteSpace: 'nowrap' }}>Uploading...</span>}
+                </div>
+                {courseThumbnail && (
+                  <img 
+                    src={courseThumbnail} 
+                    alt="Thumbnail Preview" 
+                    style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-gold)', marginTop: '0.5rem' }} 
+                  />
+                )}
               </div>
 
               <div className="input-group">

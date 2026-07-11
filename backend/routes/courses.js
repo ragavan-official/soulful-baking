@@ -13,8 +13,8 @@ router.use(authenticateToken);
 // @desc    Get all available courses for the catalog (without leaking private video data)
 router.get('/', async (req, res) => {
   try {
-    // Return only basic info like title, description, price, thumbnail, and the number of videos
-    const courses = await Course.find().select('title description price thumbnail videos');
+    // Return only basic info like title, description, price, thumbnail, validityDays, and the number of videos
+    const courses = await Course.find().select('title description price thumbnail videos validityDays');
     
     // Format response to hide video streaming details for non-purchased courses
     const formattedCourses = courses.map(course => {
@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
         description: courseObj.description,
         price: courseObj.price,
         thumbnail: courseObj.thumbnail,
+        validityDays: courseObj.validityDays !== undefined ? courseObj.validityDays : 365,
         videoCount: courseObj.videos ? courseObj.videos.length : 0
       };
     });
@@ -49,12 +50,20 @@ router.get('/my-learning', async (req, res) => {
     const formattedPurchasedCourses = purchases.map(purchase => {
       if (!purchase.courseId) return null;
       const course = purchase.courseId.toObject();
+      
+      const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
+      const expiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
+      const isExpired = new Date() > expiresAt;
+
       return {
         _id: course._id,
         title: course.title,
         description: course.description,
         thumbnail: course.thumbnail,
         purchasedAt: purchase.purchasedAt,
+        expiresAt,
+        isExpired,
+        validityDays,
         videoCount: course.videos ? course.videos.length : 0
       };
     }).filter(item => item !== null);
@@ -67,7 +76,7 @@ router.get('/my-learning', async (req, res) => {
 });
 
 // @route   GET /api/courses/:id
-// @desc    Get course details. If purchased, returns videos with unlock state calculated.
+// @desc    Get course details. If purchased and not expired, returns videos with unlock state.
 router.get('/:id', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
@@ -82,11 +91,11 @@ router.get('/:id', async (req, res) => {
     const courseObj = course.toObject();
 
     if (!isPurchased) {
-      // If not purchased, do not expose video MongoDB GridFS file IDs or stream URLs
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
       return res.json({
         ...courseObj,
         isPurchased: false,
+        isExpired: false,
         videos: courseObj.videos.map(v => ({
           _id: v._id,
           title: v.title,
@@ -97,7 +106,29 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // User purchased the course! Compute available / locked / expired videos
+    // Check expiration
+    const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
+    const expiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
+    const isExpired = new Date() > expiresAt;
+
+    if (isExpired) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      return res.json({
+        ...courseObj,
+        isPurchased: false,
+        isExpired: true,
+        expiresAt,
+        videos: courseObj.videos.map(v => ({
+          _id: v._id,
+          title: v.title,
+          unlockDay: v.unlockDay,
+          durationDays: v.durationDays,
+          isLocked: true
+        }))
+      });
+    }
+
+    // User purchased the course and it is active! Compute available videos
     const purchasedAt = purchase.purchasedAt;
     const now = new Date();
     
@@ -125,8 +156,11 @@ router.get('/:id', async (req, res) => {
       description: courseObj.description,
       thumbnail: courseObj.thumbnail,
       price: courseObj.price,
+      validityDays,
       isPurchased: true,
+      isExpired: false,
       purchasedAt,
+      expiresAt,
       daysSincePurchase,
       videos: processedVideos
     });
@@ -138,7 +172,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route   POST /api/courses/:id/purchase
-// @desc    Simulate purchasing a course (adds a Purchase record)
+// @desc    Simulate purchasing a course (adds or renews a Purchase record)
 router.post('/:id/purchase', async (req, res) => {
   try {
     const courseId = req.params.id;
@@ -149,15 +183,35 @@ router.post('/:id/purchase', async (req, res) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // Check if already purchased
-    const existingPurchase = await Purchase.findOne({ userId, courseId });
-    if (existingPurchase) {
-      return res.status(400).json({ message: 'Course already purchased' });
+    const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validityDays);
+
+    let purchase = await Purchase.findOne({ userId, courseId });
+    if (purchase) {
+      // Check if it is already active
+      const currentExpiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
+      if (new Date() < currentExpiresAt) {
+        return res.status(400).json({ message: 'You have already purchased this course and it is still active' });
+      }
+
+      // If expired, renew/reactivate the purchase record
+      purchase.purchasedAt = new Date();
+      purchase.expiresAt = expiresAt;
+      purchase.status = 'completed';
+      purchase.amount = course.price;
+      await purchase.save();
+      
+      return res.status(200).json({
+        message: 'Course access renewed successfully!',
+        purchase
+      });
     }
 
     const newPurchase = new Purchase({
       userId,
-      courseId
+      courseId,
+      expiresAt
     });
 
     await newPurchase.save();
@@ -277,7 +331,11 @@ router.post('/:id/razorpay-verify', async (req, res) => {
       return res.status(400).json({ message: 'Payment verification failed. Signature mismatch.' });
     }
 
-    // 4. Record purchase (idempotent — safe to call multiple times)
+    // 4. Record or renew purchase (idempotent)
+    const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validityDays);
+
     let purchase = await Purchase.findOne({ userId: req.user._id, courseId });
     if (!purchase) {
       purchase = new Purchase({
@@ -286,12 +344,26 @@ router.post('/:id/razorpay-verify', async (req, res) => {
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,
         amount: course.price,
-        status: 'completed'
+        status: 'completed',
+        expiresAt
       });
       await purchase.save();
       console.log(`[Razorpay] ✅ Purchase recorded — user: ${req.user._id}, course: ${courseId}, payment: ${razorpay_payment_id}`);
     } else {
-      console.log(`[Razorpay] Purchase already exists for user: ${req.user._id}, course: ${courseId}`);
+      // If expired, renew it on verification
+      const currentExpiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
+      if (new Date() >= currentExpiresAt) {
+        purchase.purchasedAt = new Date();
+        purchase.expiresAt = expiresAt;
+        purchase.razorpayOrderId = razorpay_order_id;
+        purchase.razorpayPaymentId = razorpay_payment_id;
+        purchase.amount = course.price;
+        purchase.status = 'completed';
+        await purchase.save();
+        console.log(`[Razorpay] 🔄 Purchase renewed — user: ${req.user._id}, course: ${courseId}, payment: ${razorpay_payment_id}`);
+      } else {
+        console.log(`[Razorpay] Purchase already active for user: ${req.user._id}, course: ${courseId}`);
+      }
     }
 
     res.json({

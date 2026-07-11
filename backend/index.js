@@ -47,8 +47,8 @@ mongoose.connect(MONGODB_URI)
 async function seedAdmin() {
   try {
     // Delete the old admin user to ensure only one admin exists
-    await User.deleteOne({ email: 'ragavram80@gmail.com' });
-    console.log('Old admin user ragavram80@gmail.com removed from database.');
+    // await User.deleteOne({ email: 'ragavram80@gmail.com' });
+    // console.log('Old admin user ragavram80@gmail.com removed from database.');
 
     const adminEmail = 'soulfulbaking.shamini@gmail.com';
     const adminUser = await User.findOne({ email: adminEmail });

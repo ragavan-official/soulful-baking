@@ -130,7 +130,8 @@ const Payment = ({ user }) => {
         },
         prefill: {
           name: user?.name || '',
-          email: user?.email || ''
+          email: '',
+          contact: ''
         },
         notes: {
           courseId: courseId,

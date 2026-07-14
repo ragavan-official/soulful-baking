@@ -6,6 +6,20 @@ import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL } from '../config';
 
+// Resolves an R2 key or legacy full URL to a usable src for this environment.
+const getMediaUrl = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+    try {
+      const u = new URL(keyOrUrl);
+      return `${API_BASE_URL}${u.pathname}`;
+    } catch {
+      return keyOrUrl;
+    }
+  }
+  return `${API_BASE_URL}/api/media/${keyOrUrl}`;
+};
+
 const Payment = ({ user }) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -222,7 +236,7 @@ const Payment = ({ user }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {course?.thumbnail ? (
               <img
-                src={course.thumbnail}
+                src={getMediaUrl(course.thumbnail)}
                 alt={course.title}
                 style={{ width: '100%', height: '170px', objectFit: 'cover', borderRadius: '10px', border: '1px solid var(--border-gold)' }}
               />

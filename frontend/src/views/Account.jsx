@@ -9,6 +9,20 @@ import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
 import { API_BASE_URL } from '../config';
 
+// Resolves an R2 key or legacy full URL to a usable src for this environment.
+const getMediaUrl = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+    try {
+      const u = new URL(keyOrUrl);
+      return `${API_BASE_URL}${u.pathname}`;
+    } catch {
+      return keyOrUrl;
+    }
+  }
+  return `${API_BASE_URL}/api/media/${keyOrUrl}`;
+};
+
 const Account = ({ user, onLogout }) => {
   const [purchasedCourses, setPurchasedCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -179,7 +193,7 @@ const Account = ({ user, onLogout }) => {
                   }}
                 >
                   {c.thumbnail ? (
-                    <img src={c.thumbnail} alt={c.title} style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: c.isExpired ? '1px solid rgba(255, 0, 0, 0.2)' : '1px solid var(--border-gold)', filter: c.isExpired ? 'grayscale(80%)' : 'none' }} />
+                    <img src={getMediaUrl(c.thumbnail)} alt={c.title} style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: c.isExpired ? '1px solid rgba(255, 0, 0, 0.2)' : '1px solid var(--border-gold)', filter: c.isExpired ? 'grayscale(80%)' : 'none' }} />
                   ) : (
                     <div style={{ width: '45px', height: '45px', background: 'rgba(0,0,0,0.4)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-gold)' }}>
                       <Play size={16} style={{ color: 'var(--gold-primary)' }} />

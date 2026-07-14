@@ -2,11 +2,14 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import User from './models/User.js';
 import authRoutes from './routes/auth.js';
 import adminCoursesRouter from './routes/adminCourses.js';
 import coursesRouter from './routes/courses.js';
 import mediaRouter from './routes/media.js';
+import menuRouter from './routes/menu.js';
 import { authenticateToken, requireAdmin } from './middleware/auth.js';
 
 const app = express();
@@ -82,6 +85,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/courses', coursesRouter);
 app.use('/api/admin', adminCoursesRouter);
 app.use('/api/media', mediaRouter);
+app.use('/api/menu', menuRouter);
 
 // Admin routes
 app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res) => {
@@ -108,9 +112,23 @@ app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res
   }
 });
 
-// Root route
-app.get('/', (req, res) => {
-  res.send('Soulful Baking API is running...');
+// ─── Keep-alive ping (prevents Render free-tier cold starts) ─────────────────
+// Point UptimeRobot or cron-job.org to GET /api/ping every 5 minutes.
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ─── Serve React SPA in production ───────────────────────────────────────────
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+
+// Serve built static assets (JS, CSS, images)
+app.use(express.static(frontendDist));
+
+// SPA catch-all: for any non-API route, return index.html so React Router works
+// This fixes the 404 you get when you refresh /login, /menu, etc.
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
 // Error handling middleware

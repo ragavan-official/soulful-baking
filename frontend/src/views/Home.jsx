@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   MapPin, Phone, ArrowRight, Sparkles, 
-  Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart
+  Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart, ShoppingBag, MessageCircle
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import { API_BASE_URL } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
 const Instagram = ({ size = 24, className, style }) => (
@@ -35,10 +36,47 @@ import cakeStrawberry from '../assets/cake_strawberry.png';
 import cakeLayered from '../assets/cake_layered.png';
 import cakeBrownie from '../assets/cake_brownie.png';
 
+const WHATSAPP_NUMBER = '919042960912';
+
+const getMediaUrl = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+    try { const u = new URL(keyOrUrl); return `${API_BASE_URL}${u.pathname}`; } catch { return keyOrUrl; }
+  }
+  return `${API_BASE_URL}/api/media/${keyOrUrl}`;
+};
+
 const Home = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [featuredMenu, setFeaturedMenu] = useState([]);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [selectedFlavours, setSelectedFlavours] = useState({});
+  const [selectedQuantities, setSelectedQuantities] = useState({});
+
+  const openWhatsApp = (item, type = 'order') => {
+    const hasFlavours = item.flavours && item.flavours.length > 0;
+    const selectedFlavour = hasFlavours ? (selectedFlavours[item._id] || item.flavours[0]) : null;
+    const selectedQty = hasFlavours ? (selectedQuantities[item._id] || 1) : 1;
+
+    let msg = '';
+    if (type === 'order') {
+      if (hasFlavours && selectedFlavour) {
+        const total = selectedFlavour.price * selectedQty;
+        msg = `Hi! I'd like to order: *${item.name}*\n- Flavour: *${selectedFlavour.name}*\n- Quantity: *${selectedQty} Kg*\n- Total Price: *₹${total}*`;
+      } else {
+        msg = `Hi! I'd like to order: *${item.name}* (₹${item.price})`;
+      }
+    } else {
+      if (hasFlavours && selectedFlavour) {
+        msg = `Hi! I'd like to know more about: *${item.name}*\n- Flavour: *${selectedFlavour.name}*\n- Quantity: *${selectedQty} Kg*`;
+      } else {
+        msg = `Hi! I'd like to know more about: *${item.name}*`;
+      }
+    }
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +88,25 @@ const Home = ({ user, onLogout }) => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchFeaturedMenu = async () => {
+      try {
+        setMenuLoading(true);
+        const res = await fetch(`${API_BASE_URL}/api/menu`);
+        const data = await res.json();
+        if (res.ok) {
+          // Show up to 4 available items on the home page
+          setFeaturedMenu(data.filter(i => i.isAvailable).slice(0, 4));
+        }
+      } catch (err) {
+        console.error('Could not load menu preview:', err);
+      } finally {
+        setMenuLoading(false);
+      }
+    };
+    fetchFeaturedMenu();
   }, []);
 
   const handleDashboardClick = () => {
@@ -77,6 +134,7 @@ const Home = ({ user, onLogout }) => {
           <nav className="navbar-links-desktop">
             <Link to="/" className="nav-link active">Home</Link>
             <Link to="/courses" className="nav-link">Courses</Link>
+            <Link to="/menu" className="nav-link">Menu</Link>
             <a href="#story" className="nav-link">Our Story</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
             <a href="#contact" className="nav-link">Contact</a>
@@ -108,6 +166,7 @@ const Home = ({ user, onLogout }) => {
           <div className="mobile-nav-menu">
             <Link to="/" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/courses" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Courses</Link>
+            <Link to="/menu" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Menu</Link>
             <a href="#story" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Story</a>
             <a href="#delicacies" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Signature Delicacies</a>
             <a href="#contact" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</a>
@@ -277,6 +336,132 @@ const Home = ({ user, onLogout }) => {
           </div>
         </div>
       </section>
+
+      {/* ===== FEATURED MENU SECTION ===== */}
+      {(featuredMenu.length > 0 || menuLoading) && (
+        <section id="menu" className="home-menu-section">
+          <div className="section-header">
+            <span className="section-subtitle">Fresh Everyday</span>
+            <h2 className="section-title text-center">Our Menu</h2>
+            <p className="section-desc">
+              Order your favourite baked delicacies directly on WhatsApp — freshly made and delivered with love.
+            </p>
+          </div>
+
+          {menuLoading ? (
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+              <div className="spinner" style={{ width: '36px', height: '36px', borderTopColor: 'var(--gold-primary)', margin: '0 auto' }} />
+            </div>
+          ) : (
+            <div className="home-menu-grid">
+              {featuredMenu.map(item => {
+                const hasFlavours = item.flavours && item.flavours.length > 0;
+                const currentFlavour = hasFlavours ? (selectedFlavours[item._id] || item.flavours[0]) : null;
+                const currentQty = hasFlavours ? (selectedQuantities[item._id] || 1) : 1;
+                const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
+
+                return (
+                  <div key={item._id} className="home-menu-card">
+                    <div className="home-menu-img-wrap">
+                      {item.image ? (
+                        <img src={getMediaUrl(item.image)} alt={item.name} className="home-menu-img" />
+                      ) : (
+                        <div className="home-menu-img-placeholder">
+                          <ShoppingBag size={32} style={{ color: 'var(--gold-primary)', opacity: 0.4 }} />
+                        </div>
+                      )}
+                      <span className="home-menu-cat">{item.category}</span>
+                    </div>
+                    <div className="home-menu-body">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <h3 className="home-menu-name">{item.name}</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                          <span className="home-menu-price">₹{displayPrice}</span>
+                          {hasFlavours && currentFlavour && (
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                              (₹{currentFlavour.price}/Kg)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {item.description && <p className="home-menu-desc">{item.description}</p>}
+
+                      {hasFlavours && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.5rem 0 0.8rem', padding: '0.6rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-gold)' }}>
+                          {/* Flavour dropdown */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                            <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Flavour</label>
+                            <select
+                              value={currentFlavour?.name || ''}
+                              onChange={e => {
+                                const selectedFlav = item.flavours.find(f => f.name === e.target.value);
+                                setSelectedFlavours(prev => ({ ...prev, [item._id]: selectedFlav }));
+                              }}
+                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
+                            >
+                              {item.flavours.map(f => (
+                                <option key={f.name} value={f.name} style={{ background: '#130a06', color: 'var(--text-primary)' }}>
+                                  {f.name} (₹{f.price}/Kg)
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Quantity dropdown */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                            <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Quantity (Weight)</label>
+                            <select
+                              value={currentQty}
+                              onChange={e => {
+                                setSelectedQuantities(prev => ({ ...prev, [item._id]: parseFloat(e.target.value) }));
+                              }}
+                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
+                            >
+                              <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
+                              <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
+                              <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
+                              <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
+                              <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
+                              <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="home-menu-btns" style={{ marginTop: 'auto' }}>
+                        <button
+                          onClick={() => openWhatsApp(item, 'order')}
+                          className="btn-menu-order"
+                          style={{ border: 'none', cursor: 'pointer' }}
+                        >
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style={{ flexShrink: 0 }}>
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
+                          </svg>
+                          Order
+                        </button>
+                        <button
+                          onClick={() => openWhatsApp(item, 'details')}
+                          className="btn-menu-details"
+                          style={{ border: '1px solid var(--border-gold-focus)', color: 'var(--text-secondary)' }}
+                        >
+                          <MessageCircle size={14} style={{ flexShrink: 0 }} />
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+            <Link to="/menu" className="btn-primary-glow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
+              View Full Menu <ChevronRight size={18} />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Footer Section */}
       <footer id="contact" className="home-footer">

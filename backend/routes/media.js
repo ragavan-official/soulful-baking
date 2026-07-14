@@ -49,9 +49,12 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
     await r2Client.send(new PutObjectCommand(uploadParams));
     console.log(`R2 Upload Success: Key=${key}`);
 
+    // Build a dynamic base URL from the incoming request so it works on both
+    // localhost and the deployed server without needing any env var.
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     res.status(201).json({
       fileId: key,
-      url: `http://localhost:3001/api/media/${key}`
+      url: `${baseUrl}/api/media/${key}`
     });
   } catch (error) {
     console.error('R2 Upload handler error:', error);

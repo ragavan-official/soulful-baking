@@ -10,6 +10,7 @@ import CoursesCatalog from './views/CoursesCatalog';
 import CoursePlayer from './views/CoursePlayer';
 import Payment from './views/Payment';
 import Home from './views/Home';
+import MenuPage from './views/MenuPage';
 import { API_BASE_URL } from './config';
 
 
@@ -117,10 +118,8 @@ const App = () => {
           path="/courses/:courseId" 
           element={user ? <CoursePlayer /> : <Navigate to="/login" replace />} 
         />
-        <Route 
-          path="/payment/:courseId" 
-          element={user ? <Payment user={user} /> : <Navigate to="/login" replace />} 
-        />
+        <Route path="/payment/:courseId" element={user ? <Payment user={user} /> : <Navigate to="/login" replace />} />
+        <Route path="/menu" element={<MenuPage user={user} onLogout={handleLogout} />} />
 
         <Route 
           path="*" 

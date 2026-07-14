@@ -136,8 +136,8 @@ router.get('/:id', async (req, res) => {
     const timeDiff = now.getTime() - purchasedAt.getTime();
     const daysSincePurchase = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
 
-    // Use env-defined backend URL or fallback to the deployed Render URL
-    const backendBaseUrl = process.env.API_BASE_URL || 'https://soulful-baking-backend.onrender.com';
+    // Build a dynamic base URL from the request so it works on localhost AND production.
+    const backendBaseUrl = process.env.API_BASE_URL || `${req.protocol}://${req.get('host')}`;
 
     const processedVideos = courseObj.videos.map(v => {
       return {

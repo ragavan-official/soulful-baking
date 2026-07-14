@@ -3,11 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, Shield, UserCheck, ShieldAlert, LogOut, ArrowLeft, 
   BookOpen, Plus, Edit2, Trash2, Film, Calendar, DollarSign, 
-  UploadCloud, AlertCircle, Play, X, CheckCircle
+  UploadCloud, AlertCircle, Play, X, CheckCircle, ShoppingBag, ToggleLeft, ToggleRight
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import { API_BASE_URL } from '../config';
+
+// Resolves a thumbnail/video key or legacy full URL to a usable src URL.
+// Supports both new R2 keys (e.g. "photo/uuid.jpg") and old full URLs.
+const getMediaUrl = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+    // Legacy full URL — rewrite host to current API_BASE_URL for localhost compat
+    try {
+      const u = new URL(keyOrUrl);
+      return `${API_BASE_URL}${u.pathname}`;
+    } catch {
+      return keyOrUrl;
+    }
+  }
+  return `${API_BASE_URL}/api/media/${keyOrUrl}`;
+};
 
 const AdminDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('users'); // users, courses, sales
@@ -19,6 +35,19 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [stats, setStats] = useState({ totalUsers: 0, adminCount: 0, userCount: 0 });
   const [courses, setCourses] = useState([]);
   const [purchases, setPurchases] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  
+  // Menu modal state
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  const [editingMenuItem, setEditingMenuItem] = useState(null);
+  const [menuItemName, setMenuItemName] = useState('');
+  const [menuItemDesc, setMenuItemDesc] = useState('');
+  const [menuItemPrice, setMenuItemPrice] = useState('');
+  const [menuItemCategory, setMenuItemCategory] = useState('Specials');
+  const [menuItemImage, setMenuItemImage] = useState('');
+  const [menuItemAvailable, setMenuItemAvailable] = useState(true);
+  const [isUploadingMenuImg, setIsUploadingMenuImg] = useState(false);
+  const [menuItemFlavours, setMenuItemFlavours] = useState([]);
   
   // Modals / forms
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -58,6 +87,8 @@ const AdminDashboard = ({ user, onLogout }) => {
       fetchCourses();
     } else if (activeTab === 'sales') {
       fetchPurchases();
+    } else if (activeTab === 'menu') {
+      fetchMenuItems();
     }
   }, [activeTab]);
 
@@ -116,10 +147,146 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const fetchMenuItems = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/menu`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setMenuItems(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Error loading menu items');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogoutClick = () => {
     localStorage.removeItem('token');
     onLogout();
     navigate('/login');
+  };
+
+  // ─── MENU CRUD ──────────────────────────────────────────────────────────────
+  const openCreateMenuModal = () => {
+    setEditingMenuItem(null);
+    setMenuItemName('');
+    setMenuItemDesc('');
+    setMenuItemPrice('');
+    setMenuItemCategory('Specials');
+    setMenuItemImage('');
+    setMenuItemAvailable(true);
+    setMenuItemFlavours([]);
+    setIsMenuModalOpen(true);
+  };
+
+  const openEditMenuModal = (item) => {
+    setEditingMenuItem(item);
+    setMenuItemName(item.name);
+    setMenuItemDesc(item.description || '');
+    setMenuItemPrice(item.price || '');
+    setMenuItemCategory(item.category || 'Specials');
+    setMenuItemImage(item.image || '');
+    setMenuItemAvailable(item.isAvailable !== false);
+    setMenuItemFlavours(item.flavours || []);
+    setIsMenuModalOpen(true);
+  };
+
+  const handleAddFlavourRow = () => {
+    setMenuItemFlavours(prev => [...prev, { name: '', price: '' }]);
+  };
+
+  const handleRemoveFlavourRow = (index) => {
+    setMenuItemFlavours(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleFlavourRowChange = (index, field, value) => {
+    setMenuItemFlavours(prev => prev.map((flav, idx) => idx === index ? { ...flav, [field]: value } : flav));
+  };
+
+  const handleMenuImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+    setIsUploadingMenuImg(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Image upload failed');
+      setMenuItemImage(data.fileId);
+    } catch (err) {
+      alert(err.message || 'Error uploading image');
+    } finally {
+      setIsUploadingMenuImg(false);
+    }
+  };
+
+  const handleSaveMenuItem = async (e) => {
+    e.preventDefault();
+    if (!menuItemName) { alert('Name is required.'); return; }
+    if (menuItemPrice === '' && menuItemFlavours.length === 0) {
+      alert('Please specify either a flat price or at least one custom flavour with its price.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const url = editingMenuItem
+        ? `${API_BASE_URL}/api/menu/${editingMenuItem._id}`
+        : `${API_BASE_URL}/api/menu`;
+      const method = editingMenuItem ? 'PUT' : 'POST';
+
+      const parsedFlavours = menuItemFlavours.map(f => ({
+        name: f.name,
+        price: parseFloat(f.price)
+      }));
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          name: menuItemName,
+          description: menuItemDesc,
+          price: menuItemPrice !== '' ? parseFloat(menuItemPrice) : 0,
+          flavours: parsedFlavours,
+          image: menuItemImage,
+          category: menuItemCategory,
+          isAvailable: menuItemAvailable
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setIsMenuModalOpen(false);
+      fetchMenuItems();
+    } catch (err) {
+      alert(err.message || 'Failed to save menu item');
+    }
+  };
+
+  const handleDeleteMenuItem = async (itemId) => {
+    if (!window.confirm('Delete this menu item permanently?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/menu/${itemId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      fetchMenuItems();
+    } catch (err) {
+      alert(err.message || 'Failed to delete menu item');
+    }
   };
 
   // Course operations
@@ -257,7 +424,8 @@ const AdminDashboard = ({ user, onLogout }) => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Thumbnail upload failed');
 
-      setCourseThumbnail(data.url);
+      // Store only the R2 key so the URL is always constructed dynamically
+      setCourseThumbnail(data.fileId);
     } catch (err) {
       console.error(err);
       alert(err.message || 'Error uploading thumbnail');
@@ -393,6 +561,21 @@ const AdminDashboard = ({ user, onLogout }) => {
           <DollarSign size={16} />
           Sales Logs
         </button>
+
+        <button 
+          onClick={() => { setActiveTab('menu'); setError(''); }} 
+          className="btn-secondary" 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            background: activeTab === 'menu' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
+            borderColor: activeTab === 'menu' ? 'var(--gold-primary)' : 'var(--border-gold)'
+          }}
+        >
+          <ShoppingBag size={16} />
+          Manage Menu
+        </button>
       </div>
 
       {error && <div className="alert alert-error" style={{ marginBottom: '2rem' }}><AlertCircle size={18} /> {error}</div>}
@@ -475,6 +658,89 @@ const AdminDashboard = ({ user, onLogout }) => {
         </>
       )}
 
+      {/* --- TAB CONTENT: MENU --- */}
+      {activeTab === 'menu' && (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Menu Management</h2>
+            <button onClick={openCreateMenuModal} className="btn-primary" style={{ width: 'auto', padding: '0.6rem 1.25rem' }}>
+              <Plus size={16} /> Add Menu Item
+            </button>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '4rem' }}>
+              <div className="spinner" style={{ width: '36px', height: '36px', borderTopColor: 'var(--gold-primary)', margin: '0 auto' }} />
+            </div>
+          ) : menuItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
+              <ShoppingBag size={56} style={{ color: 'var(--gold-primary)', opacity: 0.3, marginBottom: '1rem' }} />
+              <h3 style={{ fontFamily: 'var(--font-serif)' }}>No Menu Items Yet</h3>
+              <p style={{ marginTop: '0.5rem' }}>Click "Add Menu Item" to create your first dish.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              {menuItems.map(item => (
+                <div key={item._id} className="glass-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {/* Image */}
+                  {item.image ? (
+                    <img
+                      src={getMediaUrl(item.image)}
+                      alt={item.name}
+                      style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '10px', border: '1px solid var(--border-gold)' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '150px', background: 'rgba(0,0,0,0.4)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-gold)' }}>
+                      <ShoppingBag size={32} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', marginBottom: '0.2rem' }}>{item.name}</h3>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', background: 'rgba(229,169,60,0.1)', padding: '0.15rem 0.5rem', borderRadius: '20px' }}>{item.category}</span>
+                    </div>
+                    <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
+                      {item.flavours && item.flavours.length > 0 ? (
+                        `From ₹${Math.min(...item.flavours.map(f => f.price))}`
+                      ) : (
+                        `₹${item.price}`
+                      )}
+                    </span>
+                  </div>
+
+                  {item.description && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.description}</p>
+                  )}
+
+                  {item.flavours && item.flavours.length > 0 && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px dashed var(--border-gold)' }}>
+                      <strong style={{ color: 'var(--gold-primary)' }}>Flavours: </strong>
+                      {item.flavours.map(f => `${f.name} (₹${f.price}/kg)`).join(', ')}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border-gold)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: item.isAvailable ? 'var(--success)' : 'var(--error)' }}>
+                      {item.isAvailable ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                      {item.isAvailable ? 'Available' : 'Unavailable'}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button onClick={() => openEditMenuModal(item)} style={{ background: 'none', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
+                        <Edit2 size={13} /> Edit
+                      </button>
+                      <button onClick={() => handleDeleteMenuItem(item._id)} style={{ background: 'none', border: '1px solid rgba(234,84,85,0.3)', color: '#ff7b7c', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
+                        <Trash2 size={13} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
       {/* --- TAB CONTENT: COURSES --- */}
       {activeTab === 'courses' && (
         <>
@@ -497,7 +763,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                 <div key={course._id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                   <div>
                     {course.thumbnail ? (
-                      <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '10px', marginBottom: '1rem', border: '1px solid var(--border-gold)' }} />
+                      <img src={getMediaUrl(course.thumbnail)} alt={course.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '10px', marginBottom: '1rem', border: '1px solid var(--border-gold)' }} />
                     ) : (
                       <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.4)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid var(--border-gold)' }}>
                         <Film size={36} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
@@ -584,6 +850,176 @@ const AdminDashboard = ({ user, onLogout }) => {
             </div>
           </div>
         </>
+      )}
+
+      {/* ─── MENU ITEM MODAL ──────────────────────────────────────── */}
+      {isMenuModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', padding: '1rem', overflowY: 'auto' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>
+                {editingMenuItem ? 'Edit Menu Item' : 'Add Menu Item'}
+              </h2>
+              <button onClick={() => setIsMenuModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.25rem' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMenuItem} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Name */}
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label className="input-label">Item Name *</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="e.g. Red Velvet Cake"
+                  value={menuItemName}
+                  onChange={e => setMenuItemName(e.target.value)}
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label className="input-label">Description</label>
+                <textarea
+                  className="input-field"
+                  placeholder="Short description of the item..."
+                  value={menuItemDesc}
+                  onChange={e => setMenuItemDesc(e.target.value)}
+                  rows={3}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
+
+              {/* Price & Category */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="input-group" style={{ marginBottom: 0 }}>
+                  <label className="input-label">Flat Price (₹) {menuItemFlavours.length === 0 && '*'}</label>
+                  <input
+                    type="number"
+                    className="input-field"
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                    value={menuItemPrice}
+                    onChange={e => setMenuItemPrice(e.target.value)}
+                    required={menuItemFlavours.length === 0}
+                  />
+                </div>
+                <div className="input-group" style={{ marginBottom: 0 }}>
+                  <label className="input-label">Category</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="e.g. Cakes, Pastries"
+                    value={menuItemCategory}
+                    onChange={e => setMenuItemCategory(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Flavours & Prices list */}
+              <div style={{ border: '1px dashed var(--border-gold)', borderRadius: '10px', padding: '1rem', background: 'rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <label className="input-label" style={{ marginBottom: 0 }}>Flavours & Prices (per Kg)</label>
+                  <button
+                    type="button"
+                    onClick={handleAddFlavourRow}
+                    style={{ background: 'none', border: '1px solid var(--gold-primary)', color: 'var(--gold-primary)', borderRadius: '6px', padding: '0.2rem 0.5rem', cursor: 'pointer', fontSize: '0.75rem' }}
+                  >
+                    + Add Flavour
+                  </button>
+                </div>
+
+                {menuItemFlavours.length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>No custom flavours added. Item will use the flat price above.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '180px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                    {menuItemFlavours.map((flav, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="input-field"
+                          placeholder="Flavour name (e.g. Orange Caramel)"
+                          value={flav.name}
+                          onChange={e => handleFlavourRowChange(idx, 'name', e.target.value)}
+                          style={{ flex: 2, padding: '0.4rem 0.6rem', fontSize: '0.85rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-gold)' }}
+                          required
+                        />
+                        <input
+                          type="number"
+                          className="input-field"
+                          placeholder="Price/Kg (₹)"
+                          value={flav.price}
+                          onChange={e => handleFlavourRowChange(idx, 'price', e.target.value)}
+                          style={{ flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.85rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-gold)' }}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFlavourRow(idx)}
+                          style={{ background: 'none', border: 'none', color: '#ff7b7c', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Image Upload */}
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label className="input-label">Item Image</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', border: '1px dashed var(--border-gold-focus)', borderRadius: '10px', cursor: 'pointer', background: 'rgba(0,0,0,0.2)' }}>
+                  {isUploadingMenuImg ? (
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Uploading...</span>
+                  ) : menuItemImage ? (
+                    <span style={{ color: 'var(--success)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <CheckCircle size={16} /> Image uploaded — click to change
+                    </span>
+                  ) : (
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <UploadCloud size={16} /> Upload Image
+                    </span>
+                  )}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleMenuImageUpload} />
+                </label>
+                {menuItemImage && (
+                  <img
+                    src={getMediaUrl(menuItemImage)}
+                    alt="Preview"
+                    style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', marginTop: '0.5rem', border: '1px solid var(--border-gold)' }}
+                  />
+                )}
+              </div>
+
+              {/* Availability Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', border: '1px solid var(--border-gold)' }}>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Available on Menu</span>
+                <button
+                  type="button"
+                  onClick={() => setMenuItemAvailable(p => !p)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: menuItemAvailable ? 'var(--success)' : 'var(--error)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', fontWeight: 600 }}
+                >
+                  {menuItemAvailable ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
+                  {menuItemAvailable ? 'Yes' : 'No'}
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setIsMenuModalOpen(false)} className="btn-secondary" style={{ flex: 1 }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>
+                  {editingMenuItem ? 'Save Changes' : 'Add to Menu'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* --- COURSE MANAGE MODAL (overlay) --- */}

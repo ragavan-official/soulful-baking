@@ -93,12 +93,15 @@ const Payment = ({ user }) => {
         currency: orderData.currency,
         name: 'Soulful Baking Academy',
         description: `Unlock Course: ${orderData.courseTitle}`,
+        image: '', // optional logo URL
         order_id: orderData.orderId,
-        config: {
-          display: {
-            hide: [],
-            preferences: { show_default_blocks: true }
-          }
+        // Explicitly enable all payment methods (cards, UPI, netbanking, wallets)
+        method: {
+          card: true,
+          upi: true,
+          netbanking: true,
+          wallet: true,
+          emi: false,
         },
         handler: async function (response) {
           try {
@@ -164,7 +167,20 @@ const Payment = ({ user }) => {
       };
 
       const rzp = new window.Razorpay(options);
+
+      // Show specific error message if card/payment fails
+      rzp.on('payment.failed', function (response) {
+        console.error('[Razorpay] Payment failed:', response.error);
+        setError(
+          response.error?.description ||
+          response.error?.reason ||
+          'Payment failed. Please try a different payment method or card.'
+        );
+        setPaymentLoading(false);
+      });
+
       rzp.open();
+
 
     } catch (err) {
       console.error('Order creation error:', err);

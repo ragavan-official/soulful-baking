@@ -83,21 +83,43 @@ mongoose.connection.on('error', (err) => {
   console.error('[MongoDB] Connection error:', err.message);
 });
 
-// Catch unhandled MongoDB / driver-level errors so the process never crashes
-process.on('uncaughtException', (err) => {
-  const isMongoNetworkErr = err?.constructor?.name?.includes('Mongo')
-    || err?.message?.includes('PoolCleared')
-    || err?.message?.includes('topology')
-    || err?.message?.includes('timed out');
+// ─── Global error guards: keep the server alive on transient network errors ────────
+// These codes/messages cover: MongoDB pool resets, Razorpay/Resend TLS drops,
+// any aborted HTTP(S) request, DNS failures, and pipe breaks.
+const TRANSIENT_CODES = new Set([
+  'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND',
+  'EPIPE', 'ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH',
+]);
 
-  if (isMongoNetworkErr) {
-    console.error('[MongoDB] Caught network error — server stays alive:', err.message);
+const isTransientNetworkError = (err) =>
+  TRANSIENT_CODES.has(err?.code)
+  || err?.message === 'aborted'
+  || err?.constructor?.name?.includes('Mongo')
+  || err?.message?.includes('PoolCleared')
+  || err?.message?.includes('topology')
+  || err?.message?.includes('timed out')
+  || err?.message?.includes('socket hang up');
+
+process.on('uncaughtException', (err) => {
+  if (isTransientNetworkError(err)) {
+    console.warn('[Network] Transient error caught — server stays alive:', err.code || err.message);
   } else {
-    // For non-MongoDB errors, log and exit so the process manager (nodemon/Render) can restart
+    // Truly unexpected: log full stack then exit so nodemon/Render can restart cleanly
     console.error('[FATAL] Uncaught exception:', err);
     process.exit(1);
   }
 });
+
+process.on('unhandledRejection', (reason) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  if (isTransientNetworkError(err)) {
+    console.warn('[Network] Unhandled rejection (transient) — server stays alive:', err.code || err.message);
+  } else {
+    console.error('[FATAL] Unhandled rejection:', reason);
+    process.exit(1);
+  }
+});
+
 
 connectDB();
 

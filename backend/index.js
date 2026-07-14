@@ -35,16 +35,71 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Database connection
+// ─── MongoDB connection with auto-retry ──────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/soulful_baking';
-mongoose.connect(MONGODB_URI)
-  .then(async () => {
+
+const MONGO_OPTIONS = {
+  serverSelectionTimeoutMS: 10000,  // give up selecting a server after 10s
+  socketTimeoutMS: 45000,           // close idle sockets after 45s
+  connectTimeoutMS: 10000,          // initial TCP connection timeout
+  heartbeatFrequencyMS: 10000,      // check server health every 10s
+  maxPoolSize: 10,
+  retryWrites: true,
+};
+
+let _adminSeeded = false;
+
+async function connectDB(retryCount = 0) {
+  const MAX_RETRIES = 10;
+  const RETRY_DELAY_MS = Math.min(1000 * 2 ** retryCount, 30000); // exponential back-off, max 30s
+
+  try {
+    await mongoose.connect(MONGODB_URI, MONGO_OPTIONS);
     console.log('Connected to MongoDB successfully');
-    await seedAdmin();
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+    if (!_adminSeeded) {
+      await seedAdmin();
+      _adminSeeded = true;
+    }
+  } catch (err) {
+    console.error(`[MongoDB] Connection failed (attempt ${retryCount + 1}):`, err.message);
+    if (retryCount < MAX_RETRIES) {
+      console.log(`[MongoDB] Retrying in ${RETRY_DELAY_MS / 1000}s...`);
+      setTimeout(() => connectDB(retryCount + 1), RETRY_DELAY_MS);
+    } else {
+      console.error('[MongoDB] Max retries reached. Server will keep running but DB is unavailable.');
+    }
+  }
+}
+
+// Mongoose connection event listeners
+mongoose.connection.on('disconnected', () => {
+  console.warn('[MongoDB] Disconnected. Attempting to reconnect...');
+  if (mongoose.connection.readyState === 0) {
+    setTimeout(() => connectDB(), 3000);
+  }
+});
+mongoose.connection.on('reconnected', () => console.log('[MongoDB] Reconnected successfully'));
+mongoose.connection.on('error', (err) => {
+  console.error('[MongoDB] Connection error:', err.message);
+});
+
+// Catch unhandled MongoDB / driver-level errors so the process never crashes
+process.on('uncaughtException', (err) => {
+  const isMongoNetworkErr = err?.constructor?.name?.includes('Mongo')
+    || err?.message?.includes('PoolCleared')
+    || err?.message?.includes('topology')
+    || err?.message?.includes('timed out');
+
+  if (isMongoNetworkErr) {
+    console.error('[MongoDB] Caught network error — server stays alive:', err.message);
+  } else {
+    // For non-MongoDB errors, log and exit so the process manager (nodemon/Render) can restart
+    console.error('[FATAL] Uncaught exception:', err);
+    process.exit(1);
+  }
+});
+
+connectDB();
 
 // Seed admin function
 async function seedAdmin() {

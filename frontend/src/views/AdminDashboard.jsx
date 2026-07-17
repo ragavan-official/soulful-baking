@@ -362,21 +362,26 @@ const AdminDashboard = ({ user, onLogout }) => {
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          const responseData = JSON.parse(xhr.responseText);
-          const cleanTitle = videoTitleInput || file.name.replace(/\.[^/.]+$/, "");
-          const newVideo = {
-            title: cleanTitle,
-            videoFileId: responseData.fileId,
-            unlockDay: 1,
-            durationDays: 9999
-          };
-          setCourseVideos(prev => [...prev, newVideo]);
-          
-          // Reset inputs
-          setVideoTitleInput('');
-          if (videoFileRef.current) videoFileRef.current.value = null;
-          setIsUploadingVideo(false);
-          setUploadProgress(0);
+          try {
+            const responseData = JSON.parse(xhr.responseText);
+            const cleanTitle = videoTitleInput || file.name.replace(/\.[^/.]+$/, "");
+            const newVideo = {
+              title: cleanTitle,
+              videoFileId: responseData.fileId,
+              unlockDay: 1,
+              durationDays: 9999
+            };
+            setCourseVideos(prev => [...prev, newVideo]);
+            
+            // Reset inputs
+            setVideoTitleInput('');
+            if (videoFileRef.current) videoFileRef.current.value = null;
+            setIsUploadingVideo(false);
+            setUploadProgress(0);
+          } catch {
+            setUploadError(`Upload succeeded but server returned an unexpected response (status: ${xhr.status})`);
+            setIsUploadingVideo(false);
+          }
         } else {
           try {
             const errData = JSON.parse(xhr.responseText);

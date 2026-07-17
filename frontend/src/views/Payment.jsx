@@ -4,7 +4,7 @@ import { CreditCard, ArrowLeft, ShieldCheck, ShoppingBag, Sparkles, AlertCircle,
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
 const getMediaUrl = (keyOrUrl) => {
@@ -47,7 +47,7 @@ const Payment = ({ user }) => {
       const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message || 'Failed to load course details');
 
       if (data.isPurchased) {
@@ -81,7 +81,7 @@ const Payment = ({ user }) => {
         }
       });
 
-      const orderData = await orderResponse.json();
+      const orderData = await parseResponse(orderResponse);
       if (!orderResponse.ok) {
         throw new Error(orderData.message || 'Failed to create payment order');
       }
@@ -122,7 +122,7 @@ const Payment = ({ user }) => {
               })
             });
 
-            const verifyData = await verifyResponse.json();
+            const verifyData = await parseResponse(verifyResponse);
             if (!verifyResponse.ok) {
               throw new Error(verifyData.message || 'Signature verification failed');
             }

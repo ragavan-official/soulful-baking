@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 const Signup = ({ user, onLoginSuccess }) => {
   const [name, setName] = useState('');
@@ -67,7 +67,7 @@ const Signup = ({ user, onLoginSuccess }) => {
         body: JSON.stringify({ email })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to send verification code');
@@ -121,7 +121,7 @@ const Signup = ({ user, onLoginSuccess }) => {
         body: JSON.stringify({ name, email, password, otp })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
@@ -154,7 +154,7 @@ const Signup = ({ user, onLoginSuccess }) => {
         body: JSON.stringify({ token: credentialResponse.credential })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Google signup failed');

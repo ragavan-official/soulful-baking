@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves a thumbnail/video key or legacy full URL to a usable src URL.
 // Supports both new R2 keys (e.g. "photo/uuid.jpg") and old full URLs.
@@ -99,7 +99,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const response = await fetch(`${API_BASE_URL}/api/admin/dashboard`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
       setStats(data.stats);
       setUsers(data.users);
@@ -118,7 +118,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const response = await fetch(`${API_BASE_URL}/api/admin/courses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
       setCourses(data);
     } catch (err) {
@@ -136,7 +136,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const response = await fetch(`${API_BASE_URL}/api/admin/purchases`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
       setPurchases(data);
     } catch (err) {
@@ -154,7 +154,7 @@ const AdminDashboard = ({ user, onLogout }) => {
       const res = await fetch(`${API_BASE_URL}/api/menu`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const data = await res.json();
+      const data = await parseResponse(res);
       if (!res.ok) throw new Error(data.message);
       setMenuItems(data);
     } catch (err) {
@@ -222,7 +222,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
-      const data = await res.json();
+      const data = await parseResponse(res);
       if (!res.ok) throw new Error(data.message || 'Image upload failed');
       setMenuItemImage(data.fileId);
     } catch (err) {
@@ -265,7 +265,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           isAvailable: menuItemAvailable
         })
       });
-      const data = await res.json();
+      const data = await parseResponse(res);
       if (!res.ok) throw new Error(data.message);
       setIsMenuModalOpen(false);
       fetchMenuItems();
@@ -282,7 +282,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.message); }
+      if (!res.ok) { const d = await parseResponse(res); throw new Error(d.message); }
       fetchMenuItems();
     } catch (err) {
       alert(err.message || 'Failed to delete menu item');
@@ -323,7 +323,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
-        const data = await response.json();
+        const data = await parseResponse(response);
         throw new Error(data.message);
       }
       fetchCourses();
@@ -421,7 +421,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         body: formData
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message || 'Thumbnail upload failed');
 
       // Store only the R2 key so the URL is always constructed dynamically
@@ -468,7 +468,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
 
       setIsCourseModalOpen(false);

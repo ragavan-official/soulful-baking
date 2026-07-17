@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, MessageCircle, ChevronRight, Search, Sparkles, Filter, X, Menu, Heart } from 'lucide-react';
 import Logo from '../components/Logo';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 const WHATSAPP_NUMBER = '919042960912';
 
@@ -53,7 +53,7 @@ const MenuPage = ({ user, onLogout }) => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/menu`);
-      const data = await res.json();
+      const data = await parseResponse(res);
       if (!res.ok) throw new Error(data.message || 'Failed to load menu');
       setMenuItems(data.filter(item => item.isAvailable));
     } catch (err) {

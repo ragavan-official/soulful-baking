@@ -4,7 +4,7 @@ import { BookOpen, ArrowLeft, Check, Sparkles, ShoppingBag, AlertCircle } from '
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
 const getMediaUrl = (keyOrUrl) => {
@@ -48,14 +48,14 @@ const CoursesCatalog = () => {
       const coursesResponse = await fetch(`${API_BASE_URL}/api/courses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const coursesData = await coursesResponse.json();
+      const coursesData = await parseResponse(coursesResponse);
       if (!coursesResponse.ok) throw new Error(coursesData.message);
 
       // Fetch user's purchased courses to cross-reference
       const myLearningResponse = await fetch(`${API_BASE_URL}/api/courses/my-learning`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const myLearningData = await myLearningResponse.json();
+      const myLearningData = await parseResponse(myLearningResponse);
       if (myLearningResponse.ok) {
         // Only mark as purchased if not expired
         const purchasedSet = new Set(myLearningData.filter(c => !c.isExpired).map(c => c._id));
@@ -86,7 +86,7 @@ const CoursesCatalog = () => {
         }
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
 
       setSuccess('Course purchased successfully! Ready to learn.');

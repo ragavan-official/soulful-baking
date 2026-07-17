@@ -7,7 +7,7 @@ import {
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
 const getMediaUrl = (keyOrUrl) => {
@@ -39,7 +39,7 @@ const Account = ({ user, onLogout }) => {
         const response = await fetch(`${API_BASE_URL}/api/courses/my-learning`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const data = await response.json();
+        const data = await parseResponse(response);
         
         if (response.ok) {
           setPurchasedCourses(data);

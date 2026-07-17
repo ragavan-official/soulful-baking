@@ -11,7 +11,7 @@ import CoursePlayer from './views/CoursePlayer';
 import Payment from './views/Payment';
 import Home from './views/Home';
 import MenuPage from './views/MenuPage';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL, parseResponse } from './config';
 
 
 const App = () => {
@@ -34,7 +34,7 @@ const App = () => {
           }
         });
 
-        const data = await response.json();
+        const data = await parseResponse(response);
 
         if (response.ok) {
           setUser(data.user);

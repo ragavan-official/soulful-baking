@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 const Login = ({ user, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
@@ -52,7 +52,7 @@ const Login = ({ user, onLoginSuccess }) => {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
@@ -93,7 +93,7 @@ const Login = ({ user, onLoginSuccess }) => {
         body: JSON.stringify({ token: credentialResponse.credential })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Google authentication failed');

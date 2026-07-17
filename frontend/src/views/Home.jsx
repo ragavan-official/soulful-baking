@@ -7,7 +7,7 @@ import {
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
 const Instagram = ({ size = 24, className, style }) => (
@@ -95,7 +95,7 @@ const Home = ({ user, onLogout }) => {
       try {
         setMenuLoading(true);
         const res = await fetch(`${API_BASE_URL}/api/menu`);
-        const data = await res.json();
+        const data = await parseResponse(res);
         if (res.ok) {
           // Show up to 4 available items on the home page
           setFeaturedMenu(data.filter(i => i.isAvailable).slice(0, 4));

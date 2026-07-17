@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, parseResponse } from '../config';
 
 const ForgotPassword = ({ user }) => {
   const [email, setEmail] = useState('');
@@ -67,7 +67,7 @@ const ForgotPassword = ({ user }) => {
         body: JSON.stringify({ email })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to send verification code');
@@ -122,7 +122,7 @@ const ForgotPassword = ({ user }) => {
         body: JSON.stringify({ email, otp, newPassword })
       });
 
-      const data = await response.json();
+      const data = await parseResponse(response);
 
       if (!response.ok) {
         throw new Error(data.message || 'Password reset failed');

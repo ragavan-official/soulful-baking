@@ -54,8 +54,9 @@ const MenuPage = ({ user, onLogout }) => {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/menu`);
       const data = await parseResponse(res);
-      if (!res.ok) throw new Error(data.message || 'Failed to load menu');
-      setMenuItems(data.filter(item => item.isAvailable));
+      if (!res.ok) throw new Error((data && data.message) || 'Failed to load menu');
+      const items = Array.isArray(data) ? data : [];
+      setMenuItems(items.filter(item => item.isAvailable));
     } catch (err) {
       setError(err.message);
     } finally {

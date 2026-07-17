@@ -38,14 +38,15 @@ const App = () => {
 
         const data = await parseResponse(response);
 
-        if (response.ok) {
+        if (response.ok && data && data.user) {
           setUser(data.user);
         } else {
-          // Token is invalid/expired
+          // Token is invalid/expired or server returned non-JSON
           localStorage.removeItem('token');
         }
       } catch (err) {
         console.error('Session check error:', err);
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }

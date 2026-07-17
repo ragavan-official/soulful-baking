@@ -152,6 +152,10 @@ const Signup = ({ user, onLoginSuccess }) => {
         throw new Error(data.message || 'Google signup failed');
       }
 
+      if (!data || !data.user) {
+        throw new Error(`Google signup/login succeeded, but user data is missing in response: ${JSON.stringify(data)}`);
+      }
+
       setSuccess('Google login successful!');
       triggerConfetti();
 

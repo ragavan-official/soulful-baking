@@ -50,6 +50,10 @@ const Login = ({ user, onLoginSuccess }) => {
         throw new Error(data.message || 'Login failed');
       }
 
+      if (!data || !data.user) {
+        throw new Error(`Login succeeded, but user data is missing in response: ${JSON.stringify(data)}`);
+      }
+
       setSuccess('Logged in successfully!');
       triggerConfetti();
       
@@ -81,6 +85,10 @@ const Login = ({ user, onLoginSuccess }) => {
 
       if (!response.ok) {
         throw new Error(data.message || 'Google authentication failed');
+      }
+
+      if (!data || !data.user) {
+        throw new Error(`Google authentication succeeded, but user data is missing in response: ${JSON.stringify(data)}`);
       }
 
       setSuccess('Google login successful!');

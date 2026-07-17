@@ -64,6 +64,12 @@ const App = () => {
   // Uses flushSync so React commits the state update synchronously
   // before navigate() is called — eliminating any race condition.
   const handleLoginSuccess = (userData, redirectTo = null) => {
+    if (!userData) {
+      console.error('handleLoginSuccess: userData is missing');
+      navigate('/login', { replace: true });
+      return;
+    }
+
     flushSync(() => {
       setUser(userData);
     });

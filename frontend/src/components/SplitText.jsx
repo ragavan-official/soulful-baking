@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const SplitText = ({ text = '', className = '', delay = 0.05 }) => {
-  const letters = Array.from(text);
+  const words = text.split(' ');
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -36,6 +36,8 @@ const SplitText = ({ text = '', className = '', delay = 0.05 }) => {
     },
   };
 
+  let globalLetterIndex = 0;
+
   return (
     <motion.span
       style={{ display: 'inline-flex', flexWrap: 'wrap' }}
@@ -44,15 +46,28 @@ const SplitText = ({ text = '', className = '', delay = 0.05 }) => {
       animate="visible"
       className={className}
     >
-      {letters.map((letter, index) => (
-        <motion.span
-          key={index}
-          variants={childVariants}
-          style={{ display: 'inline-block', whiteSpace: 'pre' }}
-        >
-          {letter}
-        </motion.span>
-      ))}
+      {words.map((word, wordIndex) => {
+        const letters = Array.from(word);
+        return (
+          <span 
+            key={wordIndex} 
+            style={{ display: 'inline-block', whiteSpace: 'nowrap', marginRight: '0.25em' }}
+          >
+            {letters.map((letter) => {
+              const idx = globalLetterIndex++;
+              return (
+                <motion.span
+                  key={idx}
+                  variants={childVariants}
+                  style={{ display: 'inline-block' }}
+                >
+                  {letter}
+                </motion.span>
+              );
+            })}
+          </span>
+        );
+      })}
     </motion.span>
   );
 };

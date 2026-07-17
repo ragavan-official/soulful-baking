@@ -242,7 +242,7 @@ const Payment = ({ user }) => {
 
       {error && <div className="alert alert-error" style={{ marginBottom: '2rem' }}><AlertCircle size={18} /> {error}</div>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '2.5rem', alignItems: 'start' }}>
+      <div className="checkout-grid">
         {/* LEFT: ORDER SUMMARY */}
         <div className="glass-card" style={{ padding: '1.75rem', position: 'sticky', top: '20px' }}>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-gold)', paddingBottom: '0.75rem' }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { User, Mail, Lock, UserPlus, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -21,6 +21,8 @@ const Signup = ({ user, onLoginSuccess }) => {
   const [sandboxWarning, setSandboxWarning] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromPath = location.state?.from || null;
 
   useEffect(() => {
     let interval;
@@ -38,7 +40,7 @@ const Signup = ({ user, onLoginSuccess }) => {
       if (user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/account');
+        navigate('/courses');
       }
     }
   }, [user, navigate]);
@@ -165,7 +167,7 @@ const Signup = ({ user, onLoginSuccess }) => {
 
       // Store token and notify App — App.jsx handles redirect via useEffect
       localStorage.setItem('token', data.token);
-      onLoginSuccess(data.user);
+      onLoginSuccess(data.user, fromPath);
     } catch (err) {
       setError(err.message || 'Google sign-up error');
     } finally {

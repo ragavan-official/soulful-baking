@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, LogIn, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -16,6 +16,9 @@ const Login = ({ user, onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
+  // Where to go after login — set by RequireAuth when redirecting here
+  const fromPath = location.state?.from || null;
 
   useEffect(() => {
     // Redirect if already logged in
@@ -23,7 +26,7 @@ const Login = ({ user, onLoginSuccess }) => {
       if (user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/account');
+        navigate('/courses');
       }
     }
   }, [user, navigate]);
@@ -63,7 +66,7 @@ const Login = ({ user, onLoginSuccess }) => {
       
       // Store token and notify App — App.jsx handles redirect via useEffect
       localStorage.setItem('token', data.token);
-      onLoginSuccess(data.user);
+      onLoginSuccess(data.user, fromPath);
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -96,7 +99,7 @@ const Login = ({ user, onLoginSuccess }) => {
       
       // Store token and notify App — App.jsx handles redirect via useEffect
       localStorage.setItem('token', data.token);
-      onLoginSuccess(data.user);
+      onLoginSuccess(data.user, fromPath);
     } catch (err) {
       setError(err.message || 'Google sign-in error');
     } finally {

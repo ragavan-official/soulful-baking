@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import AnimatedBackground from './components/AnimatedBackground';
 import Login from './views/Login';
 import Signup from './views/Signup';
@@ -13,12 +13,22 @@ import Home from './views/Home';
 import MenuPage from './views/MenuPage';
 import { API_BASE_URL, parseResponse } from './config';
 
+// Wraps a route that requires authentication.
+// Saves the attempted path so Login can redirect back after success.
+const RequireAuth = ({ user, children, redirectTo = '/login' }) => {
+  const location = useLocation();
+  if (!user) {
+    return <Navigate to={redirectTo} state={{ from: location.pathname }} replace />;
+  }
+  return children;
+};
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   // Track whether this is a fresh login (vs. a page-refresh session restore)
   const [justLoggedIn, setJustLoggedIn] = useState(false);
+  const [intendedPath, setIntendedPath] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,19 +65,24 @@ const App = () => {
     checkUserSession();
   }, []);
 
-  // Redirect to the correct dashboard whenever a fresh login sets the user
+  // Redirect after fresh login — to intended page, or sensible default
   useEffect(() => {
     if (!justLoggedIn || !user) return;
     setJustLoggedIn(false);
+
     if (user.role === 'admin') {
       navigate('/admin', { replace: true });
+    } else if (intendedPath && intendedPath !== '/login' && intendedPath !== '/signup') {
+      setIntendedPath(null);
+      navigate(intendedPath, { replace: true });
     } else {
-      navigate('/account', { replace: true });
+      navigate('/courses', { replace: true });
     }
-  }, [user, justLoggedIn, navigate]);
+  }, [user, justLoggedIn, intendedPath, navigate]);
 
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = (userData, fromPath = null) => {
     setUser(userData);
+    setIntendedPath(fromPath);
     setJustLoggedIn(true);
   };
 
@@ -115,25 +130,46 @@ const App = () => {
         />
         <Route 
           path="/account" 
-          element={user ? <Account user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} 
+          element={
+            <RequireAuth user={user}>
+              <Account user={user} onLogout={handleLogout} />
+            </RequireAuth>
+          } 
         />
         <Route 
           path="/admin" 
-          element={user && user.role === 'admin' ? (
-            <AdminDashboard user={user} onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/account" replace />
-          )} 
+          element={
+            user && user.role === 'admin' ? (
+              <AdminDashboard user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/courses" replace />
+            )
+          } 
         />
         <Route 
           path="/courses" 
-          element={user ? <CoursesCatalog /> : <Navigate to="/login" replace />} 
+          element={
+            <RequireAuth user={user}>
+              <CoursesCatalog />
+            </RequireAuth>
+          } 
         />
         <Route 
           path="/courses/:courseId" 
-          element={user ? <CoursePlayer /> : <Navigate to="/login" replace />} 
+          element={
+            <RequireAuth user={user}>
+              <CoursePlayer />
+            </RequireAuth>
+          } 
         />
-        <Route path="/payment/:courseId" element={user ? <Payment user={user} /> : <Navigate to="/login" replace />} />
+        <Route 
+          path="/payment/:courseId" 
+          element={
+            <RequireAuth user={user}>
+              <Payment user={user} />
+            </RequireAuth>
+          } 
+        />
         <Route path="/menu" element={<MenuPage user={user} onLogout={handleLogout} />} />
 
         <Route 

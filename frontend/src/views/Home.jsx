@@ -98,7 +98,8 @@ const Home = ({ user, onLogout }) => {
         const data = await parseResponse(res);
         if (res.ok) {
           // Show up to 4 available items on the home page
-          setFeaturedMenu(data.filter(i => i.isAvailable).slice(0, 4));
+          const items = Array.isArray(data) ? data : [];
+          setFeaturedMenu(items.filter(i => i.isAvailable).slice(0, 4));
         }
       } catch (err) {
         console.error('Could not load menu preview:', err);

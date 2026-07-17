@@ -223,6 +223,9 @@ app.use(express.static(frontendDist));
 // SPA catch-all: for any non-API route, return index.html so React Router works
 // This fixes the 404 you get when you refresh /login, /menu, etc.
 app.get(/^(?!\/api).*/, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.sendFile(path.join(frontendDist, 'index.html'));
 });
 

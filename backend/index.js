@@ -30,7 +30,9 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://www.soulfulbaking.in",
   "https://soulfulbaking.in",
-  "https://soulful-baking.onrender.com"
+  "https://soulful-baking.onrender.com",
+  "http://www.soulfulbaking.in",
+  "http://soulfulbaking.in"
 ];
 
 app.use(
@@ -203,7 +205,12 @@ app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res
 // ─── Keep-alive ping (prevents Render free-tier cold starts) ─────────────────
 // Point UptimeRobot or cron-job.org to GET /api/ping every 5 minutes.
 app.get('/api/ping', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.json({ 
+    status: 'ok', 
+    database: dbStatus, 
+    timestamp: new Date().toISOString() 
+  });
 });
 
 // ─── Serve React SPA in production ───────────────────────────────────────────

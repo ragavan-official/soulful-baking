@@ -20,9 +20,21 @@ const Signup = ({ user, onLoginSuccess }) => {
   const [resendTimer, setResendTimer] = useState(0);
   const [sandboxWarning, setSandboxWarning] = useState(false);
 
+  const [btnWidth, setBtnWidth] = useState(360);
   const navigate = useNavigate();
   const location = useLocation();
   const fromPath = location.state?.from || null;
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Calculate dynamic button width for mobile viewports
+      const width = Math.min(360, window.innerWidth - 80);
+      setBtnWidth(width);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     let interval;
@@ -332,7 +344,7 @@ const Signup = ({ user, onLoginSuccess }) => {
             theme="filled_dark"
             shape="rectangular"
             text="signup_with"
-            width={360}
+            width={btnWidth}
           />
         </div>
 

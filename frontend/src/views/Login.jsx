@@ -15,9 +15,21 @@ const Login = ({ user, onLoginSuccess }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
+  const [btnWidth, setBtnWidth] = useState(360);
   const location = useLocation();
   // Where to go after login — set by RequireAuth when redirecting here
   const fromPath = location.state?.from || null;
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Calculate dynamic button width for mobile viewports
+      const width = Math.min(360, window.innerWidth - 80);
+      setBtnWidth(width);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   const triggerConfetti = () => {
@@ -178,7 +190,7 @@ const Login = ({ user, onLoginSuccess }) => {
             theme="filled_dark"
             shape="rectangular"
             text="signin_with"
-            width={360}
+            width={btnWidth}
           />
         </div>
 

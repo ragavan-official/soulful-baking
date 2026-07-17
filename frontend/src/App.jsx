@@ -17,6 +17,8 @@ import { API_BASE_URL, parseResponse } from './config';
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Track whether this is a fresh login (vs. a page-refresh session restore)
+  const [justLoggedIn, setJustLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,8 +54,20 @@ const App = () => {
     checkUserSession();
   }, []);
 
+  // Redirect to the correct dashboard whenever a fresh login sets the user
+  useEffect(() => {
+    if (!justLoggedIn || !user) return;
+    setJustLoggedIn(false);
+    if (user.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/account', { replace: true });
+    }
+  }, [user, justLoggedIn, navigate]);
+
   const handleLoginSuccess = (userData) => {
     setUser(userData);
+    setJustLoggedIn(true);
   };
 
   const handleLogout = () => {

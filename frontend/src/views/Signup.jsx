@@ -163,17 +163,9 @@ const Signup = ({ user, onLoginSuccess }) => {
       setSuccess('Google login successful!');
       triggerConfetti();
 
-      // Store token
+      // Store token and notify App — App.jsx handles redirect via useEffect
       localStorage.setItem('token', data.token);
-
-      setTimeout(() => {
-        onLoginSuccess(data.user);
-        if (data.user.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/account');
-        }
-      }, 1000);
+      onLoginSuccess(data.user);
     } catch (err) {
       setError(err.message || 'Google sign-up error');
     } finally {

@@ -15,7 +15,16 @@ import { authenticateToken, requireAdmin } from './middleware/auth.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ─── Security headers ────────────────────────────────────────────────────────
+// Google Sign-In uses window.postMessage from a cross-origin popup.
+// Render sets Cross-Origin-Opener-Policy: same-origin by default which blocks
+// that postMessage and silently breaks Google OAuth. Override it to unsafe-none.
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  next();
+});
+
 const allowedOrigins = [
   "http://localhost:5174",
   "http://localhost:5173",

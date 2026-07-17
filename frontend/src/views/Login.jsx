@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, LogIn, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -15,21 +15,10 @@ const Login = ({ user, onLoginSuccess }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const navigate = useNavigate();
   const location = useLocation();
   // Where to go after login — set by RequireAuth when redirecting here
   const fromPath = location.state?.from || null;
 
-  useEffect(() => {
-    // Redirect if already logged in
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/courses');
-      }
-    }
-  }, [user, navigate]);
 
   const triggerConfetti = () => {
     confetti({
@@ -177,11 +166,11 @@ const Login = ({ user, onLoginSuccess }) => {
         <div className="google-btn-wrapper">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google OAuth initialization failed')}
+            onError={() => setError('Google sign-in failed. Please try again.')}
             theme="filled_dark"
             shape="rectangular"
             text="signin_with"
-            width="100%"
+            width={360}
           />
         </div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { flushSync } from 'react-dom';
 import AnimatedBackground from './components/AnimatedBackground';
 import Login from './views/Login';
 import Signup from './views/Signup';
@@ -26,9 +27,6 @@ const RequireAuth = ({ user, children, redirectTo = '/login' }) => {
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  // Track whether this is a fresh login (vs. a page-refresh session restore)
-  const [justLoggedIn, setJustLoggedIn] = useState(false);
-  const [intendedPath, setIntendedPath] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +39,7 @@ const App = () => {
 
       try {
         const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         const data = await parseResponse(response);
@@ -51,7 +47,6 @@ const App = () => {
         if (response.ok && data && data.user) {
           setUser(data.user);
         } else {
-          // Token is invalid/expired or server returned non-JSON
           localStorage.removeItem('token');
         }
       } catch (err) {
@@ -65,25 +60,21 @@ const App = () => {
     checkUserSession();
   }, []);
 
-  // Redirect after fresh login — to intended page, or sensible default
-  useEffect(() => {
-    if (!justLoggedIn || !user) return;
-    setJustLoggedIn(false);
+  // Called by Login/Signup after a successful auth response.
+  // Uses flushSync so React commits the state update synchronously
+  // before navigate() is called — eliminating any race condition.
+  const handleLoginSuccess = (userData, redirectTo = null) => {
+    flushSync(() => {
+      setUser(userData);
+    });
 
-    if (user.role === 'admin') {
+    if (userData.role === 'admin') {
       navigate('/admin', { replace: true });
-    } else if (intendedPath && intendedPath !== '/login' && intendedPath !== '/signup') {
-      setIntendedPath(null);
-      navigate(intendedPath, { replace: true });
+    } else if (redirectTo && redirectTo !== '/login' && redirectTo !== '/signup') {
+      navigate(redirectTo, { replace: true });
     } else {
       navigate('/courses', { replace: true });
     }
-  }, [user, justLoggedIn, intendedPath, navigate]);
-
-  const handleLoginSuccess = (userData, fromPath = null) => {
-    setUser(userData);
-    setIntendedPath(fromPath);
-    setJustLoggedIn(true);
   };
 
   const handleLogout = () => {
@@ -112,70 +103,57 @@ const App = () => {
     <>
       <AnimatedBackground />
       <Routes>
-        <Route 
-          path="/" 
-          element={<Home user={user} onLogout={handleLogout} />} 
-        />
-        <Route 
-          path="/login" 
-          element={<Login user={user} onLoginSuccess={handleLoginSuccess} />} 
-        />
-        <Route 
-          path="/signup" 
-          element={<Signup user={user} onLoginSuccess={handleLoginSuccess} />} 
-        />
-        <Route 
-          path="/forgot-password" 
-          element={<ForgotPassword user={user} />} 
-        />
-        <Route 
-          path="/account" 
+        <Route path="/" element={<Home user={user} onLogout={handleLogout} />} />
+
+        <Route path="/login"  element={<Login  user={user} onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/signup" element={<Signup user={user} onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/forgot-password" element={<ForgotPassword user={user} />} />
+
+        <Route
+          path="/account"
           element={
             <RequireAuth user={user}>
               <Account user={user} onLogout={handleLogout} />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin" 
+        <Route
+          path="/admin"
           element={
             user && user.role === 'admin' ? (
               <AdminDashboard user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/courses" replace />
             )
-          } 
+          }
         />
-        <Route 
-          path="/courses" 
+        <Route
+          path="/courses"
           element={
             <RequireAuth user={user}>
               <CoursesCatalog />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/courses/:courseId" 
+        <Route
+          path="/courses/:courseId"
           element={
             <RequireAuth user={user}>
               <CoursePlayer />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/payment/:courseId" 
+        <Route
+          path="/payment/:courseId"
           element={
             <RequireAuth user={user}>
               <Payment user={user} />
             </RequireAuth>
-          } 
+          }
         />
-        <Route path="/menu" element={<MenuPage user={user} onLogout={handleLogout} />} />
 
-        <Route 
-          path="*" 
-          element={<Navigate to="/" replace />} 
-        />
+        <Route path="/menu" element={<MenuPage user={user} onLogout={handleLogout} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

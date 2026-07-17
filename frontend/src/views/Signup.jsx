@@ -34,16 +34,6 @@ const Signup = ({ user, onLoginSuccess }) => {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-  useEffect(() => {
-    // Redirect if already logged in
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/courses');
-      }
-    }
-  }, [user, navigate]);
 
   const triggerConfetti = () => {
     confetti({
@@ -334,11 +324,11 @@ const Signup = ({ user, onLoginSuccess }) => {
         <div className="google-btn-wrapper">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google OAuth initialization failed')}
+            onError={() => setError('Google sign-in failed. Please try again.')}
             theme="filled_dark"
             shape="rectangular"
             text="signup_with"
-            width="100%"
+            width={360}
           />
         </div>
 

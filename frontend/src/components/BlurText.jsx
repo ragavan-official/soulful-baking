@@ -26,8 +26,8 @@ const BlurText = ({ text = '', className = '', delay = 0.03 }) => {
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.5,
-        ease: [0.2, 0.65, 0.3, 1], // Custom smooth cubic-bezier
+        duration: 0.7,
+        ease: [0.16, 1, 0.3, 1], // easeOutExpo
       },
     },
   };

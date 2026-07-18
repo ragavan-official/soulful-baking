@@ -149,7 +149,7 @@ const Home = ({ user, onLogout }) => {
   return (
     <div className="home-page">
       <SEO 
-        title="Soulful Baking | Online Baking Courses & Premium Baking Classes"
+        title="Soulful Baking – Online Baking Courses | Cake, Brownie & Cookie Classes"
         description="Learn professional baking with Soulful Baking. Explore online baking courses, cake recipes, baking classes, and premium bakery products."
         keywords="online baking course, cake making course, brownie course, cookie course, Soulful Baking, baking classes"
         canonicalUrl="https://www.soulfulbaking.in/"
@@ -225,9 +225,12 @@ const Home = ({ user, onLogout }) => {
               Premium Baking Academy
             </span>
             <h1 className="hero-title">
-              <SplitText text="Sweet Moments" delay={0.04} />
-              <br />
-              <span className="highlight-text">Start Here</span>
+              <span className="visually-hidden">Learn Professional Online Baking Courses from Soulful Baking</span>
+              <span aria-hidden="true">
+                <SplitText text="Sweet Moments" delay={0.04} />
+                <br />
+                <span className="highlight-text">Start Here</span>
+              </span>
             </h1>
             <p className="hero-description">
               Unleash your inner chef with masterclass baking tutorials. Discover professional recipes, pastry techniques, and artisanal cake decoration with step-by-step guidance from shamini.
@@ -495,6 +498,90 @@ const Home = ({ user, onLogout }) => {
           </div>
         </section>
       )}
+
+      {/* Academy Detailed Information Section (SEO optimization) */}
+      <section className="info-section">
+        <h2 className="info-title">Master the Art of Professional Baking</h2>
+        <div className="info-rich-text">
+          <p>
+            Welcome to <strong>Soulful Baking Academy</strong>, your premier destination for mastering the art and science of professional baking. Whether you are an aspiring home baker looking to launch a commercial venture, or a pastry enthusiast wanting to perfect your family recipes, our detailed online courses and classes provide all the resources you need to bake with absolute confidence.
+          </p>
+
+          <h3>Comprehensive Online Baking Classes</h3>
+          <p>
+            Our curriculum is designed by expert pastry chefs to guide you from foundational science to advanced decorative techniques. Every course features high-definition video walkthroughs, downloadable ingredient logs, step-by-step instructions, and direct mentorship support. We specialize in explaining the <em>why</em> behind the chemistry of baking, ensuring you get perfect results every single time.
+          </p>
+
+          <h3>Explore Our Signature Courses</h3>
+          <ul>
+            <li>
+              <strong>Advanced Cake Course:</strong> Learn how to bake sponge cakes, layers, tortes, and master the techniques of frosting, crumb coating, and decorating using premium Swiss meringue buttercream, white chocolate ganache, and royal icing.
+            </li>
+            <li>
+              <strong>Gourmet Brownie Course:</strong> Discover the secrets to achieving the perfect shiny, crinkle-top brownie. We teach fudgy, cakey, and chewy brownie variations alongside gourmet flavors like salted caramel, triple chocolate, and walnut swirl.
+            </li>
+            <li>
+              <strong>Artisanal Cookie Course:</strong> Bake bakery-style cookies that are crisp on the edges and soft in the center. Includes classic chocolate chip, double chocolate fudge, red velvet, and custom cut-out sugar cookies.
+            </li>
+            <li>
+              <strong>French Pastry Course:</strong> Dive into the delicate world of laminated doughs. Perfect your croissants, puff pastries, éclairs, choux pastry, and fruit tarts with expert guidance.
+            </li>
+          </ul>
+
+          <h3>Meet Your Instructor: Shamini</h3>
+          <p>
+            Every tutorial and recipe is developed and taught by <strong>Shamini</strong>, a professional baker and instructor with years of culinary experience. Shamini’s teaching style focuses on making complex pastry concepts accessible, encouraging experimentation, and helping students build their unique signature menu.
+          </p>
+
+          <h3>Baking Certification & Professional Growth</h3>
+          <p>
+            Upon completing your baking courses, you will receive an official **Soulful Baking Academy Certificate of Completion**. Use this credential to build your portfolio, showcase your expertise to potential employers, or share your achievement with clients as you establish your custom home bakery business.
+          </p>
+        </div>
+      </section>
+
+      {/* Academy FAQ Section (SEO optimization) */}
+      <section className="faq-section">
+        <h2 className="faq-title">Frequently Asked Questions</h2>
+        <div className="faq-grid">
+          <div className="faq-card">
+            <h4 className="faq-question">Are these classes suitable for absolute beginners?</h4>
+            <p className="faq-answer">
+              Yes, all our courses are structured to build skills from the ground up. We start with essential kitchen safety, oven calibration, and ingredient weight measurements before moving on to advanced decoration.
+            </p>
+          </div>
+          <div className="faq-card">
+            <h4 className="faq-question">Do I get lifetime access to the video lessons?</h4>
+            <p className="faq-answer">
+              Yes! Once you purchase a course, you will receive lifetime access to the video tutorials, downloadable recipes, and any future course updates at no extra cost.
+            </p>
+          </div>
+          <div className="faq-card">
+            <h4 className="faq-question">What equipment do I need to start?</h4>
+            <p className="faq-answer">
+              To begin, a standard home oven (OTG or convection), a digital kitchen scale, a hand mixer, mixing bowls, and basic baking pans are sufficient. We guide you on specialized tools inside each course.
+            </p>
+          </div>
+          <div className="faq-card">
+            <h4 className="faq-question">How does student support work?</h4>
+            <p className="faq-answer">
+              You can ask questions directly inside the learning dashboard or contact our WhatsApp support line for quick feedback on your baking homework, texturing, or recipes.
+            </p>
+          </div>
+          <div className="faq-card">
+            <h4 className="faq-question">Can I access the courses on mobile devices?</h4>
+            <p className="faq-answer">
+              Absolutely! Our academy platform is fully responsive and optimized for mobile devices, tablets, and desktop computers. You can learn in your kitchen as you bake.
+            </p>
+          </div>
+          <div className="faq-card">
+            <h4 className="faq-question">Is a certificate provided after completion?</h4>
+            <p className="faq-answer">
+              Yes, a digital Certificate of Completion is awarded to students who complete all modules and submit their final baking assignments for review.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Footer Section */}
       <footer id="contact" className="home-footer">

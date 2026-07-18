@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, MessageCircle, ChevronRight, Search, Sparkles, Filter, X, Menu, Heart } from 'lucide-react';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
 import { API_BASE_URL, parseResponse } from '../config';
 
 const WHATSAPP_NUMBER = '919042960912';
@@ -104,8 +105,32 @@ const MenuPage = ({ user, onLogout }) => {
     return matchCat && matchSearch;
   });
 
+  const menuSchema = {
+    "@context": "https://schema.org",
+    "@type": "Menu",
+    "name": "Soulful Baking Cakes & Pastries Menu",
+    "description": "Browse our selection of premium custom cakes, brownies, cupcakes, and handcrafted pastries.",
+    "hasMenuItem": menuItems.map(item => ({
+      "@type": "MenuItem",
+      "name": item.name,
+      "description": item.description,
+      "offers": {
+        "@type": "Offer",
+        "price": item.price,
+        "priceCurrency": "INR"
+      }
+    }))
+  };
+
   return (
     <div className="home-page">
+      <SEO 
+        title="Signature Bakery Menu | Soulful Baking"
+        description="Browse our delicious selection of premium custom cakes, brownies, cupcakes, and handcrafted pastries available at Soulful Baking."
+        keywords="custom cake menu, order birthday cake, premium bakery items, cake catalogue"
+        canonicalUrl="https://www.soulfulbaking.in/menu"
+        schema={menuSchema}
+      />
       {/* Navbar */}
       <header className={`home-navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">

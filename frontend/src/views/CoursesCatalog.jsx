@@ -4,6 +4,7 @@ import { BookOpen, ArrowLeft, Check, Sparkles, ShoppingBag, AlertCircle } from '
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import SEO from '../components/SEO';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
@@ -118,8 +119,36 @@ const CoursesCatalog = () => {
     );
   }
 
+  const catalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Baking Masterclasses & Courses",
+    "description": "Learn professional cake decoration, brownie baking, and pastry making from expert bakers.",
+    "itemListElement": courses.map((course, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "item": {
+        "@type": "Course",
+        "name": course.title,
+        "description": course.description,
+        "provider": {
+          "@type": "Organization",
+          "name": "Soulful Baking",
+          "sameAs": "https://www.soulfulbaking.in"
+        }
+      }
+    }))
+  };
+
   return (
     <div className="dashboard-container" style={{ paddingBottom: '5rem' }}>
+      <SEO 
+        title="Online Baking Courses & Masterclasses | Soulful Baking"
+        description="Join premium online baking masterclasses by Soulful Baking. Level up your baking skills with expert-guided video lessons, recipes, and support."
+        keywords="online baking course, baking class, learn baking, cake decorating, brownie making"
+        canonicalUrl="https://www.soulfulbaking.in/courses"
+        schema={catalogSchema}
+      />
       {/* Header */}
       <div className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

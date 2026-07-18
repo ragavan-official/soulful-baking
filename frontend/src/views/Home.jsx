@@ -7,6 +7,7 @@ import {
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
 import ShinyText from '../components/ShinyText';
+import SEO from '../components/SEO';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
@@ -122,8 +123,39 @@ const Home = ({ user, onLogout }) => {
     }
   };
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "name": "Soulful Baking",
+    "image": "https://www.soulfulbaking.in/logo.png",
+    "@id": "https://www.soulfulbaking.in/#bakery",
+    "url": "https://www.soulfulbaking.in",
+    "telephone": "+918124032128",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "IN"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+      ],
+      "opens": "09:00",
+      "closes": "21:00"
+    }
+  };
+
   return (
     <div className="home-page">
+      <SEO 
+        title="Soulful Baking | Online Baking Courses & Premium Baking Classes"
+        description="Learn professional baking with Soulful Baking. Explore online baking courses, cake recipes, baking classes, and premium bakery products."
+        keywords="online baking course, cake making course, brownie course, cookie course, Soulful Baking, baking classes"
+        canonicalUrl="https://www.soulfulbaking.in/"
+        ogImage="https://www.soulfulbaking.in/logo.png"
+        schema={homeSchema}
+      />
       {/* Header / Navbar */}
       <header className={`home-navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">

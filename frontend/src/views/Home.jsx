@@ -5,9 +5,10 @@ import {
   Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart, ShoppingBag, MessageCircle
 } from 'lucide-react';
 import Logo from '../components/Logo';
-import SplitText from '../components/SplitText';
+import BlurText from '../components/BlurText';
 import ShinyText from '../components/ShinyText';
 import SEO from '../components/SEO';
+import TiltedCard from '../components/TiltedCard';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
@@ -227,7 +228,7 @@ const Home = ({ user, onLogout }) => {
             <h1 className="hero-title">
               <span className="visually-hidden">Learn Professional Online Baking Courses from Soulful Baking</span>
               <span aria-hidden="true">
-                <SplitText text="Sweet Moments" delay={0.04} />
+                <BlurText text="Sweet Moments" delay={0.05} />
                 <br />
                 <span className="highlight-text">Start Here</span>
               </span>
@@ -397,7 +398,7 @@ const Home = ({ user, onLogout }) => {
                 const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
 
                 return (
-                  <div key={item._id} className="home-menu-card">
+                  <TiltedCard key={item._id} className="home-menu-card">
                     <div className="home-menu-img-wrap">
                       {item.image ? (
                         <img src={getMediaUrl(item.image)} alt={item.name} className="home-menu-img" />
@@ -485,7 +486,7 @@ const Home = ({ user, onLogout }) => {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </TiltedCard>
                 );
               })}
             </div>

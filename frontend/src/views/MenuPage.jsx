@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, MessageCircle, ChevronRight, Search, Sparkles, Filter, X, Menu, Heart } from 'lucide-react';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
+import BlurText from '../components/BlurText';
+import TiltedCard from '../components/TiltedCard';
 import { API_BASE_URL, parseResponse } from '../config';
 
 const WHATSAPP_NUMBER = '919042960912';
@@ -182,7 +184,12 @@ const MenuPage = ({ user, onLogout }) => {
             <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
             Freshly Baked Daily
           </span>
-          <h1 className="menu-hero-title">Our <span className="highlight-text">Menu</span></h1>
+          <h1 className="menu-hero-title">
+            <span className="visually-hidden">Signature Bakery Menu from Soulful Baking</span>
+            <span aria-hidden="true">
+              Our <span className="highlight-text"><BlurText text="Menu" delay={0.08} /></span>
+            </span>
+          </h1>
           <p className="menu-hero-desc">
             Every item is lovingly crafted with premium ingredients. Order via WhatsApp for same-day delivery.
           </p>
@@ -268,7 +275,7 @@ const MenuPage = ({ user, onLogout }) => {
                 const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
 
                 return (
-                  <div key={item._id} className="menu-item-card">
+                  <TiltedCard key={item._id} className="menu-item-card">
                     <div className="menu-item-image-wrapper">
                       {item.image ? (
                         <img src={getMediaUrl(item.image)} alt={item.name} className="menu-item-image" />
@@ -360,7 +367,7 @@ const MenuPage = ({ user, onLogout }) => {
                       </button>
                     </div>
                   </div>
-                </div>
+                </TiltedCard>
               );
             })}
             </div>

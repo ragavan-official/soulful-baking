@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, ArrowLeft, Check, Sparkles, ShoppingBag, AlertCircle } from 'lucide-react';
 import Logo from '../components/Logo';
-import SplitText from '../components/SplitText';
+import BlurText from '../components/BlurText';
 import ShinyText from '../components/ShinyText';
 import SEO from '../components/SEO';
+import TiltedCard from '../components/TiltedCard';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
@@ -172,7 +173,7 @@ const CoursesCatalog = () => {
 
       <div style={{ margin: '1rem 0 2.5rem', textAlign: 'center' }}>
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', color: 'var(--text-primary)' }}>
-          <SplitText text="Available Masterclasses" delay={0.05} />
+          <BlurText text="Available Masterclasses" delay={0.04} />
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
           <ShinyText text="Get lifetime access to premium video lessons and recipes" speed={7} />
@@ -192,7 +193,7 @@ const CoursesCatalog = () => {
           {courses.map((course) => {
             const isPurchased = purchasedIds.has(course._id);
             return (
-              <div 
+              <TiltedCard 
                 key={course._id} 
                 className="glass-card" 
                 style={{ 
@@ -286,7 +287,7 @@ const CoursesCatalog = () => {
                     </button>
                   )}
                 </div>
-              </div>
+              </TiltedCard>
             );
           })}
         </div>

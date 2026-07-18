@@ -9,6 +9,7 @@ import BlurText from '../components/BlurText';
 import ShinyText from '../components/ShinyText';
 import SEO from '../components/SEO';
 import TiltedCard from '../components/TiltedCard';
+import ScrollReveal from '../components/ScrollReveal';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
@@ -262,234 +263,248 @@ const Home = ({ user, onLogout }) => {
       <section id="story" className="story-section">
         <div className="story-container">
           <div className="story-image-column">
-            <div className="story-image-card">
-              <img 
-                src={storyDessert} 
-                alt="Layered chocolate hazelnut cake slice" 
-                className="story-image"
-              />
-            </div>
+            <ScrollReveal y={40} delay={0.1}>
+              <div className="story-image-card">
+                <img 
+                  src={storyDessert} 
+                  alt="Layered chocolate hazelnut cake slice" 
+                  className="story-image"
+                />
+              </div>
+            </ScrollReveal>
           </div>
 
           <div className="story-content-column">
-            <span className="section-subtitle">Since 2020</span>
-            <h2 className="section-title">Sweet Moments Baked Here</h2>
-            <p className="story-text">
-              At Soulful Baking, baking is not just about combining flour, sugar, and yeast. It is a soulful journey of craftsmanship, passion, and precision. We curate premium online classes that take you from baking basics to creating complex wedding cakes and delicate french pastries.
-            </p>
-            <p className="story-text">
-              Every course is carefully planned to give you the science behind the crust, the secret to a moist crumb, and visual walk-throughs that ensure your success in the kitchen.
-            </p>
-            <button onClick={() => navigate('/courses')} className="btn-secondary-link">
-              Browse All Courses <ChevronRight size={16} />
-            </button>
+            <ScrollReveal y={40} delay={0.25}>
+              <span className="section-subtitle">Since 2020</span>
+              <h2 className="section-title">Sweet Moments Baked Here</h2>
+              <p className="story-text">
+                At Soulful Baking, baking is not just about combining flour, sugar, and yeast. It is a soulful journey of craftsmanship, passion, and precision. We curate premium online classes that take you from baking basics to creating complex wedding cakes and delicate french pastries.
+              </p>
+              <p className="story-text">
+                Every course is carefully planned to give you the science behind the crust, the secret to a moist crumb, and visual walk-throughs that ensure your success in the kitchen.
+              </p>
+              <button onClick={() => navigate('/courses')} className="btn-secondary-link">
+                Browse All Courses <ChevronRight size={16} />
+              </button>
+            </ScrollReveal>
           </div>
         </div>
 
         {/* Feature Cards */}
-        <div className="features-grid-container">
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <Compass size={24} />
+        <ScrollReveal y={30} delay={0.15}>
+          <div className="features-grid-container">
+            <div className="features-grid">
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <Compass size={24} />
+                </div>
+                <h3 className="feature-title">Baking Fundamentals</h3>
+                <p className="feature-desc">Master the foundations of dough kneading, batter aeration, and precise oven scaling.</p>
               </div>
-              <h3 className="feature-title">Baking Fundamentals</h3>
-              <p className="feature-desc">Master the foundations of dough kneading, batter aeration, and precise oven scaling.</p>
-            </div>
 
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <Sparkles size={24} />
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <Sparkles size={24} />
+                </div>
+                <h3 className="feature-title">Baking Science</h3>
+                <p className="feature-desc">Understand yeast chemistry, sugar caramelization, and structure builders like gluten and egg proteins.</p>
               </div>
-              <h3 className="feature-title">Baking Science</h3>
-              <p className="feature-desc">Understand yeast chemistry, sugar caramelization, and structure builders like gluten and egg proteins.</p>
-            </div>
 
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
-                <Award size={24} />
+              <div className="feature-card">
+                <div className="feature-icon-wrapper">
+                  <Award size={24} />
+                </div>
+                <h3 className="feature-title">Expert Mentorship</h3>
+                <p className="feature-desc">Get your baking queries solved, recipes reviewed, and earn certifications as you progress.</p>
               </div>
-              <h3 className="feature-title">Expert Mentorship</h3>
-              <p className="feature-desc">Get your baking queries solved, recipes reviewed, and earn certifications as you progress.</p>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Signature Delicacies Section */}
       <section id="delicacies" className="delicacies-section">
-        <div className="section-header">
-          <span className="section-subtitle">Handcrafted Classics</span>
-          <h2 className="section-title text-center">Our Signature Delicacies</h2>
-          <p className="section-desc">
-            Explore the culinary art of premium cake design and rich pastries. Here is a glimpse of what you will learn to craft.
-          </p>
-        </div>
+        <ScrollReveal y={30} delay={0.1}>
+          <div className="section-header">
+            <span className="section-subtitle">Handcrafted Classics</span>
+            <h2 className="section-title text-center">Our Signature Delicacies</h2>
+            <p className="section-desc">
+              Explore the culinary art of premium cake design and rich pastries. Here is a glimpse of what you will learn to craft.
+            </p>
+          </div>
+        </ScrollReveal>
 
-        <div className="delicacies-grid">
-          {/* Card 1 */}
-          <div className="delicacy-card">
-            <div className="delicacy-image-wrapper">
-              <img src={cakeStrawberry} alt="Merro Chople Dessert" />
-              <div className="delicacy-overlay">
-                <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+        <ScrollReveal y={40} delay={0.2}>
+          <div className="delicacies-grid">
+            {/* Card 1 */}
+            <div className="delicacy-card">
+              <div className="delicacy-image-wrapper">
+                <img src={cakeStrawberry} alt="Merro Chople Dessert" />
+                <div className="delicacy-overlay">
+                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+                </div>
+              </div>
+              <div className="delicacy-info">
+                <span className="delicacy-category">Signature Pastry</span>
+                <h3 className="delicacy-title">Merro Chople</h3>
+                <p className="delicacy-desc">A mini chocolate gateau base layered with chocolate mousse, finished with a fresh strawberry and gold leaf garnish.</p>
               </div>
             </div>
-            <div className="delicacy-info">
-              <span className="delicacy-category">Signature Pastry</span>
-              <h3 className="delicacy-title">Merro Chople</h3>
-              <p className="delicacy-desc">A mini chocolate gateau base layered with chocolate mousse, finished with a fresh strawberry and gold leaf garnish.</p>
-            </div>
-          </div>
 
-          {/* Card 2 */}
-          <div className="delicacy-card">
-            <div className="delicacy-image-wrapper">
-              <img src={cakeLayered} alt="Conoalut Beticina Honey Cake" />
-              <div className="delicacy-overlay">
-                <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+            {/* Card 2 */}
+            <div className="delicacy-card">
+              <div className="delicacy-image-wrapper">
+                <img src={cakeLayered} alt="Conoalut Beticina Honey Cake" />
+                <div className="delicacy-overlay">
+                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+                </div>
+              </div>
+              <div className="delicacy-info">
+                <span className="delicacy-category">Multi-layered Cake</span>
+                <h3 className="delicacy-title">Conoalut Beticina</h3>
+                <p className="delicacy-desc">Traditional Russian honey cake featuring ten thin caramelized biscuit layers sandwiching sour cream frosting.</p>
               </div>
             </div>
-            <div className="delicacy-info">
-              <span className="delicacy-category">Multi-layered Cake</span>
-              <h3 className="delicacy-title">Conoalut Beticina</h3>
-              <p className="delicacy-desc">Traditional Russian honey cake featuring ten thin caramelized biscuit layers sandwiching sour cream frosting.</p>
-            </div>
-          </div>
 
-          {/* Card 3 */}
-          <div className="delicacy-card">
-            <div className="delicacy-image-wrapper">
-              <img src={cakeBrownie} alt="Cosol Chis Brownie" />
-              <div className="delicacy-overlay">
-                <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+            {/* Card 3 */}
+            <div className="delicacy-card">
+              <div className="delicacy-image-wrapper">
+                <img src={cakeBrownie} alt="Cosol Chis Brownie" />
+                <div className="delicacy-overlay">
+                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+                </div>
+              </div>
+              <div className="delicacy-info">
+                <span className="delicacy-category">Decadent Bar</span>
+                <h3 className="delicacy-title">Cosol Chis</h3>
+                <p className="delicacy-desc">A dense, chewy dark chocolate fudge brownie slab decorated with chocolate glaze and sea salt flakes.</p>
               </div>
             </div>
-            <div className="delicacy-info">
-              <span className="delicacy-category">Decadent Bar</span>
-              <h3 className="delicacy-title">Cosol Chis</h3>
-              <p className="delicacy-desc">A dense, chewy dark chocolate fudge brownie slab decorated with chocolate glaze and sea salt flakes.</p>
-            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* ===== FEATURED MENU SECTION ===== */}
       {(featuredMenu.length > 0 || menuLoading) && (
         <section id="menu" className="home-menu-section">
-          <div className="section-header">
-            <span className="section-subtitle">Fresh Everyday</span>
-            <h2 className="section-title text-center">Our Menu</h2>
-            <p className="section-desc">
-              Order your favourite baked delicacies directly on WhatsApp — freshly made and delivered with love.
-            </p>
-          </div>
+          <ScrollReveal y={30} delay={0.1}>
+            <div className="section-header">
+              <span className="section-subtitle">Fresh Everyday</span>
+              <h2 className="section-title text-center">Our Menu</h2>
+              <p className="section-desc">
+                Order your favourite baked delicacies directly on WhatsApp — freshly made and delivered with love.
+              </p>
+            </div>
+          </ScrollReveal>
 
           {menuLoading ? (
             <div style={{ textAlign: 'center', padding: '3rem' }}>
               <div className="spinner" style={{ width: '36px', height: '36px', borderTopColor: 'var(--gold-primary)', margin: '0 auto' }} />
             </div>
           ) : (
-            <div className="home-menu-grid">
-              {featuredMenu.map(item => {
-                const hasFlavours = item.flavours && item.flavours.length > 0;
-                const currentFlavour = hasFlavours ? (selectedFlavours[item._id] || item.flavours[0]) : null;
-                const currentQty = hasFlavours ? (selectedQuantities[item._id] || 1) : 1;
-                const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
+            <ScrollReveal y={40} delay={0.2}>
+              <div className="home-menu-grid">
+                {featuredMenu.map(item => {
+                  const hasFlavours = item.flavours && item.flavours.length > 0;
+                  const currentFlavour = hasFlavours ? (selectedFlavours[item._id] || item.flavours[0]) : null;
+                  const currentQty = hasFlavours ? (selectedQuantities[item._id] || 1) : 1;
+                  const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
 
-                return (
-                  <TiltedCard key={item._id} className="home-menu-card">
-                    <div className="home-menu-img-wrap">
-                      {item.image ? (
-                        <img src={getMediaUrl(item.image)} alt={item.name} className="home-menu-img" />
-                      ) : (
-                        <div className="home-menu-img-placeholder">
-                          <ShoppingBag size={32} style={{ color: 'var(--gold-primary)', opacity: 0.4 }} />
-                        </div>
-                      )}
-                      <span className="home-menu-cat">{item.category}</span>
-                    </div>
-                    <div className="home-menu-body">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                        <h3 className="home-menu-name">{item.name}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                          <span className="home-menu-price">₹{displayPrice}</span>
-                          {hasFlavours && currentFlavour && (
-                            <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
-                              (₹{currentFlavour.price}/Kg)
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {item.description && <p className="home-menu-desc">{item.description}</p>}
-
-                      {hasFlavours && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.5rem 0 0.8rem', padding: '0.6rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-gold)' }}>
-                          {/* Flavour dropdown */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                            <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Flavour</label>
-                            <select
-                              value={currentFlavour?.name || ''}
-                              onChange={e => {
-                                const selectedFlav = item.flavours.find(f => f.name === e.target.value);
-                                setSelectedFlavours(prev => ({ ...prev, [item._id]: selectedFlav }));
-                              }}
-                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
-                            >
-                              {item.flavours.map(f => (
-                                <option key={f.name} value={f.name} style={{ background: '#130a06', color: 'var(--text-primary)' }}>
-                                  {f.name} (₹{f.price}/Kg)
-                                </option>
-                              ))}
-                            </select>
+                  return (
+                    <TiltedCard key={item._id} className="home-menu-card">
+                      <div className="home-menu-img-wrap">
+                        {item.image ? (
+                          <img src={getMediaUrl(item.image)} alt={item.name} className="home-menu-img" />
+                        ) : (
+                          <div className="home-menu-img-placeholder">
+                            <ShoppingBag size={32} style={{ color: 'var(--gold-primary)', opacity: 0.4 }} />
                           </div>
-
-                          {/* Quantity dropdown */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                            <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Quantity (Weight)</label>
-                            <select
-                              value={currentQty}
-                              onChange={e => {
-                                setSelectedQuantities(prev => ({ ...prev, [item._id]: parseFloat(e.target.value) }));
-                              }}
-                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
-                            >
-                              <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
-                              <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
-                              <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
-                              <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
-                              <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
-                              <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
-                            </select>
+                        )}
+                        <span className="home-menu-cat">{item.category}</span>
+                      </div>
+                      <div className="home-menu-body">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                          <h3 className="home-menu-name">{item.name}</h3>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <span className="home-menu-price">₹{displayPrice}</span>
+                            {hasFlavours && currentFlavour && (
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                                (₹{currentFlavour.price}/Kg)
+                              </span>
+                            )}
                           </div>
                         </div>
-                      )}
+                        {item.description && <p className="home-menu-desc">{item.description}</p>}
 
-                      <div className="home-menu-btns" style={{ marginTop: 'auto' }}>
-                        <button
-                          onClick={() => openWhatsApp(item, 'order')}
-                          className="btn-menu-order"
-                          style={{ border: 'none', cursor: 'pointer' }}
-                        >
-                          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style={{ flexShrink: 0 }}>
-                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
-                          </svg>
-                          Order
-                        </button>
-                        <button
-                          onClick={() => openWhatsApp(item, 'details')}
-                          className="btn-menu-details"
-                          style={{ border: '1px solid var(--border-gold-focus)', color: 'var(--text-secondary)' }}
-                        >
-                          <MessageCircle size={14} style={{ flexShrink: 0 }} />
-                          Details
-                        </button>
+                        {hasFlavours && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '0.5rem 0 0.8rem', padding: '0.6rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-gold)' }}>
+                            {/* Flavour dropdown */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                              <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Flavour</label>
+                              <select
+                                value={currentFlavour?.name || ''}
+                                onChange={e => {
+                                  const selectedFlav = item.flavours.find(f => f.name === e.target.value);
+                                  setSelectedFlavours(prev => ({ ...prev, [item._id]: selectedFlav }));
+                                }}
+                                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
+                              >
+                                {item.flavours.map(f => (
+                                  <option key={f.name} value={f.name} style={{ background: '#130a06', color: 'var(--text-primary)' }}>
+                                    {f.name} (₹{f.price}/Kg)
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Quantity dropdown */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                              <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Select Quantity (Weight)</label>
+                              <select
+                                value={currentQty}
+                                onChange={e => {
+                                  setSelectedQuantities(prev => ({ ...prev, [item._id]: parseFloat(e.target.value) }));
+                                }}
+                                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.25rem 0.4rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer' }}
+                              >
+                                <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
+                                <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
+                                <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
+                                <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
+                                <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
+                                <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="home-menu-btns" style={{ marginTop: 'auto' }}>
+                          <button
+                            onClick={() => openWhatsApp(item, 'order')}
+                            className="btn-menu-order"
+                            style={{ border: 'none', cursor: 'pointer' }}
+                          >
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style={{ flexShrink: 0 }}>
+                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
+                            </svg>
+                            Order
+                          </button>
+                          <button
+                            onClick={() => openWhatsApp(item, 'details')}
+                            className="btn-menu-details"
+                            style={{ border: '1px solid var(--border-gold-focus)', color: 'var(--text-secondary)' }}
+                          >
+                            <MessageCircle size={14} style={{ flexShrink: 0 }} />
+                            Details
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </TiltedCard>
-                );
-              })}
-            </div>
+                    </TiltedCard>
+                  );
+                })}
+              </div>
+            </ScrollReveal>
           )}
 
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
@@ -503,45 +518,49 @@ const Home = ({ user, onLogout }) => {
 
       {/* Academy FAQ Section (SEO optimization) */}
       <section className="faq-section">
-        <h2 className="faq-title">Frequently Asked Questions</h2>
-        <div className="faq-grid">
-          <div className="faq-card">
-            <h4 className="faq-question">Are these classes suitable for absolute beginners?</h4>
-            <p className="faq-answer">
-              Yes, all our courses are structured to build skills from the ground up. We start with essential kitchen safety, oven calibration, and ingredient weight measurements before moving on to advanced decoration.
-            </p>
+        <ScrollReveal y={30} delay={0.1}>
+          <h2 className="faq-title">Frequently Asked Questions</h2>
+        </ScrollReveal>
+        <ScrollReveal y={40} delay={0.2}>
+          <div className="faq-grid">
+            <div className="faq-card">
+              <h4 className="faq-question">Are these classes suitable for absolute beginners?</h4>
+              <p className="faq-answer">
+                Yes, all our courses are structured to build skills from the ground up. We start with essential kitchen safety, oven calibration, and ingredient weight measurements before moving on to advanced decoration.
+              </p>
+            </div>
+            <div className="faq-card">
+              <h4 className="faq-question">Do I get lifetime access to the video lessons?</h4>
+              <p className="faq-answer">
+                Yes! Once you purchase a course, you will receive lifetime access to the video tutorials, downloadable recipes, and any future course updates at no extra cost.
+              </p>
+            </div>
+            <div className="faq-card">
+              <h4 className="faq-question">What equipment do I need to start?</h4>
+              <p className="faq-answer">
+                To begin, a standard home oven (OTG or convection), a digital kitchen scale, a hand mixer, mixing bowls, and basic baking pans are sufficient. We guide you on specialized tools inside each course.
+              </p>
+            </div>
+            <div className="faq-card">
+              <h4 className="faq-question">How does student support work?</h4>
+              <p className="faq-answer">
+                You can ask questions directly inside the learning dashboard or contact our WhatsApp support line for quick feedback on your baking homework, texturing, or recipes.
+              </p>
+            </div>
+            <div className="faq-card">
+              <h4 className="faq-question">Can I access the courses on mobile devices?</h4>
+              <p className="faq-answer">
+                Absolutely! Our academy platform is fully responsive and optimized for mobile devices, tablets, and desktop computers. You can learn in your kitchen as you bake.
+              </p>
+            </div>
+            <div className="faq-card">
+              <h4 className="faq-question">Is a certificate provided after completion?</h4>
+              <p className="faq-answer">
+                Yes, a digital Certificate of Completion is awarded to students who complete all modules and submit their final baking assignments for review.
+              </p>
+            </div>
           </div>
-          <div className="faq-card">
-            <h4 className="faq-question">Do I get lifetime access to the video lessons?</h4>
-            <p className="faq-answer">
-              Yes! Once you purchase a course, you will receive lifetime access to the video tutorials, downloadable recipes, and any future course updates at no extra cost.
-            </p>
-          </div>
-          <div className="faq-card">
-            <h4 className="faq-question">What equipment do I need to start?</h4>
-            <p className="faq-answer">
-              To begin, a standard home oven (OTG or convection), a digital kitchen scale, a hand mixer, mixing bowls, and basic baking pans are sufficient. We guide you on specialized tools inside each course.
-            </p>
-          </div>
-          <div className="faq-card">
-            <h4 className="faq-question">How does student support work?</h4>
-            <p className="faq-answer">
-              You can ask questions directly inside the learning dashboard or contact our WhatsApp support line for quick feedback on your baking homework, texturing, or recipes.
-            </p>
-          </div>
-          <div className="faq-card">
-            <h4 className="faq-question">Can I access the courses on mobile devices?</h4>
-            <p className="faq-answer">
-              Absolutely! Our academy platform is fully responsive and optimized for mobile devices, tablets, and desktop computers. You can learn in your kitchen as you bake.
-            </p>
-          </div>
-          <div className="faq-card">
-            <h4 className="faq-question">Is a certificate provided after completion?</h4>
-            <p className="faq-answer">
-              Yes, a digital Certificate of Completion is awarded to students who complete all modules and submit their final baking assignments for review.
-            </p>
-          </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Footer Section */}

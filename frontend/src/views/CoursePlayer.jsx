@@ -108,7 +108,7 @@ const CoursePlayer = () => {
       </div>
 
       {/* Split Classroom View */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
+      <div className="classroom-grid">
         
         {/* --- LEFT: VIDEO STREAM VIEWPORT --- */}
         <div>

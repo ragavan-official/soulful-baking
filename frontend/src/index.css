@@ -1320,6 +1320,12 @@ tr:hover td {
   align-items: start;
 }
 
+.classroom-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+}
+
 @media (max-width: 991px) {
   .checkout-grid {
     grid-template-columns: 1fr !important;
@@ -1327,6 +1333,10 @@ tr:hover td {
   }
   .checkout-grid > div {
     position: static !important;
+  }
+  .classroom-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
   }
 }
 

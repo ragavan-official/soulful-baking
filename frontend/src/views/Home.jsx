@@ -499,46 +499,6 @@ const Home = ({ user, onLogout }) => {
         </section>
       )}
 
-      {/* Academy Detailed Information Section (SEO optimization) */}
-      <section className="info-section">
-        <h2 className="info-title">Master the Art of Professional Baking</h2>
-        <div className="info-rich-text">
-          <p>
-            Welcome to <strong>Soulful Baking Academy</strong>, your premier destination for mastering the art and science of professional baking. Whether you are an aspiring home baker looking to launch a commercial venture, or a pastry enthusiast wanting to perfect your family recipes, our detailed online courses and classes provide all the resources you need to bake with absolute confidence.
-          </p>
-
-          <h3>Comprehensive Online Baking Classes</h3>
-          <p>
-            Our curriculum is designed by expert pastry chefs to guide you from foundational science to advanced decorative techniques. Every course features high-definition video walkthroughs, downloadable ingredient logs, step-by-step instructions, and direct mentorship support. We specialize in explaining the <em>why</em> behind the chemistry of baking, ensuring you get perfect results every single time.
-          </p>
-
-          <h3>Explore Our Signature Courses</h3>
-          <ul>
-            <li>
-              <strong>Advanced Cake Course:</strong> Learn how to bake sponge cakes, layers, tortes, and master the techniques of frosting, crumb coating, and decorating using premium Swiss meringue buttercream, white chocolate ganache, and royal icing.
-            </li>
-            <li>
-              <strong>Gourmet Brownie Course:</strong> Discover the secrets to achieving the perfect shiny, crinkle-top brownie. We teach fudgy, cakey, and chewy brownie variations alongside gourmet flavors like salted caramel, triple chocolate, and walnut swirl.
-            </li>
-            <li>
-              <strong>Artisanal Cookie Course:</strong> Bake bakery-style cookies that are crisp on the edges and soft in the center. Includes classic chocolate chip, double chocolate fudge, red velvet, and custom cut-out sugar cookies.
-            </li>
-            <li>
-              <strong>French Pastry Course:</strong> Dive into the delicate world of laminated doughs. Perfect your croissants, puff pastries, éclairs, choux pastry, and fruit tarts with expert guidance.
-            </li>
-          </ul>
-
-          <h3>Meet Your Instructor: Shamini</h3>
-          <p>
-            Every tutorial and recipe is developed and taught by <strong>Shamini</strong>, a professional baker and instructor with years of culinary experience. Shamini’s teaching style focuses on making complex pastry concepts accessible, encouraging experimentation, and helping students build their unique signature menu.
-          </p>
-
-          <h3>Baking Certification & Professional Growth</h3>
-          <p>
-            Upon completing your baking courses, you will receive an official **Soulful Baking Academy Certificate of Completion**. Use this credential to build your portfolio, showcase your expertise to potential employers, or share your achievement with clients as you establish your custom home bakery business.
-          </p>
-        </div>
-      </section>
 
       {/* Academy FAQ Section (SEO optimization) */}
       <section className="faq-section">

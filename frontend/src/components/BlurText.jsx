@@ -49,7 +49,7 @@ const BlurText = ({ text = '', className = '', delay = 0.03 }) => {
             <motion.span
               key={charIndex}
               variants={childVariants}
-              style={{ display: 'inline-block' }}
+              style={{ display: 'inline-block', willChange: 'transform, opacity, filter' }}
             >
               {char}
             </motion.span>

@@ -59,7 +59,7 @@ const SplitText = ({ text = '', className = '', delay = 0.05 }) => {
                 <motion.span
                   key={idx}
                   variants={childVariants}
-                  style={{ display: 'inline-block' }}
+                  style={{ display: 'inline-block', willChange: 'transform, opacity' }}
                 >
                   {letter}
                 </motion.span>

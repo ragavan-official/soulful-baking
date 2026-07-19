@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { authenticateToken } from '../middleware/auth.js';
 import { r2Client, R2_BUCKET_NAME } from '../utils/r2.js';
+import Media from '../models/Media.js';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -30,6 +31,22 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
+    // Compute cryptographic SHA-256 hash of the file buffer to identify content uniqueness
+    const fileHash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
+
+    // Check if the file is already uploaded to storage
+    const existingMedia = await Media.findOne({ hash: fileHash });
+    
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+    if (existingMedia) {
+      console.log(`Duplicate media detected by hash. Reusing existing fileId: ${existingMedia.fileId}`);
+      return res.status(200).json({
+        fileId: existingMedia.fileId,
+        url: `${baseUrl}/api/media/${existingMedia.fileId}`
+      });
+    }
+
     // Determine target folder prefix
     const folder = req.file.mimetype.startsWith('video/') ? 'video/' : 'photo/';
     
@@ -49,9 +66,17 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
     await r2Client.send(new PutObjectCommand(uploadParams));
     console.log(`R2 Upload Success: Key=${key}`);
 
-    // Build a dynamic base URL from the incoming request so it works on both
-    // localhost and the deployed server without needing any env var.
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    // Create a record of the media upload in MongoDB
+    const newMedia = new Media({
+      hash: fileHash,
+      fileId: key,
+      filename: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+    await newMedia.save();
+    console.log(`Saved new Media entry to DB for hash ${fileHash}`);
+
     res.status(201).json({
       fileId: key,
       url: `${baseUrl}/api/media/${key}`

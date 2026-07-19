@@ -91,7 +91,7 @@ const CoursePlayer = () => {
       {/* Header */}
       <div className="dashboard-header" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button onClick={() => navigate('/account')} className="btn-secondary" style={{ padding: '0.4rem 0.6rem' }}>
+          <button onClick={() => navigate(-1)} className="btn-secondary" style={{ padding: '0.4rem 0.6rem' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

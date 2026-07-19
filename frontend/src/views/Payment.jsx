@@ -227,7 +227,7 @@ const Payment = ({ user }) => {
       {/* Header */}
       <div className="dashboard-header" style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate('/courses')} className="btn-secondary" style={{ padding: '0.4rem 0.6rem' }}>
+          <button onClick={() => navigate(-1)} className="btn-secondary" style={{ padding: '0.4rem 0.6rem' }}>
             <ArrowLeft size={16} />
           </button>
           <div>

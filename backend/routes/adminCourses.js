@@ -115,6 +115,39 @@ router.get('/purchases', async (req, res) => {
   }
 });
 
+// @route   DELETE /api/admin/purchases/by-month/:year/:month
+// @desc    Delete all course purchases for a specific month (1-indexed month)
+router.delete('/purchases/by-month/:year/:month', async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    const month = parseInt(req.params.month, 10);
+
+    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
+      return res.status(400).json({ message: 'Invalid year or month parameter.' });
+    }
+
+    // Define UTC start and end dates for the selected month
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 1));
+
+    console.log(`Deleting purchases from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    const result = await Purchase.deleteMany({
+      purchasedAt: {
+        $gte: startDate,
+        $lt: endDate
+      }
+    });
+
+    res.json({
+      message: `Successfully deleted ${result.deletedCount} logs for ${year}-${month.toString().padStart(2, '0')}`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting monthly purchases:', error);
+    res.status(500).json({ message: 'Server error deleting monthly logs.' });
+  }
+});
+
 // @route   GET /api/admin/extension-requests
 // @desc    Retrieve all course extension requests
 router.get('/extension-requests', async (req, res) => {

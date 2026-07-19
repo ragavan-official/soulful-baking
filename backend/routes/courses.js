@@ -5,7 +5,6 @@ const router = express.Router();
 import Course from '../models/Course.js';
 import Purchase from '../models/Purchase.js';
 import { authenticateToken } from '../middleware/auth.js';
-import ExtensionRequest from '../models/ExtensionRequest.js';
 
 // Apply authenticateToken to all user-facing course routes
 router.use(authenticateToken);
@@ -48,8 +47,6 @@ router.get('/my-learning', async (req, res) => {
       .populate('courseId')
       .sort({ purchasedAt: -1 });
 
-    const extensionRequests = await ExtensionRequest.find({ userId: req.user._id });
-
     const formattedPurchasedCourses = purchases.map(purchase => {
       if (!purchase.courseId) return null;
       const course = purchase.courseId.toObject();
@@ -57,14 +54,6 @@ router.get('/my-learning', async (req, res) => {
       const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
       const expiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
       const isExpired = new Date() > expiresAt;
-
-      // Find the latest extension request status for this course
-      const courseReqs = extensionRequests
-        .filter(r => r.courseId.toString() === course._id.toString())
-        .sort((a, b) => b.createdAt - a.createdAt);
-      
-      const extensionStatus = courseReqs.length > 0 ? courseReqs[0].status : null;
-      const extensionRequestId = courseReqs.length > 0 ? courseReqs[0]._id : null;
 
       return {
         _id: course._id,
@@ -75,9 +64,7 @@ router.get('/my-learning', async (req, res) => {
         expiresAt,
         isExpired,
         validityDays,
-        videoCount: course.videos ? course.videos.length : 0,
-        extensionStatus,
-        extensionRequestId
+        videoCount: course.videos ? course.videos.length : 0
       };
     }).filter(item => item !== null);
 
@@ -85,68 +72,6 @@ router.get('/my-learning', async (req, res) => {
   } catch (error) {
     console.error('Error fetching purchased courses:', error);
     res.status(500).json({ message: 'Server error fetching my-learning courses' });
-  }
-});
-
-// @route   POST /api/courses/request-extension
-// @desc    Create an extension request for an expired course
-router.post('/request-extension', async (req, res) => {
-  try {
-    const { courseId, requestedDays = 30, reason = '' } = req.body;
-
-    if (!courseId) {
-      return res.status(400).json({ message: 'Course ID is required' });
-    }
-
-    // Verify purchase exists
-    const purchase = await Purchase.findOne({ userId: req.user._id, courseId });
-    if (!purchase) {
-      return res.status(404).json({ message: 'No purchase record found for this course.' });
-    }
-
-    // Verify it is actually expired
-    const course = await Course.findById(courseId);
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found.' });
-    }
-
-    const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
-    const expiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
-    const isExpired = new Date() > expiresAt;
-
-    if (!isExpired) {
-      return res.status(400).json({ message: 'This course has not expired yet.' });
-    }
-
-    // Check for existing pending request
-    const existingRequest = await ExtensionRequest.findOne({
-      userId: req.user._id,
-      courseId,
-      status: 'pending'
-    });
-
-    if (existingRequest) {
-      return res.status(400).json({ message: 'You already have a pending extension request for this course.' });
-    }
-
-    // Create the extension request
-    const newRequest = new ExtensionRequest({
-      userId: req.user._id,
-      courseId,
-      purchaseId: purchase._id,
-      requestedDays: Number(requestedDays),
-      reason
-    });
-
-    await newRequest.save();
-
-    res.status(201).json({
-      message: 'Extension request submitted successfully.',
-      request: newRequest
-    });
-  } catch (error) {
-    console.error('Error requesting extension:', error);
-    res.status(500).json({ message: 'Server error requesting course extension.' });
   }
 });
 

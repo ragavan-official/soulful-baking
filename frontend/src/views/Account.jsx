@@ -54,40 +54,6 @@ const Account = ({ user, onLogout }) => {
     fetchPurchasedCourses();
   }, [user]);
 
-  const handleRequestExtension = async (courseId) => {
-    const reason = window.prompt("Why do you want to extend your course access? (optional):", "Need more time to complete all baking lessons.");
-    if (reason === null) return; // User cancelled prompt
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/courses/request-extension`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ courseId, requestedDays: 30, reason })
-      });
-      const data = await parseResponse(response);
-      if (response.ok) {
-        alert('Your course extension request has been submitted successfully to the admin!');
-        // Refresh purchased courses
-        const refreshResponse = await fetch(`${API_BASE_URL}/api/courses/my-learning`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const refreshData = await parseResponse(refreshResponse);
-        if (refreshResponse.ok) {
-          setPurchasedCourses(refreshData);
-        }
-      } else {
-        alert(data.message || 'Failed to submit extension request.');
-      }
-    } catch (err) {
-      console.error('Error requesting extension:', err);
-      alert('Network error requesting extension.');
-    }
-  };
-
   if (!user) {
     return (
       <div className="auth-container">
@@ -249,36 +215,6 @@ const Account = ({ user, onLogout }) => {
                         `Expires: ${new Date(c.expiresAt).toLocaleDateString()} | ${c.videoCount} lessons`
                       )}
                     </span>
-                    {c.isExpired && (
-                      <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        {c.extensionStatus === 'pending' ? (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', background: 'rgba(229,169,60,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid rgba(229,169,60,0.25)' }}>
-                            Extension Pending
-                          </span>
-                        ) : c.extensionStatus === 'rejected' ? (
-                          <>
-                            <span style={{ fontSize: '0.75rem', color: '#ff7b7c', background: 'rgba(234,84,85,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid rgba(234,84,85,0.25)' }}>
-                              Denied
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleRequestExtension(c._id); }}
-                              className="btn-primary"
-                              style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: '0.7rem', display: 'inline-flex', alignSelf: 'center', boxShadow: 'none' }}
-                            >
-                              Ask Again
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleRequestExtension(c._id); }}
-                            className="btn-primary"
-                            style={{ width: 'auto', padding: '0.25rem 0.5rem', fontSize: '0.7rem', display: 'inline-flex', alignSelf: 'center', boxShadow: 'none' }}
-                          >
-                            Ask Extension
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}

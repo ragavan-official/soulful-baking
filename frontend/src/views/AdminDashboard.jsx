@@ -36,8 +36,6 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [courses, setCourses] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
-  const [extensionRequests, setExtensionRequests] = useState([]);
-  const [extensionsLoading, setExtensionsLoading] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState('');
   
   // Menu modal state
@@ -92,8 +90,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       fetchPurchases();
     } else if (activeTab === 'menu') {
       fetchMenuItems();
-    } else if (activeTab === 'extensions') {
-      fetchExtensionRequests();
     }
   }, [activeTab]);
 
@@ -149,46 +145,6 @@ const AdminDashboard = ({ user, onLogout }) => {
       setError(err.message || 'Error loading sales logs');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchExtensionRequests = async () => {
-    try {
-      setExtensionsLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/admin/extension-requests`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await parseResponse(response);
-      if (!response.ok) throw new Error(data.message);
-      setExtensionRequests(data);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || 'Error loading extension requests');
-    } finally {
-      setExtensionsLoading(false);
-    }
-  };
-
-  const handleResolveExtension = async (requestId, action) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/admin/extension-requests/${requestId}/resolve`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action })
-      });
-      const data = await parseResponse(response);
-      if (!response.ok) throw new Error(data.message);
-      
-      // Refresh requests list
-      fetchExtensionRequests();
-    } catch (err) {
-      console.error(err);
-      setError(err.message || `Error resolving extension request (${action})`);
     }
   };
 
@@ -704,21 +660,6 @@ const AdminDashboard = ({ user, onLogout }) => {
           <ShoppingBag size={16} />
           Manage Menu
         </button>
-
-        <button 
-          onClick={() => { setActiveTab('extensions'); setError(''); }} 
-          className="btn-secondary" 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem',
-            background: activeTab === 'extensions' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-            borderColor: activeTab === 'extensions' ? 'var(--gold-primary)' : 'var(--border-gold)'
-          }}
-        >
-          <Calendar size={16} />
-          Extension Requests
-        </button>
       </div>
 
       {error && <div className="alert alert-error" style={{ marginBottom: '2rem' }}><AlertCircle size={18} /> {error}</div>}
@@ -879,97 +820,6 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* --- TAB CONTENT: EXTENSIONS --- */}
-      {activeTab === 'extensions' && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Course Extension Requests</h2>
-          </div>
-
-          {extensionsLoading ? (
-            <div style={{ textAlign: 'center', padding: '4rem' }}>
-              <div className="spinner" style={{ width: '36px', height: '36px', borderTopColor: 'var(--gold-primary)', margin: '0 auto' }} />
-            </div>
-          ) : extensionRequests.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
-              <Calendar size={56} style={{ color: 'var(--gold-primary)', opacity: 0.3, marginBottom: '1rem' }} />
-              <h3 style={{ fontFamily: 'var(--font-serif)' }}>No Extension Requests</h3>
-              <p style={{ marginTop: '0.5rem' }}>There are no active or historical extension requests.</p>
-            </div>
-          ) : (
-            <div className="table-card">
-              <div className="table-header-row">
-                <div className="table-title">Extension Log</div>
-              </div>
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Course</th>
-                      <th>Days</th>
-                      <th>Reason</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {extensionRequests.map(req => (
-                      <tr key={req._id}>
-                        <td>
-                          <div>
-                            <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{req.userId?.name || 'Unknown'}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{req.userId?.email || 'N/A'}</div>
-                          </div>
-                        </td>
-                        <td>{req.courseId?.title || 'Unknown Course'}</td>
-                        <td>{req.requestedDays} days</td>
-                        <td style={{ maxWidth: '200px', whiteSpace: 'normal', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{req.reason || 'N/A'}</td>
-                        <td>
-                          <span className={`role-tag`} style={{
-                            backgroundColor: req.status === 'accepted' ? 'rgba(40, 199, 111, 0.15)' : req.status === 'rejected' ? 'rgba(234, 84, 85, 0.15)' : 'rgba(229, 169, 60, 0.15)',
-                            border: `1px solid ${req.status === 'accepted' ? 'rgba(40, 199, 111, 0.3)' : req.status === 'rejected' ? 'rgba(234, 84, 85, 0.3)' : 'rgba(229, 169, 60, 0.3)'}`,
-                            color: req.status === 'accepted' ? '#6eff9f' : req.status === 'rejected' ? '#ff7b7c' : 'var(--gold-light)'
-                          }}>
-                            {req.status}
-                          </span>
-                        </td>
-                        <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-                        <td>
-                          {req.status === 'pending' ? (
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              <button
-                                onClick={() => handleResolveExtension(req._id, 'accept')}
-                                className="btn-primary"
-                                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', width: 'auto', background: 'var(--success)', color: '#fff', boxShadow: 'none' }}
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => handleResolveExtension(req._id, 'reject')}
-                                className="btn-secondary"
-                                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', width: 'auto', borderColor: '#ea5455', color: '#ff7b7c' }}
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          ) : (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                              Resolved
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
           )}
         </>

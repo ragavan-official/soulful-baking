@@ -169,6 +169,7 @@ const Home = ({ user, onLogout }) => {
           <nav className="navbar-links-desktop">
             <Link to="/" className="nav-link active">Home</Link>
             <Link to="/courses" className="nav-link">Courses</Link>
+            <Link to="/menu" className="nav-link">Menu</Link>
             <a href="#story" className="nav-link">Our Story</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
             <a href="#contact" className="nav-link">Contact</a>
@@ -200,6 +201,7 @@ const Home = ({ user, onLogout }) => {
           <div className="mobile-nav-menu">
             <Link to="/" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/courses" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Courses</Link>
+            <Link to="/menu" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Menu</Link>
             <a href="#story" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Story</a>
             <a href="#delicacies" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Signature Delicacies</a>
             <a href="#contact" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</a>

@@ -276,18 +276,10 @@ const MenuPage = ({ user, onLogout }) => {
 
                 return (
                   <TiltedCard key={item._id} className="menu-item-card">
-                    <div className="menu-item-image-wrapper">
-                      {item.image ? (
-                        <img src={getMediaUrl(item.image)} alt={item.name} className="menu-item-image" />
-                      ) : (
-                        <div className="menu-item-image-placeholder">
-                          <ShoppingBag size={36} style={{ color: 'var(--gold-primary)', opacity: 0.4 }} />
-                        </div>
-                      )}
-                      <span className="menu-item-category-badge">{item.category}</span>
-                    </div>
-
-                    <div className="menu-item-body">
+                    <div className="menu-item-body" style={{ paddingTop: '1.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <span className="menu-item-category-badge" style={{ position: 'static', margin: 0 }}>{item.category}</span>
+                      </div>
                       <div className="menu-item-header" style={{ alignItems: 'flex-start' }}>
                         <h3 className="menu-item-name">{item.name}</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>

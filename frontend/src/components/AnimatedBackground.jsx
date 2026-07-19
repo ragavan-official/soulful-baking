@@ -18,10 +18,10 @@ const AnimatedBackground = () => {
     
     // Theme colors: gold, vanilla cream, and amber
     const colors = [
-      'rgba(212, 175, 55, 0.25)', 
-      'rgba(243, 229, 171, 0.2)', 
-      'rgba(233, 182, 70, 0.15)',
-      'rgba(139, 69, 19, 0.1)'
+      { core: 'rgba(212, 175, 55, 0.25)', glow: 'rgba(212, 175, 55, 0.05)' },
+      { core: 'rgba(243, 229, 171, 0.2)',  glow: 'rgba(243, 229, 171, 0.04)' },
+      { core: 'rgba(233, 182, 70, 0.15)', glow: 'rgba(233, 182, 70, 0.03)' },
+      { core: 'rgba(139, 69, 19, 0.1)',   glow: 'rgba(139, 69, 19, 0.02)' }
     ];
 
     class Particle {
@@ -31,7 +31,9 @@ const AnimatedBackground = () => {
         this.size = Math.random() * 2.5 + 1;
         this.speedX = Math.random() * 0.3 - 0.15;
         this.speedY = Math.random() * 0.3 - 0.15;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
+        const colorObj = colors[Math.floor(Math.random() * colors.length)];
+        this.color = colorObj.core;
+        this.glowColor = colorObj.glow;
       }
 
       update() {
@@ -44,13 +46,17 @@ const AnimatedBackground = () => {
       }
 
       draw() {
+        // Draw soft glow
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = this.glowColor;
+        ctx.fill();
+
+        // Draw solid core
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = this.color;
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow for performance
       }
     }
 

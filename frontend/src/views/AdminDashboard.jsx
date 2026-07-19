@@ -763,63 +763,71 @@ const AdminDashboard = ({ user, onLogout }) => {
               <p style={{ marginTop: '0.5rem' }}>Click "Add Menu Item" to create your first dish.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
-              {menuItems.map(item => (
-                <div key={item._id} className="glass-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {/* Image */}
-                  {item.image ? (
-                    <img
-                      src={getMediaUrl(item.image)}
-                      alt={item.name}
-                      style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '10px', border: '1px solid var(--border-gold)' }}
-                    />
-                  ) : (
-                    <div style={{ width: '100%', height: '150px', background: 'rgba(0,0,0,0.4)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-gold)' }}>
-                      <ShoppingBag size={32} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', marginBottom: '0.2rem' }}>{item.name}</h3>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', background: 'rgba(229,169,60,0.1)', padding: '0.15rem 0.5rem', borderRadius: '20px' }}>{item.category}</span>
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
-                      {item.flavours && item.flavours.length > 0 ? (
-                        `From ₹${Math.min(...item.flavours.map(f => f.price))}`
-                      ) : (
-                        `₹${item.price}`
-                      )}
-                    </span>
-                  </div>
-
-                  {item.description && (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.description}</p>
-                  )}
-
-                  {item.flavours && item.flavours.length > 0 && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '6px', border: '1px dashed var(--border-gold)' }}>
-                      <strong style={{ color: 'var(--gold-primary)' }}>Flavours: </strong>
-                      {item.flavours.map(f => `${f.name} (₹${f.price}/kg)`).join(', ')}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border-gold)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: item.isAvailable ? 'var(--success)' : 'var(--error)' }}>
-                      {item.isAvailable ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
-                      {item.isAvailable ? 'Available' : 'Unavailable'}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button onClick={() => openEditMenuModal(item)} style={{ background: 'none', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
-                        <Edit2 size={13} /> Edit
-                      </button>
-                      <button onClick={() => handleDeleteMenuItem(item._id)} style={{ background: 'none', border: '1px solid rgba(234,84,85,0.3)', color: '#ff7b7c', borderRadius: '6px', padding: '0.3rem 0.6rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
-                        <Trash2 size={13} /> Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="table-card">
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item & Category</th>
+                      <th>Description</th>
+                      <th>Flavours / Price</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {menuItems.map(item => {
+                      const hasFlavours = item.flavours && item.flavours.length > 0;
+                      return (
+                        <tr key={item._id}>
+                          <td>
+                            <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.95rem' }}>{item.name}</div>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--gold-primary)', background: 'rgba(229,169,60,0.1)', padding: '0.15rem 0.5rem', borderRadius: '20px', display: 'inline-block', marginTop: '0.25rem' }}>
+                              {item.category}
+                            </span>
+                          </td>
+                          <td style={{ maxWidth: '250px', whiteSpace: 'normal', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {item.description || <span style={{ opacity: 0.35 }}>No description</span>}
+                          </td>
+                          <td>
+                            {hasFlavours ? (
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                <div style={{ fontWeight: '600', color: 'var(--gold-light)' }}>
+                                  From ₹{Math.min(...item.flavours.map(f => f.price))}/Kg
+                                </div>
+                                <div style={{ fontSize: '0.75rem', marginTop: '0.15rem', opacity: 0.8 }}>
+                                  {item.flavours.map(f => f.name).join(', ')}
+                                </div>
+                              </div>
+                            ) : (
+                              <span style={{ fontWeight: '600', color: 'var(--gold-light)' }}>₹{item.price}</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className="role-tag" style={{
+                              backgroundColor: item.isAvailable ? 'rgba(40, 199, 111, 0.15)' : 'rgba(234, 84, 85, 0.15)',
+                              border: `1px solid ${item.isAvailable ? 'rgba(40, 199, 111, 0.3)' : 'rgba(234, 84, 85, 0.3)'}`,
+                              color: item.isAvailable ? '#6eff9f' : '#ff7b7c'
+                            }}>
+                              {item.isAvailable ? 'Available' : 'Unavailable'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                              <button onClick={() => openEditMenuModal(item)} className="btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem', width: 'auto' }}>
+                                <Edit2 size={13} /> Edit
+                              </button>
+                              <button onClick={() => handleDeleteMenuItem(item._id)} className="btn-secondary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: '#ea5455', color: '#ff7b7c', display: 'flex', alignItems: 'center', gap: '0.3rem', width: 'auto' }}>
+                                <Trash2 size={13} /> Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>

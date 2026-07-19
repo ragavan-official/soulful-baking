@@ -1104,31 +1104,6 @@ const AdminDashboard = ({ user, onLogout }) => {
                 )}
               </div>
 
-              {/* Image Upload */}
-              <div className="input-group" style={{ marginBottom: 0 }}>
-                <label className="input-label">Item Image</label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', border: '1px dashed var(--border-gold-focus)', borderRadius: '10px', cursor: 'pointer', background: 'rgba(0,0,0,0.2)' }}>
-                  {isUploadingMenuImg ? (
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Uploading...</span>
-                  ) : menuItemImage ? (
-                    <span style={{ color: 'var(--success)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <CheckCircle size={16} /> Image uploaded — click to change
-                    </span>
-                  ) : (
-                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <UploadCloud size={16} /> Upload Image
-                    </span>
-                  )}
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleMenuImageUpload} />
-                </label>
-                {menuItemImage && (
-                  <img
-                    src={getMediaUrl(menuItemImage)}
-                    alt="Preview"
-                    style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', marginTop: '0.5rem', border: '1px solid var(--border-gold)' }}
-                  />
-                )}
-              </div>
 
               {/* Availability Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', border: '1px solid var(--border-gold)' }}>

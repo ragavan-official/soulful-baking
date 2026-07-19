@@ -38,6 +38,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [extensionRequests, setExtensionRequests] = useState([]);
   const [extensionsLoading, setExtensionsLoading] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState('');
   
   // Menu modal state
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
@@ -189,6 +190,84 @@ const AdminDashboard = ({ user, onLogout }) => {
       console.error(err);
       setError(err.message || `Error resolving extension request (${action})`);
     }
+  };
+
+  const handleDownloadLogCSV = (yearMonth) => {
+    if (!yearMonth) return;
+
+    const filtered = purchases.filter(p => {
+      const date = new Date(p.purchasedAt);
+      const ym = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      return ym === yearMonth;
+    });
+
+    if (filtered.length === 0) {
+      alert('No logs found for the selected month');
+      return;
+    }
+
+    const headers = ['Client Name', 'Client Email', 'Course Title', 'Revenue (INR)', 'Purchase Date'];
+    const rows = filtered.map(p => {
+      const clientName = p.userId?.name || 'Unknown User';
+      const clientEmail = p.userId?.email || 'N/A';
+      const courseTitle = p.courseId?.title || 'Deleted Course';
+      const revenue = p.amount !== null && p.amount !== undefined ? p.amount : (p.courseId?.price || 0);
+      const purchaseDate = new Date(p.purchasedAt).toLocaleString();
+
+      return [
+        `"${clientName.replace(/"/g, '""')}"`,
+        `"${clientEmail.replace(/"/g, '""')}"`,
+        `"${courseTitle.replace(/"/g, '""')}"`,
+        revenue.toFixed(2),
+        `"${purchaseDate.replace(/"/g, '""')}"`
+      ].join(',');
+    });
+
+    const csvString = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `sales_log_${yearMonth}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteMonthlyLogs = async (yearMonth) => {
+    if (!yearMonth) return;
+
+    const [year, month] = yearMonth.split('-');
+    const monthName = getMonthName(yearMonth);
+    const confirmDelete = window.confirm(`Are you sure you want to delete all sales logs for ${monthName}? This action cannot be undone.`);
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/admin/purchases/by-month/${year}/${parseInt(month, 10)}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await parseResponse(response);
+      if (response.ok) {
+        alert(data.message || 'Successfully deleted logs.');
+        setSelectedMonth('');
+        fetchPurchases();
+      } else {
+        setError(data.message || 'Failed to delete logs.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Network error deleting monthly logs.');
+    }
+  };
+
+  const getMonthName = (yearMonthStr) => {
+    if (!yearMonthStr) return '';
+    const [year, month] = yearMonthStr.split('-');
+    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
   const fetchMenuItems = async () => {
@@ -957,11 +1036,59 @@ const AdminDashboard = ({ user, onLogout }) => {
       {activeTab === 'sales' && (
         <>
           <div className="table-card">
-            <div className="table-header-row">
+            <div className="table-header-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
               <h2 className="table-title">Academy Registrations & Sales</h2>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Total Revenue: <strong style={{ color: 'var(--gold-primary)' }}>₹{purchases.reduce((acc, curr) => acc + (curr.courseId?.price || 0), 0).toFixed(2)}</strong>
-              </span>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Total Revenue: <strong style={{ color: 'var(--gold-primary)' }}>₹{purchases.reduce((acc, curr) => acc + (curr.amount !== null && curr.amount !== undefined ? curr.amount : (curr.courseId?.price || 0)), 0).toFixed(2)}</strong>
+                </span>
+
+                {purchases.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="input-field"
+                      style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.85rem', height: 'auto', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-gold)', borderRadius: '6px' }}
+                    >
+                      <option value="">Select Month...</option>
+                      {Array.from(
+                        new Set(
+                          purchases.map(p => {
+                            const date = new Date(p.purchasedAt);
+                            return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                          })
+                        )
+                      )
+                        .sort()
+                        .reverse()
+                        .map(ym => (
+                          <option key={ym} value={ym}>{getMonthName(ym)}</option>
+                        ))
+                      }
+                    </select>
+
+                    <button
+                      onClick={() => handleDownloadLogCSV(selectedMonth)}
+                      disabled={!selectedMonth}
+                      className="btn-primary"
+                      style={{ width: 'auto', padding: '0.4rem 0.85rem', fontSize: '0.85rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', opacity: selectedMonth ? 1 : 0.5, cursor: selectedMonth ? 'pointer' : 'not-allowed', boxShadow: 'none' }}
+                    >
+                      Export CSV
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteMonthlyLogs(selectedMonth)}
+                      disabled={!selectedMonth}
+                      className="btn-secondary"
+                      style={{ width: 'auto', padding: '0.4rem 0.85rem', fontSize: '0.85rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', borderColor: selectedMonth ? '#ea5455' : 'var(--border-gold)', color: selectedMonth ? '#ff7b7c' : 'var(--text-secondary)', opacity: selectedMonth ? 1 : 0.5, cursor: selectedMonth ? 'pointer' : 'not-allowed' }}
+                    >
+                      Delete Logs
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="table-container">
               {purchases.length === 0 ? (
@@ -980,25 +1107,28 @@ const AdminDashboard = ({ user, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {purchases.map((sale) => (
-                      <tr key={sale._id}>
-                        <td style={{ fontWeight: '500' }}>{sale.userId?.name || 'Unknown User'}</td>
-                        <td>{sale.userId?.email || 'N/A'}</td>
-                        <td style={{ fontWeight: '500', color: 'var(--gold-light)' }}>{sale.courseId?.title || 'Deleted Course'}</td>
-                        <td style={{ color: 'var(--gold-primary)', fontWeight: '600' }}>
-                          ₹{sale.courseId?.price ? sale.courseId.price.toFixed(2) : '0.00'}
-                        </td>
-                        <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                          {new Date(sale.purchasedAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </td>
-                      </tr>
-                    ))}
+                    {purchases.map((sale) => {
+                      const revenue = sale.amount !== null && sale.amount !== undefined ? sale.amount : (sale.courseId?.price || 0);
+                      return (
+                        <tr key={sale._id}>
+                          <td style={{ fontWeight: '500' }}>{sale.userId?.name || 'Unknown User'}</td>
+                          <td>{sale.userId?.email || 'N/A'}</td>
+                          <td style={{ fontWeight: '500', color: 'var(--gold-light)' }}>{sale.courseId?.title || 'Deleted Course'}</td>
+                          <td style={{ color: 'var(--gold-primary)', fontWeight: '600' }}>
+                            ₹{revenue.toFixed(2)}
+                          </td>
+                          <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                            {new Date(sale.purchasedAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}

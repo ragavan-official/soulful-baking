@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, MessageCircle, ChevronRight, Search, Sparkles, Filter, X, Menu, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import SEO from '../components/SEO';
 import BlurText from '../components/BlurText';
@@ -29,6 +30,29 @@ const Instagram = ({ size = 24, style }) => (
     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
   </svg>
 );
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 25 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 110,
+      damping: 15
+    }
+  }
+};
 
 const MenuPage = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -187,7 +211,7 @@ const MenuPage = ({ user, onLogout }) => {
           <h1 className="menu-hero-title">
             <span className="visually-hidden">Signature Bakery Menu from Soulful Baking</span>
             <span aria-hidden="true">
-              Our <span className="highlight-text"><BlurText text="Menu" delay={0.08} /></span>
+              <BlurText text="Our Menu" delay={0.08} />
             </span>
           </h1>
           <p className="menu-hero-desc">
@@ -267,7 +291,12 @@ const MenuPage = ({ user, onLogout }) => {
               </p>
             </div>
           ) : (
-            <div className="menu-items-grid">
+            <motion.div 
+              className="menu-items-grid"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {filtered.map(item => {
                 const hasFlavours = item.flavours && item.flavours.length > 0;
                 const currentFlavour = hasFlavours ? (selectedFlavours[item._id] || item.flavours[0]) : null;
@@ -275,94 +304,96 @@ const MenuPage = ({ user, onLogout }) => {
                 const displayPrice = hasFlavours && currentFlavour ? currentFlavour.price * currentQty : item.price;
 
                 return (
-                  <TiltedCard key={item._id} className="menu-item-card">
-                    <div className="menu-item-body" style={{ paddingTop: '1.5rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <span className="menu-item-category-badge" style={{ position: 'static', margin: 0 }}>{item.category}</span>
-                      </div>
-                      <div className="menu-item-header" style={{ alignItems: 'flex-start' }}>
-                        <h3 className="menu-item-name">{item.name}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                          <span className="menu-item-price">₹{displayPrice}</span>
-                          {hasFlavours && currentFlavour && (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
-                              (₹{currentFlavour.price}/Kg)
-                            </span>
-                          )}
+                  <motion.div key={item._id} variants={itemVariants}>
+                    <TiltedCard className="menu-item-card">
+                      <div className="menu-item-body" style={{ paddingTop: '1.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                          <span className="menu-item-category-badge" style={{ position: 'static', margin: 0 }}>{item.category}</span>
                         </div>
-                      </div>
-
-                      {item.description && (
-                        <p className="menu-item-desc" style={{ marginBottom: hasFlavours ? '0.25rem' : '1rem' }}>{item.description}</p>
-                      )}
-
-                      {hasFlavours && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', margin: '0.5rem 0 1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid var(--border-gold)' }}>
-                          {/* Flavour dropdown */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Select Flavour</label>
-                            <select
-                              value={currentFlavour?.name || ''}
-                              onChange={e => {
-                                const selectedFlav = item.flavours.find(f => f.name === e.target.value);
-                                setSelectedFlavours(prev => ({ ...prev, [item._id]: selectedFlav }));
-                              }}
-                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.35rem 0.5rem', outline: 'none', fontSize: '0.85rem', cursor: 'pointer' }}
-                            >
-                              {item.flavours.map(f => (
-                                <option key={f.name} value={f.name} style={{ background: '#130a06', color: 'var(--text-primary)' }}>
-                                  {f.name} (₹{f.price}/Kg)
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* Quantity weight dropdown */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Select Quantity (Weight)</label>
-                            <select
-                              value={currentQty}
-                              onChange={e => {
-                                setSelectedQuantities(prev => ({ ...prev, [item._id]: parseFloat(e.target.value) }));
-                              }}
-                              style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.35rem 0.5rem', outline: 'none', fontSize: '0.85rem', cursor: 'pointer' }}
-                            >
-                              <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
-                              <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
-                              <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
-                              <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
-                              <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
-                              <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
-                            </select>
+                        <div className="menu-item-header" style={{ alignItems: 'flex-start' }}>
+                          <h3 className="menu-item-name">{item.name}</h3>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <span className="menu-item-price">₹{displayPrice}</span>
+                            {hasFlavours && currentFlavour && (
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                                (₹{currentFlavour.price}/Kg)
+                              </span>
+                            )}
                           </div>
                         </div>
-                      )}
 
-                      <div className="menu-item-actions" style={{ marginTop: 'auto' }}>
-                      <button
-                        onClick={() => openWhatsApp(item, 'order')}
-                        className="btn-menu-order"
-                        title="Order via WhatsApp"
-                      >
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style={{ flexShrink: 0 }}>
-                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
-                        </svg>
-                        Order Now
-                      </button>
-                      <button
-                        onClick={() => openWhatsApp(item, 'details')}
-                        className="btn-menu-details"
-                        title="More details via WhatsApp"
-                      >
-                        <MessageCircle size={15} style={{ flexShrink: 0 }} />
-                        More Details
-                      </button>
-                    </div>
-                  </div>
-                </TiltedCard>
-              );
-            })}
-            </div>
+                        {item.description && (
+                          <p className="menu-item-desc" style={{ marginBottom: hasFlavours ? '0.25rem' : '1rem' }}>{item.description}</p>
+                        )}
+
+                        {hasFlavours && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', margin: '0.5rem 0 1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid var(--border-gold)' }}>
+                            {/* Flavour dropdown */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Select Flavour</label>
+                              <select
+                                value={currentFlavour?.name || ''}
+                                onChange={e => {
+                                  const selectedFlav = item.flavours.find(f => f.name === e.target.value);
+                                  setSelectedFlavours(prev => ({ ...prev, [item._id]: selectedFlav }));
+                                }}
+                                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.35rem 0.5rem', outline: 'none', fontSize: '0.85rem', cursor: 'pointer' }}
+                              >
+                                {item.flavours.map(f => (
+                                  <option key={f.name} value={f.name} style={{ background: '#130a06', color: 'var(--text-primary)' }}>
+                                    {f.name} (₹{f.price}/Kg)
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Quantity weight dropdown */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Select Quantity (Weight)</label>
+                              <select
+                                value={currentQty}
+                                onChange={e => {
+                                  setSelectedQuantities(prev => ({ ...prev, [item._id]: parseFloat(e.target.value) }));
+                                }}
+                                style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.35rem 0.5rem', outline: 'none', fontSize: '0.85rem', cursor: 'pointer' }}
+                              >
+                                <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
+                                <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
+                                <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
+                                <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
+                                <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
+                                <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="menu-item-actions" style={{ marginTop: 'auto' }}>
+                          <button
+                            onClick={() => openWhatsApp(item, 'order')}
+                            className="btn-menu-order"
+                            title="Order via WhatsApp"
+                          >
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style={{ flexShrink: 0 }}>
+                              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
+                            </svg>
+                            Order Now
+                          </button>
+                          <button
+                            onClick={() => openWhatsApp(item, 'details')}
+                            className="btn-menu-details"
+                            title="More details via WhatsApp"
+                          >
+                            <MessageCircle size={15} style={{ flexShrink: 0 }} />
+                            More Details
+                          </button>
+                        </div>
+                      </div>
+                    </TiltedCard>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
           )}
         </div>
       </section>

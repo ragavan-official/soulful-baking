@@ -34,13 +34,18 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
     // Compute cryptographic SHA-256 hash of the file buffer to identify content uniqueness
     const fileHash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
 
-    // Check if the file is already uploaded to storage
-    const existingMedia = await Media.findOne({ hash: fileHash });
+    // Check if the file is already uploaded to storage (by hash or by original filename)
+    const existingMedia = await Media.findOne({
+      $or: [
+        { hash: fileHash },
+        { filename: req.file.originalname }
+      ]
+    });
     
     const baseUrl = `${req.protocol}://${req.get('host')}`;
 
     if (existingMedia) {
-      console.log(`Duplicate media detected by hash. Reusing existing fileId: ${existingMedia.fileId}`);
+      console.log(`Duplicate media detected. Reusing existing fileId (hash: ${existingMedia.hash === fileHash}, filename: ${existingMedia.filename === req.file.originalname}): ${existingMedia.fileId}`);
       return res.status(200).json({
         fileId: existingMedia.fileId,
         url: `${baseUrl}/api/media/${existingMedia.fileId}`

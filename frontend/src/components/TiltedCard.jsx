@@ -45,7 +45,7 @@ const TiltedCard = ({ children, className = '', maxRotation = 10, scale = 1.015,
           ? `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`
           : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)',
         transition: isHovered 
-          ? 'transform 0.22s cubic-bezier(0.25, 1, 0.5, 1)' 
+          ? 'transform 0.05s ease-out' 
           : 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
         transformStyle: 'preserve-3d',
         cursor: 'pointer'

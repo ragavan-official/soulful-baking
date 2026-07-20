@@ -86,9 +86,10 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // Check if the user has purchased the course
+    // Check if the user has purchased the course OR is an admin
+    const isAdmin = req.user && req.user.role === 'admin';
     const purchase = await Purchase.findOne({ userId: req.user._id, courseId: course._id });
-    const isPurchased = !!purchase;
+    const isPurchased = isAdmin || !!purchase;
 
     const courseObj = course.toObject();
 
@@ -112,8 +113,8 @@ router.get('/:id', async (req, res) => {
 
     // Check expiration
     const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
-    const expiresAt = purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
-    const isExpired = new Date() > expiresAt;
+    const expiresAt = purchase ? (purchase.expiresAt || new Date(purchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000)) : new Date('2099-12-31');
+    const isExpired = !isAdmin && new Date() > expiresAt;
 
     if (isExpired) {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -135,7 +136,7 @@ router.get('/:id', async (req, res) => {
     }
 
     // User purchased the course and it is active! Compute available videos
-    const purchasedAt = purchase.purchasedAt;
+    const purchasedAt = purchase ? purchase.purchasedAt : new Date();
     const now = new Date();
     
     // Calculate difference in days (Day 1 is the purchase day)

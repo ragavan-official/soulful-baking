@@ -327,9 +327,20 @@ const MenuPage = ({ user, onLogout }) => {
 
                 return (
                   <motion.div key={catName} variants={itemVariants} className="menu-category-section">
-                    <h2 className="menu-category-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.4rem', marginBottom: '0.8rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(229,169,60,0.2)' }}>
-                      {catName} {currentSlide.type === 'base' ? `- ${currentSlide.base.name}` : ''}
-                    </h2>
+                    <div style={{ marginBottom: '0.8rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(229,169,60,0.2)' }}>
+                      <h2 className="menu-category-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.4rem', margin: 0 }}>
+                        {catName}
+                      </h2>
+                      {currentSlide.type === 'base' ? (
+                        <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
+                          {currentSlide.base.name}
+                        </p>
+                      ) : (currentSlide.type === 'item' && currentSlide.item.bases && currentSlide.item.bases.length > 0) ? (
+                        <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
+                          {currentSlide.item.bases[0].name}
+                        </p>
+                      ) : null}
+                    </div>
                     <div className="menu-list-table-wrapper" style={{ overflowX: 'auto', background: 'rgba(20, 10, 5, 0.45)', borderRadius: '12px', border: '1px solid var(--border-gold)' }}>
                       <table className="menu-list-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                         <thead>

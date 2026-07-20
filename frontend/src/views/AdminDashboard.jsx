@@ -44,7 +44,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState(null);
   const [menuItemName, setMenuItemName] = useState('');
-  const [menuItemDesc, setMenuItemDesc] = useState('');
+  const [menuItemDescription, setMenuItemDescription] = useState('');
   const [menuItemPrice, setMenuItemPrice] = useState('');
   const [menuItemCategory, setMenuItemCategory] = useState('Specials');
   const [menuItemImage, setMenuItemImage] = useState('');
@@ -279,7 +279,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const openCreateMenuModal = () => {
     setEditingMenuItem(null);
     setMenuItemName('');
-    setMenuItemDesc('');
+    setMenuItemDescription('');
     setMenuItemPrice('');
     setMenuItemCategory('Specials');
     setMenuItemImage('');
@@ -292,7 +292,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const openEditMenuModal = (item) => {
     setEditingMenuItem(item);
     setMenuItemName(item.name);
-    setMenuItemDesc(item.description || '');
+    setMenuItemDescription(item.description || '');
     setMenuItemPrice(item.price || '');
     setMenuItemCategory(item.category || 'Specials');
     setMenuItemImage(item.image || '');
@@ -408,7 +408,7 @@ const AdminDashboard = ({ user, onLogout }) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
           name: menuItemName,
-          description: menuItemDesc,
+          description: menuItemDescription,
           price: menuItemPrice !== '' ? parseFloat(menuItemPrice) : 0,
           flavours: parsedFlavours,
           bases: parsedBases,
@@ -736,9 +736,16 @@ const AdminDashboard = ({ user, onLogout }) => {
               display: 'flex', 
               alignItems: 'center', 
               gap: '0.5rem',
-              background: activeTab === 'users' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-              borderColor: activeTab === 'users' ? 'var(--gold-primary)' : 'var(--border-gold)'
+              background: activeTab === 'users' ? 'linear-gradient(145deg, rgba(229, 169, 60, 0.15), rgba(229, 169, 60, 0.03))' : 'rgba(255,255,255,0.02)',
+              borderColor: activeTab === 'users' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
+              color: activeTab === 'users' ? 'var(--gold-light)' : 'var(--text-secondary)',
+              boxShadow: activeTab === 'users' ? '0 0 15px rgba(229,169,60,0.1)' : 'none',
+              transition: 'all 0.3s ease',
+              borderRadius: '8px',
+              padding: '0.6rem 1.2rem'
             }}
+            onMouseOver={e => { if (activeTab !== 'users') { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+            onMouseOut={e => { if (activeTab !== 'users') { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
           >
             <Users size={16} />
             Users List
@@ -752,9 +759,16 @@ const AdminDashboard = ({ user, onLogout }) => {
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.5rem',
-            background: activeTab === 'courses' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-            borderColor: activeTab === 'courses' ? 'var(--gold-primary)' : 'var(--border-gold)'
+            background: activeTab === 'courses' ? 'linear-gradient(145deg, rgba(229, 169, 60, 0.15), rgba(229, 169, 60, 0.03))' : 'rgba(255,255,255,0.02)',
+            borderColor: activeTab === 'courses' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
+            color: activeTab === 'courses' ? 'var(--gold-light)' : 'var(--text-secondary)',
+            boxShadow: activeTab === 'courses' ? '0 0 15px rgba(229,169,60,0.1)' : 'none',
+            transition: 'all 0.3s ease',
+            borderRadius: '8px',
+            padding: '0.6rem 1.2rem'
           }}
+          onMouseOver={e => { if (activeTab !== 'courses') { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+          onMouseOut={e => { if (activeTab !== 'courses') { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
         >
           <BookOpen size={16} />
           Manage Courses
@@ -767,9 +781,16 @@ const AdminDashboard = ({ user, onLogout }) => {
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.5rem',
-            background: activeTab === 'sales' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-            borderColor: activeTab === 'sales' ? 'var(--gold-primary)' : 'var(--border-gold)'
+            background: activeTab === 'sales' ? 'linear-gradient(145deg, rgba(229, 169, 60, 0.15), rgba(229, 169, 60, 0.03))' : 'rgba(255,255,255,0.02)',
+            borderColor: activeTab === 'sales' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
+            color: activeTab === 'sales' ? 'var(--gold-light)' : 'var(--text-secondary)',
+            boxShadow: activeTab === 'sales' ? '0 0 15px rgba(229,169,60,0.1)' : 'none',
+            transition: 'all 0.3s ease',
+            borderRadius: '8px',
+            padding: '0.6rem 1.2rem'
           }}
+          onMouseOver={e => { if (activeTab !== 'sales') { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+          onMouseOut={e => { if (activeTab !== 'sales') { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
         >
           <DollarSign size={16} />
           Sales Logs
@@ -782,9 +803,16 @@ const AdminDashboard = ({ user, onLogout }) => {
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.5rem',
-            background: activeTab === 'menu' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-            borderColor: activeTab === 'menu' ? 'var(--gold-primary)' : 'var(--border-gold)'
+            background: activeTab === 'menu' ? 'linear-gradient(145deg, rgba(229, 169, 60, 0.15), rgba(229, 169, 60, 0.03))' : 'rgba(255,255,255,0.02)',
+            borderColor: activeTab === 'menu' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
+            color: activeTab === 'menu' ? 'var(--gold-light)' : 'var(--text-secondary)',
+            boxShadow: activeTab === 'menu' ? '0 0 15px rgba(229,169,60,0.1)' : 'none',
+            transition: 'all 0.3s ease',
+            borderRadius: '8px',
+            padding: '0.6rem 1.2rem'
           }}
+          onMouseOver={e => { if (activeTab !== 'menu') { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+          onMouseOut={e => { if (activeTab !== 'menu') { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
         >
           <ShoppingBag size={16} />
           Manage Menu
@@ -991,8 +1019,8 @@ const AdminDashboard = ({ user, onLogout }) => {
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Academy Course Catalog</h2>
-            <button onClick={openCreateCourseModal} className="btn-primary" style={{ width: 'auto', padding: '0.6rem 1.25rem' }}>
-              <Plus size={16} /> Add New Course
+            <button onClick={openCreateCourseModal} className="btn-primary" style={{ width: 'auto', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%)', boxShadow: '0 4px 15px rgba(229, 169, 60, 0.3)', border: 'none', transition: 'transform 0.2s, box-shadow 0.2s' }} onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(229, 169, 60, 0.4)'; }} onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(229, 169, 60, 0.3)'; }}>
+              <Plus size={18} /> Add New Course
             </button>
           </div>
 
@@ -1008,31 +1036,34 @@ const AdminDashboard = ({ user, onLogout }) => {
                 <div key={course._id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                   <div>
                     {course.thumbnail ? (
-                      <img src={getMediaUrl(course.thumbnail)} alt={course.title} style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '10px', marginBottom: '1rem', border: '1px solid var(--border-gold)' }} />
+                      <div style={{ width: '100%', height: '180px', overflow: 'hidden', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid rgba(229,169,60,0.15)', position: 'relative' }}>
+                        <img src={getMediaUrl(course.thumbnail)} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
+                      </div>
                     ) : (
-                      <div style={{ width: '100%', height: '160px', background: 'rgba(0,0,0,0.4)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid var(--border-gold)' }}>
-                        <Film size={36} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
+                      <div style={{ width: '100%', height: '180px', background: 'linear-gradient(145deg, rgba(20,10,5,0.8), rgba(10,5,2,0.9))', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem', border: '1px solid rgba(229,169,60,0.15)' }}>
+                        <Film size={40} style={{ color: 'var(--gold-primary)', opacity: 0.4 }} />
                       </div>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', color: 'var(--text-primary)' }}>{course.title}</h3>
-                      <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.1rem' }}>₹{course.price}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: '1rem' }}>
+                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', color: 'var(--gold-light)', margin: 0, lineHeight: 1.3 }}>{course.title}</h3>
+                      <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.15rem', background: 'rgba(229,169,60,0.1)', padding: '0.3rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(229,169,60,0.2)' }}>₹{course.price}</span>
                     </div>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                       {course.description || 'No description provided.'}
                     </p>
                   </div>
                   
-                  <div style={{ borderTop: '1px solid rgba(229, 169, 60, 0.1)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <div style={{ borderTop: '1px solid rgba(229, 169, 60, 0.15)', paddingTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Film size={14} style={{ color: 'var(--gold-primary)' }}/>
                       <strong>{course.videos ? course.videos.length : 0}</strong> video lessons
                     </span>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button onClick={() => openEditCourseModal(course)} className="btn-secondary" style={{ padding: '0.4rem 0.6rem' }}>
-                        <Edit2 size={14} />
+                      <button onClick={() => openEditCourseModal(course)} className="btn-secondary" style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.background = 'rgba(229,169,60,0.1)'; e.currentTarget.style.borderColor = 'var(--gold-primary)'; e.currentTarget.style.color = 'var(--gold-light)'; }} onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-primary)'; }}>
+                        <Edit2 size={16} />
                       </button>
-                      <button onClick={() => handleDeleteCourse(course._id)} className="btn-secondary" style={{ padding: '0.4rem 0.6rem', borderColor: 'var(--error)', color: '#ff7b7c' }}>
-                        <Trash2 size={14} />
+                      <button onClick={() => handleDeleteCourse(course._id)} className="btn-secondary" style={{ padding: '0.5rem', borderRadius: '8px', background: 'rgba(255,0,0,0.03)', borderColor: 'rgba(255,0,0,0.2)', color: '#ff7b7c', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,0,0,0.1)'; e.currentTarget.style.borderColor = '#ff7b7c'; }} onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,0,0,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,0,0,0.2)'; }}>
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
@@ -1175,7 +1206,18 @@ const AdminDashboard = ({ user, onLogout }) => {
                 />
               </div>
 
-
+              {/* Description */}
+              <div className="input-group" style={{ marginBottom: 0 }}>
+                <label className="input-label">Description (Optional)</label>
+                <textarea
+                  className="input-field"
+                  placeholder="A short description of this menu item..."
+                  value={menuItemDescription}
+                  onChange={e => setMenuItemDescription(e.target.value)}
+                  rows="2"
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
 
               {/* Flavours & Prices list (Standalone) */}
               <div style={{ border: '1px dashed var(--border-gold)', borderRadius: '10px', padding: '1rem', background: 'rgba(0,0,0,0.1)' }}>

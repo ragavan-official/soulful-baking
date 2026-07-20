@@ -10,7 +10,7 @@ import adminCoursesRouter from './routes/adminCourses.js';
 import coursesRouter from './routes/courses.js';
 import mediaRouter from './routes/media.js';
 import menuRouter from './routes/menu.js';
-import { authenticateToken, requireAdmin } from './middleware/auth.js';
+import { authenticateToken, requireAdmin, requireAdminOrEmployee } from './middleware/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -178,7 +178,7 @@ app.use('/api/media', mediaRouter);
 app.use('/api/menu', menuRouter);
 
 // Admin routes
-app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/admin/dashboard', authenticateToken, requireAdminOrEmployee, async (req, res) => {
   try {
     // Return some mock or real stats for dashboard representation
     const totalUsers = await User.countDocuments();
@@ -199,6 +199,31 @@ app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res
   } catch (error) {
     console.error('Error fetching admin dashboard stats:', error);
     res.status(500).json({ message: 'Server error fetching dashboard stats' });
+  }
+});
+
+// @route   PUT /api/admin/users/:id/role
+// @desc    Update a user's role (Admin only)
+app.put('/api/admin/users/:id/role', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['user', 'admin', 'employee'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+    const userToUpdate = await User.findById(req.params.id);
+    if (!userToUpdate) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // Prevent changing the main admin's role
+    if (userToUpdate.email === 'soulfulbaking.shamini@gmail.com') {
+      return res.status(403).json({ message: 'Cannot change the primary admin role' });
+    }
+    userToUpdate.role = role;
+    await userToUpdate.save();
+    res.json({ message: 'User role updated successfully', user: { id: userToUpdate._id, role: userToUpdate.role } });
+  } catch (error) {
+    console.error('Error updating role:', error);
+    res.status(500).json({ message: 'Server error updating role' });
   }
 });
 

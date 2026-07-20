@@ -115,7 +115,7 @@ const Home = ({ user, onLogout }) => {
 
   const handleDashboardClick = () => {
     if (user) {
-      if (user.role === 'admin') {
+      if (user.role === 'admin' || user.role === 'employee') {
         navigate('/admin');
       } else {
         navigate('/account');
@@ -162,7 +162,7 @@ const Home = ({ user, onLogout }) => {
       <header className={`home-navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="navbar-container">
           <Link to="/" className="navbar-logo">
-            <Logo width={45} height={45} animate={false} />
+            <Logo width={70} height={70} animate={false} />
             <span className="navbar-logo-text">Soulful Baking</span>
           </Link>
 
@@ -439,7 +439,7 @@ const Home = ({ user, onLogout }) => {
         <div className="footer-container">
           <div className="footer-brand-section">
             <div className="footer-logo">
-              <Logo width={60} height={60} animate={false} />
+              <Logo width={90} height={90} animate={false} />
               <span className="footer-logo-text">Soulful Baking</span>
             </div>
             <p className="footer-tagline">

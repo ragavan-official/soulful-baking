@@ -36,7 +36,15 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+const requireAdminOrEmployee = (req, res, next) => {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'employee')) {
+    return res.status(403).json({ message: 'Access denied: Admin or Employee role required' });
+  }
+  next();
+};
+
 export {
   authenticateToken,
-  requireAdmin
+  requireAdmin,
+  requireAdminOrEmployee
 };

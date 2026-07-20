@@ -74,7 +74,7 @@ const App = () => {
       setUser(userData);
     });
 
-    if (userData.role === 'admin') {
+    if (userData.role === 'admin' || userData.role === 'employee') {
       navigate('/admin', { replace: true });
     } else if (redirectTo && redirectTo !== '/login' && redirectTo !== '/signup') {
       navigate(redirectTo, { replace: true });
@@ -126,7 +126,7 @@ const App = () => {
         <Route
           path="/admin"
           element={
-            user && user.role === 'admin' ? (
+            user && (user.role === 'admin' || user.role === 'employee') ? (
               <AdminDashboard user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/courses" replace />

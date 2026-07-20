@@ -86,7 +86,6 @@ const Account = ({ user, onLogout }) => {
   return (
     <div className="auth-container" style={{ padding: '2rem 1rem' }}>
       <div className="glass-card profile-card" style={{ maxWidth: '480px', padding: '2.5rem 2rem' }}>
-        <Logo width={80} height={80} animate={false} />
 
         <div style={{ margin: '1.5rem 0' }}>
           {user.avatar ? (
@@ -231,14 +230,14 @@ const Account = ({ user, onLogout }) => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {user.role === 'admin' && (
+          {(user.role === 'admin' || user.role === 'employee') && (
             <button 
               onClick={() => navigate('/admin')} 
               className="btn-primary" 
               style={{ background: 'linear-gradient(135deg, #d32f2f 0%, #f44336 100%)', color: '#fff', boxShadow: '0 4px 15px rgba(244, 67, 54, 0.2)' }}
             >
               <ShieldAlert size={18} />
-              Admin Control Panel
+              {user.role === 'admin' ? 'Admin Control Panel' : 'Employee Dashboard'}
             </button>
           )}
 

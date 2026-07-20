@@ -2,11 +2,11 @@ import express from 'express';
 const router = express.Router();
 import Course from '../models/Course.js';
 import Purchase from '../models/Purchase.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { authenticateToken, requireAdminOrEmployee } from '../middleware/auth.js';
 
 // Apply authentication and admin checks to all admin course endpoints
 router.use(authenticateToken);
-router.use(requireAdmin);
+router.use(requireAdminOrEmployee);
 
 // @route   GET /api/admin/courses
 // @desc    Retrieve all courses with full details

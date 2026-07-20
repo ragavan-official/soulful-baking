@@ -564,7 +564,6 @@ const CoursePlayer = () => {
             <div className="course-detail-price-section">
               <div className="course-detail-price-tag">
                 ₹{course.price ? course.price.toFixed(2) : '0.00'}
-                <span className="course-detail-gst-tag">excluding 18% GST</span>
               </div>
               <div style={{ marginTop: '1.25rem' }}>
                 <button 

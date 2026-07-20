@@ -26,7 +26,9 @@ const getMediaUrl = (keyOrUrl) => {
 };
 
 const AdminDashboard = ({ user, onLogout }) => {
-  const [activeTab, setActiveTab] = useState('users'); // users, courses, sales
+  const isAdmin = user && user.role === 'admin';
+  const isEmployee = user && user.role === 'employee';
+  const [activeTab, setActiveTab] = useState(isAdmin ? 'users' : 'courses'); // users, courses, sales, menu
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -49,6 +51,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [menuItemAvailable, setMenuItemAvailable] = useState(true);
   const [isUploadingMenuImg, setIsUploadingMenuImg] = useState(false);
   const [menuItemFlavours, setMenuItemFlavours] = useState([]);
+  const [menuItemBases, setMenuItemBases] = useState([]);
   
   // Modals / forms
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -76,14 +79,13 @@ const AdminDashboard = ({ user, onLogout }) => {
   const videoFileRef = useRef(null);
   const navigate = useNavigate();
 
-  // Load basic users dashboard data
+  // Load basic users dashboard data if admin
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      setError('Access denied. Admin authorization is required.');
+    if (user && user.role === 'admin') {
+      fetchUsersData();
+    } else {
       setLoading(false);
-      return;
     }
-    fetchUsersData();
   }, [user]);
 
   // Load courses or sales when switching tabs
@@ -254,6 +256,25 @@ const AdminDashboard = ({ user, onLogout }) => {
     navigate('/login');
   };
 
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update role');
+      }
+      setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
   // ─── MENU CRUD ──────────────────────────────────────────────────────────────
   const openCreateMenuModal = () => {
     setEditingMenuItem(null);
@@ -264,6 +285,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setMenuItemImage('');
     setMenuItemAvailable(true);
     setMenuItemFlavours([]);
+    setMenuItemBases([]);
     setIsMenuModalOpen(true);
   };
 
@@ -276,6 +298,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setMenuItemImage(item.image || '');
     setMenuItemAvailable(item.isAvailable !== false);
     setMenuItemFlavours(item.flavours || []);
+    setMenuItemBases(item.bases || []);
     setIsMenuModalOpen(true);
   };
 
@@ -289,6 +312,46 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   const handleFlavourRowChange = (index, field, value) => {
     setMenuItemFlavours(prev => prev.map((flav, idx) => idx === index ? { ...flav, [field]: value } : flav));
+  };
+
+  const handleAddBase = () => {
+    setMenuItemBases(prev => [...prev, { name: '', flavours: [] }]);
+  };
+
+  const handleRemoveBase = (baseIdx) => {
+    setMenuItemBases(prev => prev.filter((_, idx) => idx !== baseIdx));
+  };
+
+  const handleBaseNameChange = (baseIdx, name) => {
+    setMenuItemBases(prev => prev.map((base, idx) => idx === baseIdx ? { ...base, name } : base));
+  };
+
+  const handleAddBaseFlavour = (baseIdx) => {
+    setMenuItemBases(prev => prev.map((base, idx) => {
+      if (idx === baseIdx) {
+        return { ...base, flavours: [...base.flavours, { name: '', price: '' }] };
+      }
+      return base;
+    }));
+  };
+
+  const handleRemoveBaseFlavour = (baseIdx, flavIdx) => {
+    setMenuItemBases(prev => prev.map((base, idx) => {
+      if (idx === baseIdx) {
+        return { ...base, flavours: base.flavours.filter((_, i) => i !== flavIdx) };
+      }
+      return base;
+    }));
+  };
+
+  const handleBaseFlavourChange = (baseIdx, flavIdx, field, value) => {
+    setMenuItemBases(prev => prev.map((base, idx) => {
+      if (idx === baseIdx) {
+        const newFlavs = base.flavours.map((flav, i) => i === flavIdx ? { ...flav, [field]: value } : flav);
+        return { ...base, flavours: newFlavs };
+      }
+      return base;
+    }));
   };
 
   const handleMenuImageUpload = async (e) => {
@@ -318,8 +381,8 @@ const AdminDashboard = ({ user, onLogout }) => {
   const handleSaveMenuItem = async (e) => {
     e.preventDefault();
     if (!menuItemName) { alert('Name is required.'); return; }
-    if (menuItemPrice === '' && menuItemFlavours.length === 0) {
-      alert('Please specify either a flat price or at least one custom flavour with its price.');
+    if (menuItemPrice === '' && menuItemFlavours.length === 0 && menuItemBases.length === 0) {
+      alert('Please specify either a flat price, custom flavours, or base types.');
       return;
     }
 
@@ -335,6 +398,11 @@ const AdminDashboard = ({ user, onLogout }) => {
         price: parseFloat(f.price)
       }));
 
+      const parsedBases = menuItemBases.map(b => ({
+        name: b.name,
+        flavours: b.flavours.map(f => ({ name: f.name, price: parseFloat(f.price) }))
+      }));
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -343,6 +411,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           description: menuItemDesc,
           price: menuItemPrice !== '' ? parseFloat(menuItemPrice) : 0,
           flavours: parsedFlavours,
+          bases: parsedBases,
           image: menuItemImage,
           category: menuItemCategory,
           isAvailable: menuItemAvailable
@@ -618,12 +687,25 @@ const AdminDashboard = ({ user, onLogout }) => {
     );
   }
 
+  const filteredPurchases = selectedMonth
+    ? purchases.filter(p => {
+        const date = new Date(p.purchasedAt);
+        const ym = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+        return ym === selectedMonth;
+      })
+    : purchases;
+
+  const totalRevenue = filteredPurchases.reduce((acc, curr) => acc + (curr.amount !== null && curr.amount !== undefined ? curr.amount : (curr.courseId?.price || 0)), 0);
+
   return (
     <div className="dashboard-container" style={{ paddingBottom: '4rem' }}>
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <h1 className="dashboard-title">Baking Academy Hub</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+            <img src="/logo.jpg" alt="Soulful Baking Logo" style={{ width: 75, height: 75, borderRadius: '12px' }} />
+            <h1 className="dashboard-title" style={{ margin: 0 }}>Soulful Baking Admin</h1>
+          </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
             {activeTab === 'users' && 'Manage accounts and administrative roles.'}
             {activeTab === 'courses' && 'Create courses and configure video release timelines.'}
@@ -645,21 +727,23 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Custom Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-gold)', paddingBottom: '1rem', marginBottom: '2rem' }}>
-        <button 
-          onClick={() => { setActiveTab('users'); setError(''); }} 
-          className="btn-secondary" 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem',
-            background: activeTab === 'users' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
-            borderColor: activeTab === 'users' ? 'var(--gold-primary)' : 'var(--border-gold)'
-          }}
-        >
-          <Users size={16} />
-          Users List
-        </button>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', borderBottom: '1px solid var(--border-gold)', paddingBottom: '1rem', marginBottom: '2rem' }}>
+        {isAdmin && (
+          <button 
+            onClick={() => { setActiveTab('users'); setError(''); }} 
+            className="btn-secondary" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              background: activeTab === 'users' ? 'rgba(229, 169, 60, 0.15)' : 'transparent',
+              borderColor: activeTab === 'users' ? 'var(--gold-primary)' : 'var(--border-gold)'
+            }}
+          >
+            <Users size={16} />
+            Users List
+          </button>
+        )}
 
         <button 
           onClick={() => { setActiveTab('courses'); setError(''); }} 
@@ -768,7 +852,31 @@ const AdminDashboard = ({ user, onLogout }) => {
                       <td style={{ fontWeight: '500' }}>{item.name}</td>
                       <td>{item.email}</td>
                       <td>
-                        <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : 'role-user'}`}>{item.role}</span>
+                        {item.email === 'soulfulbaking.shamini@gmail.com' || !isAdmin ? (
+                          <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
+                        ) : (
+                          <select 
+                            value={item.role} 
+                            onChange={(e) => handleRoleChange(item._id, e.target.value)}
+                            style={{ 
+                              background: 'rgba(22, 12, 7, 0.8)',
+                              color: item.role === 'admin' ? '#ff7b7c' : item.role === 'employee' ? '#6eff9f' : 'var(--gold-primary)',
+                              border: '1px solid var(--border-gold)',
+                              padding: '0.35rem 1.5rem 0.35rem 0.75rem',
+                              borderRadius: '6px',
+                              outline: 'none',
+                              cursor: 'pointer',
+                              textTransform: 'uppercase',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              letterSpacing: '0.5px'
+                            }}
+                          >
+                            <option value="user">USER</option>
+                            <option value="employee">EMPLOYEE</option>
+                            <option value="admin">ADMIN</option>
+                          </select>
+                        )}
                       </td>
                       <td>
                         <span style={{ fontSize: '0.8rem', color: item.googleId ? 'var(--gold-light)' : 'var(--text-secondary)' }}>
@@ -944,7 +1052,7 @@ const AdminDashboard = ({ user, onLogout }) => {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  Total Revenue: <strong style={{ color: 'var(--gold-primary)' }}>₹{purchases.reduce((acc, curr) => acc + (curr.amount !== null && curr.amount !== undefined ? curr.amount : (curr.courseId?.price || 0)), 0).toFixed(2)}</strong>
+                  Total Revenue: <strong style={{ color: 'var(--gold-primary)' }}>₹{totalRevenue.toFixed(2)}</strong>
                 </span>
 
                 {purchases.length > 0 && (
@@ -1010,7 +1118,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {purchases.map((sale) => {
+                    {filteredPurchases.map((sale) => {
                       const revenue = sale.amount !== null && sale.amount !== undefined ? sale.amount : (sale.courseId?.price || 0);
                       return (
                         <tr key={sale._id}>
@@ -1067,50 +1175,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                 />
               </div>
 
-              {/* Description */}
-              <div className="input-group" style={{ marginBottom: 0 }}>
-                <label className="input-label">Description</label>
-                <textarea
-                  className="input-field"
-                  placeholder="Short description of the item..."
-                  value={menuItemDesc}
-                  onChange={e => setMenuItemDesc(e.target.value)}
-                  rows={3}
-                  style={{ resize: 'vertical' }}
-                />
-              </div>
 
-              {/* Price & Category */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">Flat Price (₹) {menuItemFlavours.length === 0 && '*'}</label>
-                  <input
-                    type="number"
-                    className="input-field"
-                    placeholder="0"
-                    min="0"
-                    step="0.01"
-                    value={menuItemPrice}
-                    onChange={e => setMenuItemPrice(e.target.value)}
-                    required={menuItemFlavours.length === 0}
-                  />
-                </div>
-                <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">Category</label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="e.g. Cakes, Pastries"
-                    value={menuItemCategory}
-                    onChange={e => setMenuItemCategory(e.target.value)}
-                  />
-                </div>
-              </div>
 
-              {/* Flavours & Prices list */}
+              {/* Flavours & Prices list (Standalone) */}
               <div style={{ border: '1px dashed var(--border-gold)', borderRadius: '10px', padding: '1rem', background: 'rgba(0,0,0,0.1)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <label className="input-label" style={{ marginBottom: 0 }}>Flavours & Prices (per Kg)</label>
+                  <label className="input-label" style={{ marginBottom: 0 }}>Standalone Flavours & Prices (Optional)</label>
                   <button
                     type="button"
                     onClick={handleAddFlavourRow}
@@ -1121,7 +1191,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
 
                 {menuItemFlavours.length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>No custom flavours added. Item will use the flat price above.</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>No standalone flavours added. Use this for items without a Base Type.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '180px', overflowY: 'auto', paddingRight: '0.25rem' }}>
                     {menuItemFlavours.map((flav, idx) => (
@@ -1129,7 +1199,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                         <input
                           type="text"
                           className="input-field"
-                          placeholder="Flavour name (e.g. Orange Caramel)"
+                          placeholder="Flavour name (e.g. Chocolate)"
                           value={flav.name}
                           onChange={e => handleFlavourRowChange(idx, 'name', e.target.value)}
                           style={{ flex: 2, padding: '0.4rem 0.6rem', fontSize: '0.85rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-gold)' }}
@@ -1157,6 +1227,96 @@ const AdminDashboard = ({ user, onLogout }) => {
                 )}
               </div>
 
+              {/* Bases list (e.g. Fruit Based, Chocolate Based) */}
+              <div style={{ border: '1px dashed var(--border-gold)', borderRadius: '10px', padding: '1rem', background: 'rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <label className="input-label" style={{ marginBottom: 0 }}>Base Types & Flavours (Optional)</label>
+                  <button
+                    type="button"
+                    onClick={handleAddBase}
+                    style={{ background: 'none', border: '1px solid var(--gold-primary)', color: 'var(--gold-primary)', borderRadius: '6px', padding: '0.2rem 0.5rem', cursor: 'pointer', fontSize: '0.75rem' }}
+                  >
+                    + Add Base Type
+                  </button>
+                </div>
+
+                {menuItemBases.length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>No base types added. Use this for categorized flavours like 'Fruit Based'.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '300px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                    {menuItemBases.map((base, bIdx) => (
+                      <div key={bIdx} style={{ padding: '0.75rem', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', border: '1px solid rgba(229,169,60,0.3)' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <input
+                            type="text"
+                            className="input-field"
+                            placeholder="Base Name (e.g. Fruit Based)"
+                            value={base.name}
+                            onChange={e => handleBaseNameChange(bIdx, e.target.value)}
+                            style={{ flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBase(bIdx)}
+                            style={{ background: 'none', border: 'none', color: '#ff7b7c', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
+                            title="Remove Base"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                        <div style={{ paddingLeft: '1rem', borderLeft: '2px solid rgba(229,169,60,0.3)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Flavours for {base.name || 'this base'}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddBaseFlavour(bIdx)}
+                              style={{ background: 'none', border: 'none', color: 'var(--gold-primary)', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline' }}
+                            >
+                              + Add Flavour
+                            </button>
+                          </div>
+                          {base.flavours.length === 0 ? (
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>No flavours added yet.</p>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                              {base.flavours.map((flav, fIdx) => (
+                                <div key={fIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                  <input
+                                    type="text"
+                                    className="input-field"
+                                    placeholder="Flavour name"
+                                    value={flav.name}
+                                    onChange={e => handleBaseFlavourChange(bIdx, fIdx, 'name', e.target.value)}
+                                    style={{ flex: 2, padding: '0.3rem 0.5rem', fontSize: '0.75rem', background: 'rgba(0,0,0,0.5)' }}
+                                    required
+                                  />
+                                  <input
+                                    type="number"
+                                    className="input-field"
+                                    placeholder="Price/Kg (₹)"
+                                    value={flav.price}
+                                    onChange={e => handleBaseFlavourChange(bIdx, fIdx, 'price', e.target.value)}
+                                    style={{ flex: 1, padding: '0.3rem 0.5rem', fontSize: '0.75rem', background: 'rgba(0,0,0,0.5)' }}
+                                    required
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveBaseFlavour(bIdx, fIdx)}
+                                    style={{ background: 'none', border: 'none', color: '#ff7b7c', cursor: 'pointer', padding: '0.1rem' }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Availability Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', border: '1px solid var(--border-gold)' }}>

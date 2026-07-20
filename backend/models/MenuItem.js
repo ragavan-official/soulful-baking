@@ -13,6 +13,15 @@ const flavourSchema = new mongoose.Schema({
   }
 });
 
+const baseSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  flavours: [flavourSchema]
+});
+
 const menuItemSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -31,6 +40,7 @@ const menuItemSchema = new mongoose.Schema({
     default: 0
   },
   flavours: [flavourSchema],
+  bases: [baseSchema],
   image: {
     type: String,  // R2 key (e.g. "photo/uuid.jpg") or legacy full URL
     default: ''

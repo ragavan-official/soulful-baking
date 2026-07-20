@@ -35,7 +35,7 @@ const ForgotPassword = ({ user }) => {
   useEffect(() => {
     // Redirect if already logged in
     if (user) {
-      if (user.role === 'admin') {
+      if (user.role === 'admin' || user.role === 'employee') {
         navigate('/admin');
       } else {
         navigate('/account');

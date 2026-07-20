@@ -61,6 +61,10 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [courseThumbnail, setCourseThumbnail] = useState('');
   const [courseVideos, setCourseVideos] = useState([]); // array of vids
   const [courseValidityDays, setCourseValidityDays] = useState('365');
+  const [courseRecipePdf, setCourseRecipePdf] = useState('');
+  const [isUploadingRecipePdf, setIsUploadingRecipePdf] = useState(false);
+  const [courseInstructor, setCourseInstructor] = useState('Jeyadra Vijayselvan');
+  const [courseLanguage, setCourseLanguage] = useState('English');
   
   // Video upload state
   const [videoTitleInput, setVideoTitleInput] = useState('');
@@ -377,6 +381,9 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseThumbnail('');
     setCourseVideos([]);
     setCourseValidityDays('365');
+    setCourseRecipePdf('');
+    setCourseInstructor('Jeyadra Vijayselvan');
+    setCourseLanguage('English');
     setUploadError('');
     setIsCourseModalOpen(true);
   };
@@ -389,6 +396,9 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseThumbnail(course.thumbnail || '');
     setCourseVideos(course.videos || []);
     setCourseValidityDays(course.validityDays !== undefined ? String(course.validityDays) : '365');
+    setCourseRecipePdf(course.recipePdf || '');
+    setCourseInstructor(course.instructor || 'Jeyadra Vijayselvan');
+    setCourseLanguage(course.language || 'English');
     setUploadError('');
     setIsCourseModalOpen(true);
   };
@@ -518,6 +528,38 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const handleRecipePdfUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingRecipePdf(true);
+    setUploadError('');
+
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/media/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await parseResponse(response);
+      if (!response.ok) throw new Error(data.message || 'Recipe PDF upload failed');
+
+      setCourseRecipePdf(data.fileId);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Error uploading Recipe PDF');
+    } finally {
+      setIsUploadingRecipePdf(false);
+    }
+  };
+
   const handleRemoveVideo = (index) => {
     setCourseVideos(prev => prev.filter((_, idx) => idx !== index));
   };
@@ -548,7 +590,10 @@ const AdminDashboard = ({ user, onLogout }) => {
           price: parseFloat(coursePrice),
           thumbnail: courseThumbnail,
           videos: courseVideos,
-          validityDays: parseInt(courseValidityDays) || 365
+          validityDays: parseInt(courseValidityDays) || 365,
+          recipePdf: courseRecipePdf,
+          instructor: courseInstructor,
+          language: courseLanguage
         })
       });
 
@@ -1199,6 +1244,35 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="input-group">
+                  <label className="input-label" htmlFor="courseInstructor">Instructor</label>
+                  <input 
+                    id="courseInstructor"
+                    type="text" 
+                    className="input-field" 
+                    style={{ paddingLeft: '1rem' }}
+                    placeholder="Jeyadra Vijayselvan"
+                    value={courseInstructor}
+                    onChange={e => setCourseInstructor(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label" htmlFor="courseLanguage">Language</label>
+                  <input 
+                    id="courseLanguage"
+                    type="text" 
+                    className="input-field" 
+                    style={{ paddingLeft: '1rem' }}
+                    placeholder="English"
+                    value={courseLanguage}
+                    onChange={e => setCourseLanguage(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="input-group">
                 <label className="input-label">Thumbnail Image</label>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
@@ -1213,10 +1287,29 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
                 {courseThumbnail && (
                   <img 
-                    src={courseThumbnail} 
+                    src={getMediaUrl(courseThumbnail)} 
                     alt="Thumbnail Preview" 
                     style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-gold)', marginTop: '0.5rem' }} 
                   />
+                )}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Course Recipe PDF</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                  <input 
+                    type="file" 
+                    accept="application/pdf"
+                    onChange={handleRecipePdfUpload}
+                    style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', width: '100%' }}
+                    disabled={isUploadingRecipePdf}
+                  />
+                  {isUploadingRecipePdf && <span style={{ fontSize: '0.8rem', color: 'var(--gold-primary)', whiteSpace: 'nowrap' }}>Uploading...</span>}
+                </div>
+                {courseRecipePdf && (
+                  <div style={{ fontSize: '0.8rem', color: 'var(--success)', marginTop: '0.5rem', wordBreak: 'break-all' }}>
+                    Uploaded PDF: <a href={getMediaUrl(courseRecipePdf)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-light)', textDecoration: 'underline' }}>{courseRecipePdf}</a>
+                  </div>
                 )}
               </div>
 

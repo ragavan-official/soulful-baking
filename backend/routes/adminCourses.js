@@ -24,7 +24,7 @@ router.get('/courses', async (req, res) => {
 // @desc    Create a new course
 router.post('/courses', async (req, res) => {
   try {
-    const { title, description, price, thumbnail, videos, validityDays } = req.body;
+    const { title, description, price, thumbnail, videos, validityDays, recipePdf, instructor, language } = req.body;
 
     if (!title || price === undefined) {
       return res.status(400).json({ message: 'Title and price are required' });
@@ -36,7 +36,10 @@ router.post('/courses', async (req, res) => {
       price,
       thumbnail,
       videos: videos || [],
-      validityDays: validityDays !== undefined ? Number(validityDays) : 365
+      validityDays: validityDays !== undefined ? Number(validityDays) : 365,
+      recipePdf: recipePdf || '',
+      instructor: instructor || 'Jeyadra Vijayselvan',
+      language: language || 'English'
     });
 
     await newCourse.save();
@@ -51,7 +54,7 @@ router.post('/courses', async (req, res) => {
 // @desc    Update course details and associated videos
 router.put('/courses/:id', async (req, res) => {
   try {
-    const { title, description, price, thumbnail, videos, validityDays } = req.body;
+    const { title, description, price, thumbnail, videos, validityDays, recipePdf, instructor, language } = req.body;
 
     if (!title || price === undefined) {
       return res.status(400).json({ message: 'Title and price are required' });
@@ -65,7 +68,10 @@ router.put('/courses/:id', async (req, res) => {
         price, 
         thumbnail, 
         videos: videos || [],
-        validityDays: validityDays !== undefined ? Number(validityDays) : 365
+        validityDays: validityDays !== undefined ? Number(validityDays) : 365,
+        recipePdf: recipePdf !== undefined ? recipePdf : '',
+        instructor: instructor || 'Jeyadra Vijayselvan',
+        language: language || 'English'
       },
       { new: true, runValidators: true }
     );

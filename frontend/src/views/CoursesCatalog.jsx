@@ -193,101 +193,102 @@ const CoursesCatalog = () => {
           {courses.map((course) => {
             const isPurchased = purchasedIds.has(course._id);
             return (
-              <TiltedCard 
-                key={course._id} 
-                className="glass-card" 
-                style={{ 
-                  padding: '1.5rem', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  height: '100%', 
-                  justifyContent: 'space-between',
-                  transition: 'transform 0.3s ease',
-                }}
+              <div 
+                key={course._id}
+                onClick={() => navigate(`/courses/${course._id}`)}
+                style={{ cursor: 'pointer' }}
               >
-                <div>
-                  {course.thumbnail ? (
-                    <img 
-                      src={getMediaUrl(course.thumbnail)}
-                      alt={course.title} 
-                      style={{ 
-                        width: '100%', 
-                        height: '180px', 
-                        objectFit: 'cover', 
-                        borderRadius: '12px', 
-                        marginBottom: '1.25rem', 
-                        border: '1px solid var(--border-gold)' 
-                      }} 
-                    />
-                  ) : (
-                    <div 
-                      style={{ 
-                        width: '100%', 
-                        height: '180px', 
-                        background: 'rgba(0,0,0,0.4)', 
-                        borderRadius: '12px', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        marginBottom: '1.25rem', 
-                        border: '1px solid var(--border-gold)' 
-                      }}
-                    >
-                      <Sparkles size={42} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
+                <TiltedCard 
+                  className="glass-card" 
+                  style={{ 
+                    padding: '1.5rem', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    height: '100%', 
+                    justifyContent: 'space-between',
+                    transition: 'transform 0.3s ease',
+                  }}
+                >
+                  <div>
+                    {course.thumbnail ? (
+                      <img 
+                        src={getMediaUrl(course.thumbnail)}
+                        alt={course.title} 
+                        style={{ 
+                          width: '100%', 
+                          height: '180px', 
+                          objectFit: 'cover', 
+                          borderRadius: '12px', 
+                          marginBottom: '1.25rem', 
+                          border: '1px solid var(--border-gold)' 
+                        }} 
+                      />
+                    ) : (
+                      <div 
+                        style={{ 
+                          width: '100%', 
+                          height: '180px', 
+                          background: 'rgba(0,0,0,0.4)', 
+                          borderRadius: '12px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          marginBottom: '1.25rem', 
+                          border: '1px solid var(--border-gold)' 
+                        }}
+                      >
+                        <Sparkles size={42} style={{ color: 'var(--gold-primary)', opacity: 0.3 }} />
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', color: 'var(--text-primary)', lineHeight: '1.3' }}>
+                        {course.title}
+                      </h3>
                     </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', color: 'var(--text-primary)', lineHeight: '1.3' }}>
-                      {course.title}
-                    </h3>
                   </div>
 
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-                    {course.description || 'Gain premium access to visual walk-throughs, recipes, and detailed baking techniques.'}
-                  </p>
-                </div>
+                  <div style={{ borderTop: '1px solid rgba(229, 169, 60, 0.15)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        Contains <strong>{course.videoCount}</strong> video lessons
+                      </span>
+                      <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.25rem' }}>
+                        ₹{course.price.toFixed(2)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-0.25rem' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        Access Duration: <strong>{course.validityDays !== undefined ? course.validityDays : 365}</strong> Days
+                      </span>
+                    </div>
 
-                <div style={{ borderTop: '1px solid rgba(229, 169, 60, 0.1)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                      Contains <strong>{course.videoCount}</strong> video lessons
-                    </span>
-                    <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '1.25rem' }}>
-                      ₹{course.price.toFixed(2)}
-                    </span>
+                    {isPurchased ? (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); navigate(`/courses/${course._id}`); }} 
+                        className="btn-primary"
+                        style={{ 
+                          background: 'linear-gradient(135deg, var(--gold-dark) 0%, rgba(229, 169, 60, 0.2) 100%)',
+                          color: 'var(--text-primary)',
+                          border: '1px solid var(--gold-primary)',
+                          boxShadow: 'none'
+                        }}
+                      >
+                        <Check size={18} />
+                        Go to Classroom
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); navigate(`/courses/${course._id}`); }}
+                        className="btn-primary"
+                      >
+                        <ShoppingBag size={18} />
+                        View Details
+                      </button>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '-0.25rem' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      Access Duration: <strong>{course.validityDays !== undefined ? course.validityDays : 365}</strong> Days
-                    </span>
-                  </div>
-
-                  {isPurchased ? (
-                    <button 
-                      onClick={() => navigate(`/courses/${course._id}`)} 
-                      className="btn-primary"
-                      style={{ 
-                        background: 'linear-gradient(135deg, var(--gold-dark) 0%, rgba(229, 169, 60, 0.2) 100%)',
-                        color: 'var(--text-primary)',
-                        border: '1px solid var(--gold-primary)',
-                        boxShadow: 'none'
-                      }}
-                    >
-                      <Check size={18} />
-                      Go to Classroom
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => navigate(`/payment/${course._id}`)}
-                      className="btn-primary"
-                    >
-                      <ShoppingBag size={18} />
-                      Unlock Masterclass
-                    </button>
-                  )}
-                </div>
-              </TiltedCard>
+                </TiltedCard>
+              </div>
             );
           })}
         </div>

@@ -14,7 +14,7 @@ router.use(authenticateToken);
 router.get('/', async (req, res) => {
   try {
     // Return only basic info like title, description, price, thumbnail, validityDays, and the number of videos
-    const courses = await Course.find().select('title description price thumbnail videos validityDays');
+    const courses = await Course.find().select('title description price thumbnail videos validityDays instructor language');
     
     // Format response to hide video streaming details for non-purchased courses
     const formattedCourses = courses.map(course => {
@@ -26,7 +26,9 @@ router.get('/', async (req, res) => {
         price: courseObj.price,
         thumbnail: courseObj.thumbnail,
         validityDays: courseObj.validityDays !== undefined ? courseObj.validityDays : 365,
-        videoCount: courseObj.videos ? courseObj.videos.length : 0
+        videoCount: courseObj.videos ? courseObj.videos.length : 0,
+        instructor: courseObj.instructor || 'Jeyadra Vijayselvan',
+        language: courseObj.language || 'English'
       };
     });
 
@@ -96,6 +98,8 @@ router.get('/:id', async (req, res) => {
         ...courseObj,
         isPurchased: false,
         isExpired: false,
+        recipePdf: courseObj.recipePdf ? 'locked' : '',
+        hasRecipePdf: !!courseObj.recipePdf,
         videos: courseObj.videos.map(v => ({
           _id: v._id,
           title: v.title,
@@ -118,6 +122,8 @@ router.get('/:id', async (req, res) => {
         isPurchased: false,
         isExpired: true,
         expiresAt,
+        recipePdf: courseObj.recipePdf ? 'locked' : '',
+        hasRecipePdf: !!courseObj.recipePdf,
         videos: courseObj.videos.map(v => ({
           _id: v._id,
           title: v.title,
@@ -157,12 +163,17 @@ router.get('/:id', async (req, res) => {
       thumbnail: courseObj.thumbnail,
       price: courseObj.price,
       validityDays,
+      instructor: courseObj.instructor || 'Jeyadra Vijayselvan',
+      language: courseObj.language || 'English',
       isPurchased: true,
       isExpired: false,
       purchasedAt,
       expiresAt,
       daysSincePurchase,
-      videos: processedVideos
+      videos: processedVideos,
+      recipePdf: courseObj.recipePdf || '',
+      recipePdfUrl: courseObj.recipePdf ? `${backendBaseUrl}/api/media/${courseObj.recipePdf}` : '',
+      hasRecipePdf: !!courseObj.recipePdf
     });
 
   } catch (error) {

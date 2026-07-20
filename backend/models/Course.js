@@ -48,6 +48,18 @@ const courseSchema = new mongoose.Schema({
     required: true,
     default: 365
   },
+  recipePdf: {
+    type: String,
+    default: ''
+  },
+  instructor: {
+    type: String,
+    default: 'Jeyadra Vijayselvan'
+  },
+  language: {
+    type: String,
+    default: 'English'
+  },
   createdAt: {
     type: Date,
     default: Date.now

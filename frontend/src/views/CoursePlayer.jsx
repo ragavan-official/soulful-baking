@@ -21,6 +21,20 @@ const getMediaUrl = (keyOrUrl) => {
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
 };
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const CoursePlayer = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -46,8 +60,8 @@ const CoursePlayer = () => {
       setError('');
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/login');
-        return;
+        navigate('/login', { state: { from: `/courses/${courseId}` } });
+        return null;
       }
 
       const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}?t=${Date.now()}`, {
@@ -58,9 +72,21 @@ const CoursePlayer = () => {
       if (!response.ok) throw new Error(data.message || 'Error loading course details');
       
       setCourse(data);
+
+      // If user has purchased and has active unlocked videos, auto-select first unlocked video if none active
+      if (data.isPurchased && data.videos && data.videos.length > 0 && !activeVideoUrl) {
+        const firstUnlocked = data.videos.find(v => !v.isLocked) || data.videos[0];
+        if (firstUnlocked && firstUnlocked.videoUrl) {
+          setActiveVideoUrl(firstUnlocked.videoUrl);
+          setActiveVideoTitle(firstUnlocked.title);
+        }
+      }
+
+      return data;
     } catch (err) {
       console.error(err);
       setError(err.message || 'Error loading course details');
+      return null;
     } finally {
       setLoading(false);
     }
@@ -89,7 +115,16 @@ const CoursePlayer = () => {
     setError('');
 
     try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        throw new Error('Razorpay SDK failed to load. Please check your network connection.');
+      }
+
       const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login', { state: { from: `/courses/${courseId}` } });
+        return;
+      }
 
       // 1. Create Razorpay order on backend
       const orderResponse = await fetch(`${API_BASE_URL}/api/courses/${courseId}/razorpay-order`, {
@@ -112,7 +147,7 @@ const CoursePlayer = () => {
         currency: orderData.currency,
         name: 'Soulful Baking Academy',
         description: `Unlock Course: ${orderData.courseTitle}`,
-        image: '',
+        image: 'https://www.soulfulbaking.in/logo.png',
         order_id: orderData.orderId,
         method: {
           card: true,
@@ -145,7 +180,7 @@ const CoursePlayer = () => {
               throw new Error(verifyData.message || 'Signature verification failed');
             }
 
-            // 4. Celebrate!
+            // 4. Celebrate & unlock course immediately!
             confetti({
               particleCount: 150,
               spread: 80,
@@ -154,10 +189,18 @@ const CoursePlayer = () => {
             });
 
             setPaymentSuccess(true);
+            const freshCourse = await fetchCourseDetails();
+            if (freshCourse && freshCourse.videos && freshCourse.videos.length > 0) {
+              const firstVid = freshCourse.videos[0];
+              if (firstVid && firstVid.videoUrl) {
+                setActiveVideoUrl(firstVid.videoUrl);
+                setActiveVideoTitle(firstVid.title);
+              }
+            }
+
             setTimeout(() => {
               setPaymentSuccess(false);
-              fetchCourseDetails();
-            }, 2500);
+            }, 3500);
 
           } catch (err) {
             console.error('Verification error:', err);
@@ -174,7 +217,7 @@ const CoursePlayer = () => {
         notes: {
           courseId: courseId
         },
-        theme: { color: '#f26522' },
+        theme: { color: '#e5a93c' },
         retry: { enabled: true, max_count: 3 },
         timeout: 900,
         modal: {
@@ -203,7 +246,8 @@ const CoursePlayer = () => {
 
   const handleVideoClick = (video) => {
     if (!course.isPurchased) {
-      alert('Please purchase this masterclass to watch the video lessons!');
+      // Trigger Razorpay payment directly when user clicks locked video
+      handlePaymentSubmit();
       return;
     }
     setActiveVideoUrl(video.videoUrl);
@@ -212,7 +256,8 @@ const CoursePlayer = () => {
 
   const handlePdfDownload = () => {
     if (!course.isPurchased) {
-      alert('Please purchase this masterclass to download the recipe PDF!');
+      // Trigger Razorpay payment directly when user clicks locked PDF
+      handlePaymentSubmit();
       return;
     }
     if (course.recipePdfUrl) {
@@ -570,13 +615,14 @@ const CoursePlayer = () => {
                   onClick={handlePaymentSubmit} 
                   disabled={paymentLoading}
                   className="course-detail-add-cart-btn"
+                  title="Click to enroll via Razorpay and instantly unlock video access"
                 >
                   {paymentLoading ? (
                     <div className="spinner" style={{ borderTopColor: '#000', width: '18px', height: '18px' }} />
                   ) : (
                     <>
-                      <ShoppingBag size={18} />
-                      <span>Add to Cart</span>
+                      <Sparkles size={18} />
+                      <span>Enroll & Unlock Now • ₹{course.price ? course.price.toFixed(2) : '0.00'}</span>
                     </>
                   )}
                 </button>
@@ -708,6 +754,8 @@ const CoursePlayer = () => {
                   key={vid._id || idx} 
                   className="course-detail-media-card"
                   onClick={() => handleVideoClick(vid)}
+                  style={{ cursor: 'pointer' }}
+                  title={!course.isPurchased ? "Click to pay & unlock video via Razorpay" : "Click to play video"}
                 >
                   <div className="course-detail-media-left">
                     <div className="course-detail-square-icon-btn">
@@ -718,7 +766,17 @@ const CoursePlayer = () => {
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>{vid.duration || '225:00'}</div>
                     </div>
                   </div>
-                  {!course.isPurchased && <Lock size={16} color="var(--text-secondary)" />}
+                  {!course.isPurchased ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600', background: 'rgba(229, 169, 60, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(229, 169, 60, 0.25)' }}>
+                      <Lock size={14} />
+                      <span>Unlock Access</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--success)', fontSize: '0.85rem', fontWeight: '600' }}>
+                      <CheckCircle2 size={16} />
+                      <span>Unlocked</span>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -730,6 +788,8 @@ const CoursePlayer = () => {
               <div 
                 className="course-detail-media-card"
                 onClick={handlePdfDownload}
+                style={{ cursor: 'pointer' }}
+                title={!course.isPurchased ? "Click to pay & unlock recipe guide via Razorpay" : "Click to download PDF"}
               >
                 <div className="course-detail-media-left">
                   <div className="course-detail-square-icon-btn">
@@ -737,7 +797,7 @@ const CoursePlayer = () => {
                   </div>
                   <div>
                     <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                      {course.title} Online Course
+                      {course.title} Recipe Guide
                     </div>
                   </div>
                 </div>
@@ -745,7 +805,10 @@ const CoursePlayer = () => {
                   {course.isPurchased ? (
                     <DownloadCloud size={18} color="var(--gold-primary)" />
                   ) : (
-                    <Lock size={16} color="var(--text-secondary)" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600', background: 'rgba(229, 169, 60, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(229, 169, 60, 0.25)' }}>
+                      <Lock size={14} />
+                      <span>Unlock PDF</span>
+                    </div>
                   )}
                 </div>
               </div>

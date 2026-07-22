@@ -607,6 +607,25 @@ const CoursePlayer = () => {
 
           {!course.isPurchased ? (
             <div className="course-detail-price-section">
+              {course.isExpired && (
+                <div style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  color: '#ff6b6b',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  fontWeight: '500',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  marginBottom: '1rem',
+                  maxWidth: '480px'
+                }}>
+                  <AlertCircle size={18} color="#ff6b6b" />
+                  <span>Access Expired. Re-purchase to renew video lessons & recipe guide!</span>
+                </div>
+              )}
               <div className="course-detail-price-tag">
                 ₹{course.price ? course.price.toFixed(2) : '0.00'}
               </div>
@@ -615,14 +634,14 @@ const CoursePlayer = () => {
                   onClick={handlePaymentSubmit} 
                   disabled={paymentLoading}
                   className="course-detail-add-cart-btn"
-                  title="Click to enroll via Razorpay and instantly unlock video access"
+                  title={course.isExpired ? "Click to renew access via Razorpay" : "Click to enroll via Razorpay"}
                 >
                   {paymentLoading ? (
                     <div className="spinner" style={{ borderTopColor: '#000', width: '18px', height: '18px' }} />
                   ) : (
                     <>
                       <Sparkles size={18} />
-                      <span>Enroll & Unlock Now • ₹{course.price ? course.price.toFixed(2) : '0.00'}</span>
+                      <span>{course.isExpired ? 'Renew Course Access' : 'Enroll & Unlock Now'} • ₹{course.price ? course.price.toFixed(2) : '0.00'}</span>
                     </>
                   )}
                 </button>

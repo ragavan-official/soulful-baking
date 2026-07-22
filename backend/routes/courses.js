@@ -264,10 +264,15 @@ router.post('/:id/razorpay-order', async (req, res) => {
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    // 2. Check if already purchased
+    // 2. Check if user already has active (non-expired) access
+    const validityDays = course.validityDays !== undefined ? course.validityDays : 365;
     const existingPurchase = await Purchase.findOne({ userId: req.user._id, courseId });
     if (existingPurchase) {
-      return res.status(400).json({ message: 'You have already purchased this course' });
+      const expiresAt = existingPurchase.expiresAt || new Date(existingPurchase.purchasedAt.getTime() + validityDays * 24 * 60 * 60 * 1000);
+      const isExpired = new Date() >= expiresAt;
+      if (!isExpired) {
+        return res.status(400).json({ message: 'You already have active access to this course' });
+      }
     }
 
     // 3. Validate price

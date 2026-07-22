@@ -145,7 +145,7 @@ router.post('/register', async (req, res) => {
     await Otp.deleteOne({ email: normalizedEmail });
 
     // Role assignment: Check if it's the fixed admin email
-    const role = normalizedEmail === 'soulfulbaking.shamini@gmail.com' ? 'admin' : 'user';
+    const role = normalizedEmail === 'query@soulfulbaking.in' ? 'admin' : 'user';
 
     const newUser = new User({
       name,
@@ -191,7 +191,7 @@ router.post('/login', async (req, res) => {
     }
 
     // If it's the fixed admin, check if password in DB matches or reset it to ensure 123456 works
-    if (normalizedEmail === 'soulfulbaking.shamini@gmail.com') {
+    if (normalizedEmail === 'query@soulfulbaking.in') {
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res.status(400).json({ message: 'Invalid email or password' });
@@ -254,7 +254,7 @@ router.post('/google', async (req, res) => {
         isModified = true;
       }
       // Force admin role if it is the fixed admin email
-      if (normalizedEmail === 'soulfulbaking.shamini@gmail.com' && user.role !== 'admin') {
+      if (normalizedEmail === 'query@soulfulbaking.in' && user.role !== 'admin') {
         user.role = 'admin';
         isModified = true;
       }
@@ -268,7 +268,7 @@ router.post('/google', async (req, res) => {
         name: name,
         avatar: picture || '',
         googleId,
-        role: normalizedEmail === 'soulfulbaking.shamini@gmail.com' ? 'admin' : 'user'
+        role: normalizedEmail === 'query@soulfulbaking.in' ? 'admin' : 'user'
       });
       await user.save();
     }

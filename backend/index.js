@@ -143,7 +143,7 @@ async function seedAdmin() {
     // await User.deleteOne({ email: 'ragavram80@gmail.com' });
     // console.log('Old admin user ragavram80@gmail.com removed from database.');
 
-    const adminEmail = 'soulfulbaking.shamini@gmail.com';
+    const adminEmail = 'query@soulfulbaking.in';
     const adminUser = await User.findOne({ email: adminEmail });
 
     if (adminUser) {
@@ -215,7 +215,7 @@ app.put('/api/admin/users/:id/role', authenticateToken, requireAdmin, async (req
       return res.status(404).json({ message: 'User not found' });
     }
     // Prevent changing the main admin's role
-    if (userToUpdate.email === 'soulfulbaking.shamini@gmail.com') {
+    if (userToUpdate.email === 'query@soulfulbaking.in') {
       return res.status(403).json({ message: 'Cannot change the primary admin role' });
     }
     userToUpdate.role = role;

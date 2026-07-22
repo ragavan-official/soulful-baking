@@ -8,7 +8,7 @@ A premium, highly animated baking-themed React application with a Node/Express b
 - **Micro-Animations**: Uses custom canvas particles background, typing effects (`SplitText`), and interactive shine states (`ShinyText`).
 - **Google OAuth Integration**: Connects with Google Sign-in to fetch profile details and save/update accounts in MongoDB.
 - **Fixed Admin Account**: Automatically seeds an administrator account with standard credentials:
-  - **Email**: `soulfulbaking.shamini@gmail.com`
+   - **Email**: `query@soulfulbaking.in`
   - **Password**: `Shaminisha@28`
   - **Role**: `admin`
 - **Security**: Password hashing using `bcryptjs` and session authentication utilizing JSON Web Tokens (`jsonwebtoken`).
@@ -87,7 +87,7 @@ This starts both the frontend server (Vite, listening on port `5174`) and the ba
 
 1. Open your browser and navigate to `http://localhost:5174`.
 2. Select **Sign In** using the fixed administrator credentials:
-   - **Email**: `soulfulbaking.shamini@gmail.com`
+    - **Email**: `query@soulfulbaking.in`
    - **Password**: `Shaminisha@28`
 3. Upon success, you will see a confetti explosion and be redirected to the **Admin Dashboard** showing all user tables and metrics.
 4. Try logging out and creating a standard user account or signing in using Google OAuth.

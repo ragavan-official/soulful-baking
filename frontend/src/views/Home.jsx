@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  MapPin, Phone, ArrowRight, Sparkles, 
+  MapPin, Phone, Mail, ArrowRight, Sparkles, 
   Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart, ShoppingBag, MessageCircle
 } from 'lucide-react';
 import Logo from '../components/Logo';
@@ -133,6 +133,7 @@ const Home = ({ user, onLogout }) => {
     "image": "https://www.soulfulbaking.in/logo.png",
     "@id": "https://www.soulfulbaking.in/#bakery",
     "url": "https://www.soulfulbaking.in",
+    "email": "query@soulfulbaking.in",
     "telephone": "+918124032128",
     "priceRange": "$$",
     "address": {
@@ -556,6 +557,12 @@ const Home = ({ user, onLogout }) => {
                     <strong>wph:</strong> +91 90429 60912
                   </span>
                 </div>
+              </li>
+              <li className="contact-item">
+                <Mail size={18} className="contact-icon" style={{ color: 'var(--gold-primary)' }} />
+                <span className="contact-text">
+                  <strong>email:</strong> <a href="mailto:query@soulfulbaking.in" style={{ color: 'var(--gold-primary)', textDecoration: 'none' }}>query@soulfulbaking.in</a>
+                </span>
               </li>
               <li className="contact-item">
                 <Instagram size={18} className="contact-icon" style={{ color: '#E1306C' }} />

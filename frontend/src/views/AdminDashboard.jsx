@@ -880,7 +880,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                       <td style={{ fontWeight: '500' }}>{item.name}</td>
                       <td>{item.email}</td>
                       <td>
-                        {item.email === 'soulfulbaking.shamini@gmail.com' || !isAdmin ? (
+                        {item.email === 'query@soulfulbaking.in' || !isAdmin ? (
                           <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
                         ) : (
                           <select 

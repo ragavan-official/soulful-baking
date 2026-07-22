@@ -10,6 +10,7 @@ import ShinyText from '../components/ShinyText';
 import SEO from '../components/SEO';
 import TiltedCard from '../components/TiltedCard';
 import ScrollReveal from '../components/ScrollReveal';
+import SplitText from '../components/SplitText';
 import { API_BASE_URL, parseResponse } from '../config';
 
 // Custom inline Instagram Icon since lucide-react doesn't export it in this package version
@@ -219,19 +220,29 @@ const Home = ({ user, onLogout }) => {
       </header>
 
       {/* Hero Section */}
-      <section className="hero-section">
+      <section 
+        className="hero-section"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(7, 4, 3, 0.94) 0%, rgba(7, 4, 3, 0.84) 45%, rgba(7, 4, 3, 0.55) 85%, rgba(7, 4, 3, 0.75) 100%), url(${heroDessert})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center right',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="hero-container">
           <div className="hero-content">
             <span className="hero-badge">
               <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
-              Premium Baking Academy
+              <ShinyText text="Premium Baking Academy" speed={3.5} />
             </span>
             <h1 className="hero-title">
               <span className="visually-hidden">Learn Professional Online Baking Courses from Soulful Baking</span>
               <span aria-hidden="true">
-                <BlurText text="Sweet Moments" delay={0.05} />
+                <SplitText text="Sweet Moments" delay={0.06} />
                 <br />
-                <span className="highlight-text">Start Here</span>
+                <span className="highlight-text">
+                  <BlurText text="Start Here" delay={0.08} />
+                </span>
               </span>
             </h1>
             <p className="hero-description">
@@ -250,34 +261,78 @@ const Home = ({ user, onLogout }) => {
 
           <div className="hero-image-wrapper">
             <div className="hero-image-backdrop"></div>
-            <img 
-              src={heroDessert} 
-              alt="Crème caramel dessert with whipped cream" 
-              className="hero-image"
-            />
+            <TiltedCard maxRotation={10} scale={1.03}>
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
+                <img 
+                  src={heroDessert} 
+                  alt="Crème caramel dessert with whipped cream" 
+                  className="hero-image"
+                />
+              </div>
+            </TiltedCard>
           </div>
         </div>
       </section>
 
       {/* Story & Features Section */}
-      <section id="story" className="story-section">
+      <section 
+        id="story" 
+        className="story-section"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(7, 4, 3, 0.94) 0%, rgba(7, 4, 3, 0.86) 45%, rgba(7, 4, 3, 0.55) 85%, rgba(7, 4, 3, 0.8) 100%), url(${storyDessert})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center left',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="story-container">
           <div className="story-image-column">
             <ScrollReveal y={40} delay={0.1}>
-              <div className="story-image-card">
-                <img 
-                  src={storyDessert} 
-                  alt="Layered chocolate hazelnut cake slice" 
-                  className="story-image"
-                />
-              </div>
+              <TiltedCard maxRotation={12} scale={1.03}>
+                <div className="story-image-card" style={{ position: 'relative' }}>
+                  <img 
+                    src={storyDessert} 
+                    alt="Layered chocolate hazelnut cake slice" 
+                    className="story-image"
+                  />
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      bottom: '1rem',
+                      left: '1rem',
+                      background: 'rgba(10, 5, 3, 0.75)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid var(--border-gold)',
+                      borderRadius: '50px',
+                      padding: '0.4rem 1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      fontSize: '0.8rem',
+                      color: 'var(--gold-light)',
+                      fontWeight: '600',
+                      boxShadow: '0 8px 20px rgba(0,0,0,0.5)'
+                    }}
+                  >
+                    <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
+                    Handcrafted Daily
+                  </div>
+                </div>
+              </TiltedCard>
             </ScrollReveal>
           </div>
 
           <div className="story-content-column">
             <ScrollReveal y={40} delay={0.25}>
-              <span className="section-subtitle">Since 2020</span>
-              <h2 className="section-title">Sweet Moments Baked Here</h2>
+              <span className="section-subtitle">
+                <ShinyText text="SINCE 2024" speed={3} />
+              </span>
+              <h2 className="section-title">
+                <SplitText text="Sweet Moments" delay={0.06} />{' '}
+                <span className="highlight-text">
+                  <BlurText text="Baked Here" delay={0.08} />
+                </span>
+              </h2>
               <p className="story-text">
                 At Soulful Baking, baking is not just about combining flour, sugar, and yeast. It is a soulful journey of craftsmanship, passion, and precision. We curate premium online classes that take you from baking basics to creating complex wedding cakes and delicate french pastries.
               </p>
@@ -285,7 +340,7 @@ const Home = ({ user, onLogout }) => {
                 Every course is carefully planned to give you the science behind the crust, the secret to a moist crumb, and visual walk-throughs that ensure your success in the kitchen.
               </p>
               <button onClick={() => navigate('/courses')} className="btn-secondary-link">
-                Browse All Courses <ChevronRight size={16} />
+                Browse All Courses <ChevronRight size={18} className="btn-arrow-animate" />
               </button>
             </ScrollReveal>
           </div>

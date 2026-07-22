@@ -483,7 +483,7 @@ const MenuPage = ({ user, onLogout }) => {
 
                     {/* Bottom Carousel Navigation for Slides */}
                     {slides.length > 1 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', borderTop: '1px solid rgba(229,169,60,0.2)', paddingTop: '1.5rem' }}>
+                      <div className="menu-pagination-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', borderTop: '1px solid rgba(229,169,60,0.2)', paddingTop: '1.5rem' }}>
                         <button 
                           onClick={() => {
                             if (activeSlideIdx > 0) {

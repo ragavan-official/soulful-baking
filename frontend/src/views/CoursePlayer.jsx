@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL, parseResponse } from '../config';
+import { loadRazorpayScript } from '../utils/loadRazorpay';
 
 // Resolves a media key or legacy full URL to a usable src for this environment.
 const getMediaUrl = (keyOrUrl) => {
@@ -19,20 +20,6 @@ const getMediaUrl = (keyOrUrl) => {
     }
   }
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
-};
-
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
 };
 
 const CoursePlayer = () => {

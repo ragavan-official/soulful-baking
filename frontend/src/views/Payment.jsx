@@ -5,6 +5,7 @@ import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL, parseResponse } from '../config';
+import { loadRazorpayScript } from '../utils/loadRazorpay';
 
 // Resolves an R2 key or legacy full URL to a usable src for this environment.
 const getMediaUrl = (keyOrUrl) => {
@@ -70,6 +71,11 @@ const Payment = ({ user }) => {
     setError('');
 
     try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        throw new Error('Razorpay SDK failed to load. Please check your network connection.');
+      }
+
       const token = localStorage.getItem('token');
 
       // 1. Create Razorpay order on backend

@@ -859,7 +859,7 @@ tr:hover td {
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 480px;
+  max-width: 540px;
   width: 100%;
   margin: 0 auto;
 }
@@ -868,14 +868,14 @@ tr:hover td {
   position: absolute;
   width: 90%;
   height: 90%;
-  background: radial-gradient(circle, rgba(229, 169, 60, 0.15) 0%, transparent 65%);
-  filter: blur(20px);
+  background: radial-gradient(circle, rgba(229, 169, 60, 0.18) 0%, transparent 65%);
+  filter: blur(25px);
   z-index: 0;
 }
 
 .hero-image {
   width: 100%;
-  height: 480px;
+  height: 520px;
   border-radius: 24px;
   border: 1px solid var(--border-gold);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
@@ -950,7 +950,7 @@ tr:hover td {
 
 .sweet-moments-image {
   width: 100%;
-  height: 480px;
+  height: 520px;
   object-fit: cover;
   object-position: center;
   border-radius: 24px;

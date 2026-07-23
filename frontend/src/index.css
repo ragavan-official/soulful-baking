@@ -874,14 +874,15 @@ tr:hover td {
 }
 
 .hero-image {
-  max-width: 100%;
-  max-height: 520px;
-  height: auto;
+  width: 100%;
+  height: 480px;
   border-radius: 24px;
   border: 1px solid var(--border-gold);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
   z-index: 1;
   object-fit: cover;
+  object-position: center;
+  display: block;
   transition: transform 0.5s ease;
 }
 
@@ -949,11 +950,13 @@ tr:hover td {
 
 .sweet-moments-image {
   width: 100%;
-  max-height: 480px;
+  height: 480px;
   object-fit: cover;
+  object-position: center;
   border-radius: 24px;
   border: 1px solid var(--border-gold);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  display: block;
 }
 
 /* Story Section */

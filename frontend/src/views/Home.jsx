@@ -310,8 +310,8 @@ const Home = ({ user, onLogout }) => {
               <TiltedCard maxRotation={10} scale={1.03}>
                 <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
                   <img 
-                    src={heroCardCake} 
-                    alt="Custom handcrafted baby shower fondant cake" 
+                    src={cameraCake} 
+                    alt="Custom Canon camera cake sculpting" 
                     className="sweet-moments-image"
                   />
                 </div>

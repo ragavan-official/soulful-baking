@@ -107,8 +107,10 @@ const MenuPage = ({ user, onLogout }) => {
   const openWhatsApp = (item, selectedBase, selectedFlavour, selectedQty = 1) => {
     const hasFlavours = item.flavours && item.flavours.length > 0;
     const hasBases = item.bases && item.bases.length > 0;
-    const isCake = hasFlavours || hasBases || item.category?.toLowerCase().includes('cake');
-    const unitLabel = isCake ? 'Kg' : 'Qty';
+    const nameLower = item.name.toLowerCase();
+    const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
+    const isCake = !isCupcake && (hasFlavours || hasBases || item.category?.toLowerCase().includes('cake'));
+    const unitLabel = isCupcake ? 'Pcs (Box)' : (isCake ? 'Kg' : 'Qty');
 
     let total;
     if (hasBases && selectedFlavour) {
@@ -303,7 +305,7 @@ const MenuPage = ({ user, onLogout }) => {
               style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1.5rem' }}
             >
               {/* Build Slides for ALL Categories */}
-              {categories.map(catName => {
+              {categories.map((catName, catIdx) => {
                 const itemsInCat = filtered.filter(item => item.name === catName);
                 if (itemsInCat.length === 0) return null;
 
@@ -325,8 +327,43 @@ const MenuPage = ({ user, onLogout }) => {
                 const activeSlideIdx = activeSlideIndices[catName] || 0;
                 const currentSlide = slides[activeSlideIdx] || slides[0];
 
+                const isFirstCategory = catIdx === 0;
+                const isLastCategory = catIdx === categories.length - 1;
+
+                const hasPrevSlide = activeSlideIdx > 0;
+                const hasNextSlide = activeSlideIdx < slides.length - 1;
+
+                const showPrev = hasPrevSlide || !isFirstCategory;
+                const showNext = hasNextSlide || !isLastCategory;
+
+                const handlePrev = () => {
+                  if (hasPrevSlide) {
+                    setActiveSlideIndices(prev => ({ ...prev, [catName]: activeSlideIdx - 1 }));
+                    document.getElementById(`menu-cat-${catIdx}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else if (!isFirstCategory) {
+                    const prevCatName = categories[catIdx - 1];
+                    const prevItems = filtered.filter(item => item.name === prevCatName);
+                    let prevCount = 0;
+                    prevItems.forEach(i => {
+                      if (i.flavours?.length > 0) prevCount++;
+                      if (i.bases?.length > 0) i.bases.forEach(b => { if (b.flavours?.length > 0) prevCount++; });
+                    });
+                    setActiveSlideIndices(prev => ({ ...prev, [prevCatName]: Math.max(0, prevCount - 1) }));
+                    document.getElementById(`menu-cat-${catIdx - 1}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                };
+
+                const handleNext = () => {
+                  if (hasNextSlide) {
+                    setActiveSlideIndices(prev => ({ ...prev, [catName]: activeSlideIdx + 1 }));
+                    document.getElementById(`menu-cat-${catIdx}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else if (!isLastCategory) {
+                    document.getElementById(`menu-cat-${catIdx + 1}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                };
+
                 return (
-                  <motion.div key={catName} variants={itemVariants} className="menu-category-section">
+                  <motion.div key={catName} id={`menu-cat-${catIdx}`} variants={itemVariants} className="menu-category-section">
                     <div style={{ marginBottom: '0.8rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(229,169,60,0.2)' }}>
                       <h2 className="menu-category-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.4rem', margin: 0 }}>
                         {catName}
@@ -335,9 +372,9 @@ const MenuPage = ({ user, onLogout }) => {
                         <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
                           {currentSlide.base.name}
                         </p>
-                      ) : (currentSlide.type === 'item' && currentSlide.item.bases && currentSlide.item.bases.length > 0) ? (
+                      ) : currentSlide.type === 'item' ? (
                         <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
-                          {currentSlide.item.bases[0].name}
+                          {currentSlide.item.description || (currentSlide.item.bases && currentSlide.item.bases[0]?.name)}
                         </p>
                       ) : null}
                     </div>
@@ -417,9 +454,11 @@ const MenuPage = ({ user, onLogout }) => {
                           ) : (
                             <React.Fragment>
                               {currentSlide.item.flavours && currentSlide.item.flavours.map((flav, fIdx) => {
-                                const isCake = currentSlide.item.category?.toLowerCase().includes('cake') || currentSlide.item.name.toLowerCase().includes('cake');
+                                const nameLower = currentSlide.item.name.toLowerCase();
+                                const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
+                                const isCake = !isCupcake && (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake'));
                                 const selectKey = `${currentSlide.item._id}-legacy-${flav.name}`;
-                                const currentQty = selectedQuantities[selectKey] || 1;
+                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : (isCupcake ? 6 : 1);
                                 const displayPrice = flav.price * currentQty;
                                 
                                 return (
@@ -431,9 +470,17 @@ const MenuPage = ({ user, onLogout }) => {
                                       <select
                                         value={currentQty}
                                         onChange={e => setSelectedQuantities(prev => ({ ...prev, [selectKey]: parseFloat(e.target.value) }))}
-                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '100px' }}
+                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '130px' }}
                                       >
-                                        {isCake ? (
+                                        {isCupcake ? (
+                                          <>
+                                            <option value="6" style={{ background: '#130a06' }}>Box of 6 (6 Pcs)</option>
+                                            <option value="12" style={{ background: '#130a06' }}>Box of 12 (12 Pcs)</option>
+                                            <option value="18" style={{ background: '#130a06' }}>18 Pcs</option>
+                                            <option value="24" style={{ background: '#130a06' }}>24 Pcs</option>
+                                            <option value="30" style={{ background: '#130a06' }}>30 Pcs</option>
+                                          </>
+                                        ) : isCake ? (
                                           <>
                                             <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
                                             <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
@@ -482,16 +529,12 @@ const MenuPage = ({ user, onLogout }) => {
                     </div>
 
                     {/* Bottom Carousel Navigation for Slides */}
-                    {slides.length > 1 && (
+                    {(slides.length > 1 || categories.length > 1) && (
                       <div className="menu-pagination-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', borderTop: '1px solid rgba(229,169,60,0.2)', paddingTop: '1.5rem' }}>
                         <button 
-                          onClick={() => {
-                            if (activeSlideIdx > 0) {
-                              setActiveSlideIndices(prev => ({ ...prev, [catName]: activeSlideIdx - 1 }));
-                            }
-                          }}
+                          onClick={handlePrev}
                           style={{ 
-                            visibility: activeSlideIdx > 0 ? 'visible' : 'hidden',
+                            visibility: showPrev ? 'visible' : 'hidden',
                             background: 'rgba(22,12,7,0.8)', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '8px', padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-serif)', fontSize: '1rem' 
                           }}
                           onMouseOver={e => { e.currentTarget.style.background = 'var(--gold-primary)'; e.currentTarget.style.color = '#0a0503'; }}
@@ -502,17 +545,13 @@ const MenuPage = ({ user, onLogout }) => {
                         </button>
 
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                          {activeSlideIdx + 1} of {slides.length}
+                          {slides.length > 1 ? `${activeSlideIdx + 1} of ${slides.length}` : `Category ${catIdx + 1} of ${categories.length}`}
                         </span>
 
                         <button 
-                          onClick={() => {
-                            if (activeSlideIdx < slides.length - 1) {
-                              setActiveSlideIndices(prev => ({ ...prev, [catName]: activeSlideIdx + 1 }));
-                            }
-                          }}
+                          onClick={handleNext}
                           style={{ 
-                            visibility: activeSlideIdx < slides.length - 1 ? 'visible' : 'hidden',
+                            visibility: showNext ? 'visible' : 'hidden',
                             background: 'rgba(22,12,7,0.8)', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '8px', padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-serif)', fontSize: '1rem' 
                           }}
                           onMouseOver={e => { e.currentTarget.style.background = 'var(--gold-primary)'; e.currentTarget.style.color = '#0a0503'; }}

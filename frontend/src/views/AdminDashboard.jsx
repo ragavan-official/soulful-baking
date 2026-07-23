@@ -3,11 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, Shield, UserCheck, ShieldAlert, LogOut, ArrowLeft, 
   BookOpen, Plus, Edit2, Trash2, Film, Calendar, DollarSign, 
-  UploadCloud, AlertCircle, Play, X, CheckCircle, ShoppingBag, ToggleLeft, ToggleRight
+  UploadCloud, AlertCircle, Play, X, CheckCircle, ShoppingBag, ToggleLeft, ToggleRight, Image
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
 import { API_BASE_URL, parseResponse } from '../config';
+
+import workPregnantLady from '../assets/work_pregnant_lady.jpg';
+import workCricketer from '../assets/work_cricketer.jpg';
+import workMinion from '../assets/work_minion.jpg';
+import workRedDressGirl from '../assets/work_red_dress_girl.jpg';
+import workSoccerBoy from '../assets/work_soccer_boy.jpg';
 
 // Resolves a thumbnail/video key or legacy full URL to a usable src URL.
 // Supports both new R2 keys (e.g. "photo/uuid.jpg") and old full URLs.
@@ -23,6 +29,38 @@ const getMediaUrl = (keyOrUrl) => {
     }
   }
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
+};
+
+const resolveGalleryImg = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl === 'work_pregnant_lady.jpg') return workPregnantLady;
+  if (keyOrUrl === 'work_cricketer.jpg') return workCricketer;
+  if (keyOrUrl === 'work_minion.jpg') return workMinion;
+  if (keyOrUrl === 'work_red_dress_girl.jpg') return workRedDressGirl;
+  if (keyOrUrl === 'work_soccer_boy.jpg') return workSoccerBoy;
+  return getMediaUrl(keyOrUrl);
+};
+
+const UserAvatarCell = ({ avatar, name }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (avatar && !hasError) {
+    return (
+      <img
+        src={avatar}
+        alt={name || 'User'}
+        className="user-avatar"
+        referrerPolicy="no-referrer"
+        onError={() => setHasError(true)}
+      />
+    );
+  }
+
+  return (
+    <div className="user-avatar-placeholder">
+      {name ? name.charAt(0).toUpperCase() : 'U'}
+    </div>
+  );
 };
 
 const AdminDashboard = ({ user, onLogout }) => {
@@ -52,6 +90,15 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [isUploadingMenuImg, setIsUploadingMenuImg] = useState(false);
   const [menuItemFlavours, setMenuItemFlavours] = useState([]);
   const [menuItemBases, setMenuItemBases] = useState([]);
+  
+  // Gallery state
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+  const [editingGalleryItem, setEditingGalleryItem] = useState(null);
+  const [galleryTitle, setGalleryTitle] = useState('');
+  const [galleryTag, setGalleryTag] = useState('Custom Work');
+  const [galleryImage, setGalleryImage] = useState('');
+  const [isUploadingGalleryImg, setIsUploadingGalleryImg] = useState(false);
   
   // Modals / forms
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -96,6 +143,8 @@ const AdminDashboard = ({ user, onLogout }) => {
       fetchPurchases();
     } else if (activeTab === 'menu') {
       fetchMenuItems();
+    } else if (activeTab === 'gallery') {
+      fetchGalleryItems();
     }
   }, [activeTab]);
 
@@ -247,6 +296,130 @@ const AdminDashboard = ({ user, onLogout }) => {
       setError(err.message || 'Error loading menu items');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGalleryItems = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/gallery`);
+      const data = await parseResponse(res);
+      if (res.ok && Array.isArray(data)) {
+        setGalleryItems(data);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Error loading gallery items');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── GALLERY CRUD ────────────────────────────────────────────────────────────
+  const closeGalleryForm = () => {
+    setIsGalleryModalOpen(false);
+    setEditingGalleryItem(null);
+    setGalleryTitle('');
+    setGalleryTag('Custom Work');
+    setGalleryImage('');
+    document.getElementById('gallery-section-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const openCreateGalleryModal = () => {
+    setEditingGalleryItem(null);
+    setGalleryTitle('');
+    setGalleryTag('Custom Work');
+    setGalleryImage('');
+    setIsGalleryModalOpen(true);
+    setTimeout(() => {
+      document.getElementById('gallery-edit-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const openEditGalleryModal = (item) => {
+    setEditingGalleryItem(item);
+    setGalleryTitle(item.title);
+    setGalleryTag(item.tag || 'Custom Work');
+    setGalleryImage(item.image);
+    setIsGalleryModalOpen(true);
+    setTimeout(() => {
+      document.getElementById('gallery-edit-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleGalleryImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingGalleryImg(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE_URL}/api/media/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: formData
+      });
+      const data = await parseResponse(res);
+      if (!res.ok) throw new Error(data.message || 'Image upload failed');
+      setGalleryImage(data.key);
+    } catch (err) {
+      alert(err.message || 'Error uploading image');
+    } finally {
+      setIsUploadingGalleryImg(false);
+    }
+  };
+
+  const handleSaveGalleryItem = async (e) => {
+    e.preventDefault();
+    if (!galleryTitle || !galleryImage) {
+      alert('Please fill in title and upload/provide an image');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const payload = {
+        title: galleryTitle,
+        tag: galleryTag || 'Custom Work',
+        image: galleryImage
+      };
+
+      const url = editingGalleryItem
+        ? `${API_BASE_URL}/api/gallery/${editingGalleryItem._id}`
+        : `${API_BASE_URL}/api/gallery`;
+      const method = editingGalleryItem ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await parseResponse(res);
+      if (!res.ok) throw new Error(data.message || 'Failed to save gallery item');
+
+      closeGalleryForm();
+      await fetchGalleryItems();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleDeleteGalleryItem = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this gallery photo?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/gallery/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await parseResponse(res);
+      if (!res.ok) throw new Error(data.message || 'Failed to delete gallery item');
+      fetchGalleryItems();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -817,6 +990,28 @@ const AdminDashboard = ({ user, onLogout }) => {
           <ShoppingBag size={16} />
           Manage Menu
         </button>
+
+        <button 
+          onClick={() => { setActiveTab('gallery'); setError(''); }} 
+          className="btn-secondary" 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            background: activeTab === 'gallery' ? 'linear-gradient(145deg, rgba(229, 169, 60, 0.15), rgba(229, 169, 60, 0.03))' : 'rgba(255,255,255,0.02)',
+            borderColor: activeTab === 'gallery' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
+            color: activeTab === 'gallery' ? 'var(--gold-light)' : 'var(--text-secondary)',
+            boxShadow: activeTab === 'gallery' ? '0 0 15px rgba(229,169,60,0.1)' : 'none',
+            transition: 'all 0.3s ease',
+            borderRadius: '8px',
+            padding: '0.6rem 1.2rem'
+          }}
+          onMouseOver={e => { if (activeTab !== 'gallery') { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-primary)'; } }}
+          onMouseOut={e => { if (activeTab !== 'gallery') { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.color = 'var(--text-secondary)'; } }}
+        >
+          <Image size={16} />
+          Manage Gallery
+        </button>
       </div>
 
       {error && <div className="alert alert-error" style={{ marginBottom: '2rem' }}><AlertCircle size={18} /> {error}</div>}
@@ -866,23 +1061,19 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((item) => (
-                    <tr key={item._id}>
-                      <td>
-                        {item.avatar ? (
-                          <img src={item.avatar} alt={item.name} className="user-avatar" />
-                        ) : (
-                          <div className="user-avatar-placeholder">
-                            {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ fontWeight: '500' }}>{item.name}</td>
-                      <td>{item.email}</td>
-                      <td>
-                        {item.email === 'query@soulfulbaking.in' || !isAdmin ? (
-                          <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
-                        ) : (
+                  {users.map((item) => {
+                    const isProtectedAdmin = item.email === 'query@soulfulbaking.in' || item.email === 'soulfulbaking.shamini@gmail.com';
+                    return (
+                      <tr key={item._id}>
+                        <td>
+                          <UserAvatarCell avatar={item.avatar} name={item.name} />
+                        </td>
+                        <td style={{ fontWeight: '500' }}>{item.name}</td>
+                        <td>{item.email}</td>
+                        <td>
+                          {isProtectedAdmin || !isAdmin ? (
+                            <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
+                          ) : (
                           <select 
                             value={item.role} 
                             onChange={(e) => handleRoleChange(item._id, e.target.value)}
@@ -915,7 +1106,8 @@ const AdminDashboard = ({ user, onLogout }) => {
                         {new Date(item.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
-                  ))}
+                  );
+                })}
                 </tbody>
               </table>
             </div>
@@ -1009,6 +1201,191 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* --- TAB CONTENT: GALLERY MANAGEMENT --- */}
+      {activeTab === 'gallery' && (
+        <>
+          <div id="gallery-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', scrollMarginTop: '2rem' }}>
+            <div>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', margin: 0 }}>Gallery Management</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.3rem 0 0 0' }}>
+                Photos uploaded here will be displayed dynamically in the "Our Custom Work Showcase" section on the Home page.
+              </p>
+            </div>
+            <button onClick={openCreateGalleryModal} className="btn-primary" style={{ width: 'auto', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Plus size={16} /> Add Gallery Photo
+            </button>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '4rem' }}>
+              <div className="spinner" style={{ width: '36px', height: '36px', borderTopColor: 'var(--gold-primary)', margin: '0 auto' }} />
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              {galleryItems.map((gItem) => {
+                const isBeingEdited = editingGalleryItem?._id === gItem._id;
+                const imgSrc = resolveGalleryImg(gItem.image);
+
+                return (
+                  <div 
+                    key={gItem._id} 
+                    className="glass-card" 
+                    style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      overflow: 'hidden', 
+                      borderRadius: '14px', 
+                      border: isBeingEdited ? '2px solid #3b82f6' : '1px solid var(--border-gold)', 
+                      background: isBeingEdited ? 'linear-gradient(145deg, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.95))' : 'rgba(20, 10, 5, 0.45)',
+                      boxShadow: isBeingEdited ? '0 0 25px rgba(59, 130, 246, 0.5)' : 'none',
+                      transition: 'all 0.3s ease',
+                      padding: 0 
+                    }}
+                  >
+                    <div style={{ height: '220px', width: '100%', overflow: 'hidden', position: 'relative', background: '#0a0503' }}>
+                      <img
+                        src={imgSrc}
+                        alt={gItem.title}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.opacity = '0.3'; }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <span style={{ position: 'absolute', top: '10px', left: '10px', background: isBeingEdited ? '#2563eb' : 'rgba(0,0,0,0.85)', color: isBeingEdited ? '#ffffff' : 'var(--gold-light)', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600', border: isBeingEdited ? '1px solid #60a5fa' : '1px solid rgba(229,169,60,0.3)', backdropFilter: 'blur(4px)' }}>
+                        {gItem.tag || 'Custom Work'}
+                      </span>
+                    </div>
+                    <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                      <h3 style={{ fontFamily: 'var(--font-serif)', color: isBeingEdited ? '#93c5fd' : 'var(--gold-primary)', fontSize: '1.15rem', margin: '0 0 1rem 0' }}>{gItem.title}</h3>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                        <button 
+                          onClick={() => openEditGalleryModal(gItem)} 
+                          className="btn-secondary" 
+                          style={{ 
+                            flex: 1, 
+                            padding: '0.45rem', 
+                            fontSize: '0.85rem', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            gap: '0.4rem',
+                            background: isBeingEdited ? '#2563eb' : 'rgba(255,255,255,0.03)',
+                            borderColor: isBeingEdited ? '#60a5fa' : 'var(--border-gold)',
+                            color: isBeingEdited ? '#ffffff' : 'var(--gold-primary)',
+                            fontWeight: isBeingEdited ? '600' : '400'
+                          }}
+                        >
+                          <Edit2 size={14} /> {isBeingEdited ? 'Editing...' : 'Edit'}
+                        </button>
+                        <button onClick={() => handleDeleteGalleryItem(gItem._id)} className="btn-secondary" style={{ padding: '0.45rem 0.8rem', fontSize: '0.85rem', borderColor: '#ea5455', color: '#ff7b7c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {galleryItems.length === 0 && (
+                <div className="glass-card" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  No gallery photos added yet. Click "Add Gallery Photo" to add one!
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* EDIT / CREATE GALLERY FORM SECTION AT BOTTOM */}
+          {isGalleryModalOpen && (
+            <div 
+              id="gallery-edit-section" 
+              className="glass-card" 
+              style={{ 
+                marginTop: '2.5rem', 
+                padding: '2rem', 
+                borderRadius: '16px', 
+                border: '2px solid #3b82f6', 
+                background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.25))',
+                boxShadow: '0 8px 32px rgba(59, 130, 246, 0.35)',
+                scrollMarginTop: '2rem'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(59, 130, 246, 0.3)', paddingBottom: '0.8rem' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', color: '#60a5fa', margin: 0, fontSize: '1.4rem' }}>
+                  {editingGalleryItem ? 'Edit Gallery Photo' : 'Add New Gallery Photo'}
+                </h3>
+                <button 
+                  type="button" 
+                  onClick={closeGalleryForm} 
+                  style={{ background: 'none', border: 'none', color: '#93c5fd', cursor: 'pointer', padding: '0.25rem' }}
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveGalleryItem} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#93c5fd', marginBottom: '0.4rem' }}>Title *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Motherhood Celebration"
+                    value={galleryTitle}
+                    onChange={e => setGalleryTitle(e.target.value)}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.6)', border: '1px solid #3b82f6', color: '#f8fafc', padding: '0.7rem 0.9rem', borderRadius: '8px', outline: 'none' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#93c5fd', marginBottom: '0.4rem' }}>Tag / Category Subtitle (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Baby Shower / Maternity, Sports & Hobby Theme"
+                    value={galleryTag}
+                    onChange={e => setGalleryTag(e.target.value)}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.6)', border: '1px solid #3b82f6', color: '#f8fafc', padding: '0.7rem 0.9rem', borderRadius: '8px', outline: 'none' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#93c5fd', marginBottom: '0.4rem' }}>Upload Photo *</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleGalleryImageUpload}
+                    style={{ marginBottom: '0.5rem', color: '#93c5fd', width: '100%' }}
+                  />
+                  {isUploadingGalleryImg && <div style={{ fontSize: '0.8rem', color: '#60a5fa' }}>Uploading image to storage...</div>}
+                  <input
+                    type="text"
+                    placeholder="Or enter R2 key / image URL"
+                    value={galleryImage}
+                    onChange={e => setGalleryImage(e.target.value)}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.6)', border: '1px solid #3b82f6', color: '#f8fafc', padding: '0.7rem 0.9rem', borderRadius: '8px', outline: 'none' }}
+                  />
+                  {galleryImage && (
+                    <div style={{ marginTop: '0.8rem', height: '160px', maxWidth: '300px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #3b82f6' }}>
+                      <img
+                        src={resolveGalleryImg(galleryImage)}
+                        alt="Preview"
+                        referrerPolicy="no-referrer"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid rgba(59, 130, 246, 0.3)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={closeGalleryForm} className="btn-secondary" style={{ flex: 1, borderColor: '#3b82f6', color: '#93c5fd' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" style={{ flex: 1, background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', border: 'none', color: '#ffffff', fontWeight: '600' }}>
+                    {editingGalleryItem ? 'Save Changes' : 'Upload Photo'}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </>

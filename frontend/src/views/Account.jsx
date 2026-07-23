@@ -26,7 +26,7 @@ const getMediaUrl = (keyOrUrl) => {
 const Account = ({ user, onLogout }) => {
   const [purchasedCourses, setPurchasedCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
-  const navigate = useNavigate();
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -88,8 +88,14 @@ const Account = ({ user, onLogout }) => {
       <div className="glass-card profile-card" style={{ maxWidth: '480px', padding: '2.5rem 2rem' }}>
 
         <div style={{ margin: '1.5rem 0' }}>
-          {user.avatar ? (
-            <img src={user.avatar} alt={user.name} className="profile-avatar-large" />
+          {user.avatar && !avatarError ? (
+            <img 
+              src={user.avatar} 
+              alt={user.name} 
+              className="profile-avatar-large" 
+              referrerPolicy="no-referrer"
+              onError={() => setAvatarError(true)}
+            />
           ) : (
             <div className="profile-avatar-placeholder-large">{userInitial}</div>
           )}

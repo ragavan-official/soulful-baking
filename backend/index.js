@@ -10,6 +10,7 @@ import adminCoursesRouter from './routes/adminCourses.js';
 import coursesRouter from './routes/courses.js';
 import mediaRouter from './routes/media.js';
 import menuRouter from './routes/menu.js';
+import galleryRouter from './routes/gallery.js';
 import { authenticateToken, requireAdmin, requireAdminOrEmployee } from './middleware/auth.js';
 
 const app = express();
@@ -176,6 +177,7 @@ app.use('/api/courses', coursesRouter);
 app.use('/api/admin', adminCoursesRouter);
 app.use('/api/media', mediaRouter);
 app.use('/api/menu', menuRouter);
+app.use('/api/gallery', galleryRouter);
 
 // Admin routes
 app.get('/api/admin/dashboard', authenticateToken, requireAdminOrEmployee, async (req, res) => {
@@ -214,9 +216,10 @@ app.put('/api/admin/users/:id/role', authenticateToken, requireAdmin, async (req
     if (!userToUpdate) {
       return res.status(404).json({ message: 'User not found' });
     }
-    // Prevent changing the main admin's role
-    if (userToUpdate.email === 'query@soulfulbaking.in') {
-      return res.status(403).json({ message: 'Cannot change the primary admin role' });
+    // Prevent changing primary admin roles
+    const protectedAdmins = ['query@soulfulbaking.in', 'soulfulbaking.shamini@gmail.com'];
+    if (protectedAdmins.includes(userToUpdate.email)) {
+      return res.status(403).json({ message: 'Cannot change primary admin role' });
     }
     userToUpdate.role = role;
     await userToUpdate.save();

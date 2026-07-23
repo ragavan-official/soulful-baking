@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   MapPin, Phone, Mail, ArrowRight, Sparkles, 
-  Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart, ShoppingBag, MessageCircle
+  Award, Shield, BookOpen, Compass, ChevronRight, Menu, X, Heart, ShoppingBag, MessageCircle,
+  ShieldCheck, Leaf, Info
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import BlurText from '../components/BlurText';
@@ -45,12 +46,20 @@ import fondantFigurines from '../assets/fondant_figurines.jpg';
 import cupcakeBouquet from '../assets/cupcake_bouquet.jpg';
 import cupOfLove from '../assets/cup_of_love.jpg';
 import peacockCake from '../assets/peacock_cake.jpg';
-import sculptedCake from '../assets/sculpted_cake.jpg';
+import sculptedBarbieDoll from '../assets/sculpted_barbie_doll.jpg';
+import sculptedHangingHeart from '../assets/sculpted_hanging_heart.jpg';
+import sculptedWhiteHeart from '../assets/sculpted_white_heart.jpg';
+import sculptedPregnantLady from '../assets/sculpted_pregnant_lady.jpg';
+import sculptedBonsaiWaterfall from '../assets/sculpted_bonsai_waterfall.jpg';
+import sculptedFlowerVase from '../assets/sculpted_flower_vase.jpg';
+import promiseFreshFruitCake from '../assets/promise_fresh_fruit_cake.jpg';
 import workPregnantLady from '../assets/work_pregnant_lady.jpg';
 import workCricketer from '../assets/work_cricketer.jpg';
 import workMinion from '../assets/work_minion.jpg';
 import workRedDressGirl from '../assets/work_red_dress_girl.jpg';
 import workSoccerBoy from '../assets/work_soccer_boy.jpg';
+import fondantCouple from '../assets/fondant_couple.jpg';
+import fondantPeppaPig from '../assets/fondant_peppa_pig.jpg';
 import shaminiFounder from '../assets/shamini_founder.jpg';
 
 const WHATSAPP_NUMBER = '919042960912';
@@ -63,6 +72,16 @@ const getMediaUrl = (keyOrUrl) => {
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
 };
 
+const resolveGalleryImg = (keyOrUrl) => {
+  if (!keyOrUrl) return '';
+  if (keyOrUrl === 'work_pregnant_lady.jpg') return workPregnantLady;
+  if (keyOrUrl === 'work_cricketer.jpg') return workCricketer;
+  if (keyOrUrl === 'work_minion.jpg') return workMinion;
+  if (keyOrUrl === 'work_red_dress_girl.jpg') return workRedDressGirl;
+  if (keyOrUrl === 'work_soccer_boy.jpg') return workSoccerBoy;
+  return getMediaUrl(keyOrUrl);
+};
+
 const Home = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -71,6 +90,7 @@ const Home = ({ user, onLogout }) => {
   const [menuLoading, setMenuLoading] = useState(false);
   const [selectedFlavours, setSelectedFlavours] = useState({});
   const [selectedQuantities, setSelectedQuantities] = useState({});
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const openWhatsApp = (item, type = 'order') => {
     const hasFlavours = item.flavours && item.flavours.length > 0;
@@ -107,6 +127,8 @@ const Home = ({ user, onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const [galleryItems, setGalleryItems] = useState([]);
+
   useEffect(() => {
     const fetchFeaturedMenu = async () => {
       try {
@@ -125,6 +147,21 @@ const Home = ({ user, onLogout }) => {
       }
     };
     fetchFeaturedMenu();
+  }, []);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/gallery`);
+        const data = await parseResponse(res);
+        if (res.ok && Array.isArray(data)) {
+          setGalleryItems(data);
+        }
+      } catch (err) {
+        console.error('Could not load gallery items:', err);
+      }
+    };
+    fetchGallery();
   }, []);
 
   const handleDashboardClick = () => {
@@ -151,6 +188,9 @@ const Home = ({ user, onLogout }) => {
     "priceRange": "$$",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "Alapakkam, New Perungalathur",
+      "addressLocality": "Chennai",
+      "postalCode": "600063",
       "addressCountry": "IN"
     },
     "openingHoursSpecification": {
@@ -187,6 +227,7 @@ const Home = ({ user, onLogout }) => {
             <Link to="/menu" className="nav-link">Menu</Link>
             <a href="#sweet-moments" className="nav-link">Sweet Moments</a>
             <a href="#story" className="nav-link">Our Story</a>
+            <a href="#promise" className="nav-link">Our Promise</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
             <a href="#contact" className="nav-link">Contact</a>
           </nav>
@@ -219,6 +260,7 @@ const Home = ({ user, onLogout }) => {
             <Link to="/courses" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Courses</Link>
             <Link to="/menu" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Menu</Link>
             <a href="#story" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Story</a>
+            <a href="#promise" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Promise</a>
             <a href="#delicacies" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Signature Delicacies</a>
             <a href="#contact" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</a>
             {user ? (
@@ -475,6 +517,71 @@ const Home = ({ user, onLogout }) => {
         </ScrollReveal>
       </section>
 
+      {/* Our Promise Section */}
+      <section id="promise" className="promise-section">
+        <div className="promise-container">
+          <ScrollReveal y={40} delay={0.1}>
+            <div className="promise-image-column">
+              <TiltedCard maxRotation={10} scale={1.03}>
+                <div 
+                  className="promise-image-card" 
+                  onClick={() => setLightboxImage({ src: promiseFreshFruitCake, title: 'Fresh Seasonal Fruit Compote Cake' })}
+                  title="Click to view full photo"
+                >
+                  <img 
+                    src={promiseFreshFruitCake} 
+                    alt="Fresh Fruit Layer Cake made with Scratch Compote" 
+                    className="promise-image"
+                  />
+                </div>
+              </TiltedCard>
+            </div>
+          </ScrollReveal>
+
+          <div className="promise-content-column">
+            <ScrollReveal y={40} delay={0.2}>
+              <span className="section-subtitle">
+                <ShinyText text="PURITY • QUALITY • AUTHENTICITY" speed={3} />
+              </span>
+              <h2 className="section-title">Our Promise</h2>
+
+              <div className="promise-card-group">
+                <div className="promise-item-card">
+                  <div className="promise-icon-wrapper">
+                    <ShieldCheck size={22} style={{ color: 'var(--gold-primary)' }} />
+                  </div>
+                  <div className="promise-item-text">
+                    <h4>Scratch-Made Fillings & Pure Ingredients</h4>
+                    <p>
+                      At <strong>Soulful Baking</strong>, we believe great cakes begin with real ingredients. Every filling is made from scratch in our kitchen; we never use store-bought fillings, pre-mixes, or chemical volumizers.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="promise-item-card">
+                  <div className="promise-icon-wrapper">
+                    <Leaf size={22} style={{ color: '#4ade80' }} />
+                  </div>
+                  <div className="promise-item-text">
+                    <h4>Fresh Fruit Compotes & Authentic Flavour</h4>
+                    <p>
+                      For our fruit cakes, we don’t use ready-made fruit crushes or artificial fillings. Instead, we prepare fresh fruit compotes using seasonal fruits to deliver authentic flavour in every bite.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="promise-notice-card">
+                  <Info size={20} className="notice-icon" />
+                  <p className="notice-text">
+                    <strong>Please note:</strong> Fresh fruit cake prices may vary depending on the current market price and seasonal availability of fruits.
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
       {/* Signature Delicacies Section */}
       <section id="delicacies" className="delicacies-section">
         <ScrollReveal y={30} delay={0.1}>
@@ -582,26 +689,173 @@ const Home = ({ user, onLogout }) => {
             </div>
           </ScrollReveal>
 
-          {/* Feature 4: Structured & Sculpted Cakes */}
+          {/* Feature 4: Structured and sculptured cakes */}
           <ScrollReveal y={40} delay={0.15}>
             <div className="signature-row reverse">
-              <div className="signature-img-box">
-                <img src={sculptedCake} alt="Structured & Sculpted Cakes" />
-                <span className="signature-badge">Bespoke Structural Artistry</span>
+              <div className="signature-img-box signature-collage-container">
+                <span className="signature-badge">6-Photo Showcase</span>
+                <div className="signature-collage-grid">
+                  <div 
+                    className="collage-item collage-item-1" 
+                    onClick={() => setLightboxImage({ src: sculptedBonsaiWaterfall, title: 'Bonsai & Waterfall Sculpture Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedBonsaiWaterfall} alt="Bonsai & Waterfall Sculpture Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Bonsai & Waterfall</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-2" 
+                    onClick={() => setLightboxImage({ src: sculptedHangingHeart, title: 'Suspended Red Ruffle Heart Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedHangingHeart} alt="Suspended Red Ruffle Heart Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Suspended Heart</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-3" 
+                    onClick={() => setLightboxImage({ src: sculptedFlowerVase, title: 'Sculpted Flower Vase & Acrylic Box Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedFlowerVase} alt="Sculpted Flower Vase & Acrylic Box Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Flower Vase & Box</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-4" 
+                    onClick={() => setLightboxImage({ src: sculptedBarbieDoll, title: '3D Sculpted Barbie Doll Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedBarbieDoll} alt="3D Sculpted Barbie Doll Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">3D Barbie Doll</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-5" 
+                    onClick={() => setLightboxImage({ src: sculptedWhiteHeart, title: 'Standing White Lace & Pearl Heart Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedWhiteHeart} alt="Standing White Lace & Pearl Heart Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Lace & Pearl Heart</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-6" 
+                    onClick={() => setLightboxImage({ src: sculptedPregnantLady, title: 'Sculpted Maternity Belly Cake' })}
+                    title="Click to view photo"
+                  >
+                    <img src={sculptedPregnantLady} alt="Sculpted Maternity Belly Cake" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Sculpted Maternity</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="signature-content-box">
-                <h3 className="signature-item-title">Structured & Sculpted Cakes</h3>
+                <h3 className="signature-item-title">Structured and sculptured cakes</h3>
                 <p className="signature-item-text">
                   Looking for a unique structured or sculpted cake for your special occasion? Let Soulful Baking create a masterpiece that makes your celebration even more memorable.
-                </p>
-                <p className="signature-item-text">
-                  From suspended gravity-defying designs to intricate 3D structural forms, every detail is engineered and baked to perfection.
                 </p>
                 <blockquote className="signature-quote">
                   "Gravity-defying structure. Unforgettable centerpiece."
                 </blockquote>
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to inquire about a custom Structured / Sculpted Cake.")}`}
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to inquire about a custom Structured and sculptured cake.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Feature 5: Handcrafted Fondant Figurines */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row">
+              <div className="signature-img-box signature-collage-container">
+                <span className="signature-badge">6-Photo Showcase</span>
+                <div className="signature-collage-grid">
+                  <div 
+                    className="collage-item collage-item-1" 
+                    onClick={() => setLightboxImage({ src: workCricketer, title: 'Personalized Cricketer Fondant Figurine' })}
+                    title="Click to view photo"
+                  >
+                    <img src={workCricketer} alt="Personalized Cricketer Fondant Figurine" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Custom Cricketer</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-2" 
+                    onClick={() => setLightboxImage({ src: fondantCouple, title: 'Handcrafted Couple Portrait Figurine' })}
+                    title="Click to view photo"
+                  >
+                    <img src={fondantCouple} alt="Handcrafted Couple Portrait Figurine" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Couple Portrait</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-3" 
+                    onClick={() => setLightboxImage({ src: workMinion, title: 'Minion Birthday Figurine' })}
+                    title="Click to view photo"
+                  >
+                    <img src={workMinion} alt="Minion Birthday Figurine" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Minion Figurine</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-4" 
+                    onClick={() => setLightboxImage({ src: workRedDressGirl, title: 'Bespoke Doll in Red Dress' })}
+                    title="Click to view photo"
+                  >
+                    <img src={workRedDressGirl} alt="Bespoke Doll in Red Dress" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Elegant Doll</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-5" 
+                    onClick={() => setLightboxImage({ src: fondantPeppaPig, title: 'Peppa Pig Family Figurines' })}
+                    title="Click to view photo"
+                  >
+                    <img src={fondantPeppaPig} alt="Peppa Pig Family Figurines" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Peppa Pig Family</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="collage-item collage-item-6" 
+                    onClick={() => setLightboxImage({ src: workPregnantLady, title: 'Motherhood & Baby Shower Figurine' })}
+                    title="Click to view photo"
+                  >
+                    <img src={workPregnantLady} alt="Motherhood & Baby Shower Figurine" />
+                    <div className="collage-overlay">
+                      <span className="collage-title">Motherhood Figurine</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Handcrafted Fondant Figurines</h3>
+                <p className="signature-item-text">
+                  Bring your favorite characters, sports passions, and cherished personal milestones to life with bespoke 3D fondant figurines. Every figurine is meticulously handcrafted with fine detail and edible artistry.
+                </p>
+                <blockquote className="signature-quote">
+                  "Turning special moments and characters into handcrafted edible keepsakes."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to inquire about custom Handcrafted Fondant Figurines.")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-signature-order"
@@ -620,7 +874,6 @@ const Home = ({ user, onLogout }) => {
       <section id="custom-work" className="custom-work-section">
         <ScrollReveal y={30} delay={0.1}>
           <div className="section-header">
-            <span className="section-subtitle">Bespoke Handcrafted Gallery</span>
             <h2 className="section-title text-center">Our Custom Work Showcase</h2>
             <p className="section-desc">
               From milestone celebrations to personalized sports & theme figurines, see how we transform memories and imagination into handcrafted edible art.
@@ -630,55 +883,75 @@ const Home = ({ user, onLogout }) => {
 
         <ScrollReveal y={40} delay={0.2}>
           <div className="work-gallery-grid">
-            <div className="work-card">
-              <div className="work-image-wrapper">
-                <img src={workPregnantLady} alt="Maternity & Baby Shower Fondant Figurine" />
-                <div className="work-card-overlay">
-                  <span className="work-tag">Baby Shower / Maternity</span>
-                  <h4 className="work-title">Motherhood Celebration</h4>
-                </div>
-              </div>
-            </div>
+            {galleryItems.length > 0 ? (
+              galleryItems.map((item) => {
+                const imgSrc = resolveGalleryImg(item.image);
 
-            <div className="work-card">
-              <div className="work-image-wrapper">
-                <img src={workCricketer} alt="Personalized Cricketer Fondant Figurine" />
-                <div className="work-card-overlay">
-                  <span className="work-tag">Sports & Hobby Theme</span>
-                  <h4 className="work-title">Custom Cricketer</h4>
+                return (
+                  <div key={item._id} className="work-card">
+                    <div className="work-image-wrapper">
+                      <img src={imgSrc} alt={item.title} referrerPolicy="no-referrer" />
+                      <div className="work-card-overlay">
+                        <span className="work-tag">{item.tag || 'Custom Work'}</span>
+                        <h4 className="work-title">{item.title}</h4>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                <div className="work-card">
+                  <div className="work-image-wrapper">
+                    <img src={workPregnantLady} alt="Maternity & Baby Shower Fondant Figurine" />
+                    <div className="work-card-overlay">
+                      <span className="work-tag">Baby Shower / Maternity</span>
+                      <h4 className="work-title">Motherhood Celebration</h4>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="work-card">
-              <div className="work-image-wrapper">
-                <img src={workMinion} alt="Minion Birthday Party Figurine" />
-                <div className="work-card-overlay">
-                  <span className="work-tag">Cartoon & Theme Birthday</span>
-                  <h4 className="work-title">Minion Birthday Bash</h4>
+                <div className="work-card">
+                  <div className="work-image-wrapper">
+                    <img src={workCricketer} alt="Personalized Cricketer Fondant Figurine" />
+                    <div className="work-card-overlay">
+                      <span className="work-tag">Sports & Hobby Theme</span>
+                      <h4 className="work-title">Custom Cricketer</h4>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="work-card">
-              <div className="work-image-wrapper">
-                <img src={workRedDressGirl} alt="Custom Portrait Figurine in Red Dress" />
-                <div className="work-card-overlay">
-                  <span className="work-tag">Bespoke Portrait</span>
-                  <h4 className="work-title">Elegant Doll Figurine</h4>
+                <div className="work-card">
+                  <div className="work-image-wrapper">
+                    <img src={workMinion} alt="Minion Birthday Party Figurine" />
+                    <div className="work-card-overlay">
+                      <span className="work-tag">Cartoon & Theme Birthday</span>
+                      <h4 className="work-title">Minion Birthday Bash</h4>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="work-card">
-              <div className="work-image-wrapper">
-                <img src={workSoccerBoy} alt="Custom Football Player Figurine" />
-                <div className="work-card-overlay">
-                  <span className="work-tag">Sports Fanatic</span>
-                  <h4 className="work-title">Soccer Player Figurine</h4>
+                <div className="work-card">
+                  <div className="work-image-wrapper">
+                    <img src={workRedDressGirl} alt="Custom Portrait Figurine in Red Dress" />
+                    <div className="work-card-overlay">
+                      <span className="work-tag">Bespoke Portrait</span>
+                      <h4 className="work-title">Elegant Doll Figurine</h4>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+
+                <div className="work-card">
+                  <div className="work-image-wrapper">
+                    <img src={workSoccerBoy} alt="Custom Football Player Figurine" />
+                    <div className="work-card-overlay">
+                      <span className="work-tag">Sports Fanatic</span>
+                      <h4 className="work-title">Soccer Player Figurine</h4>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="work-cta-container text-center">
@@ -788,8 +1061,8 @@ const Home = ({ user, onLogout }) => {
               <li className="contact-item">
                 <MapPin size={22} className="contact-icon" style={{ marginTop: '3px' }} />
                 <span className="contact-text">
-                  New Perungalathur, Chennai,<br />
-                  Alapakkam, Tamil Nadu 600063
+                  Alapakkam, New Perungalathur,<br />
+                  Chennai - 600063
                 </span>
               </li>
               <li className="contact-item">
@@ -843,6 +1116,19 @@ const Home = ({ user, onLogout }) => {
           </p>
         </div>
       </footer>
+
+      {/* Lightbox Modal for Sculpted Cake Collage */}
+      {lightboxImage && (
+        <div className="lightbox-modal-backdrop" onClick={() => setLightboxImage(null)}>
+          <div className="lightbox-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="lightbox-close-btn" onClick={() => setLightboxImage(null)} aria-label="Close modal">
+              <X size={24} />
+            </button>
+            <img src={lightboxImage.src} alt={lightboxImage.title} className="lightbox-modal-image" />
+            <div className="lightbox-caption">{lightboxImage.title}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -794,11 +794,16 @@ const Home = ({ user, onLogout }) => {
               <li className="contact-item">
                 <Phone size={18} className="contact-icon" />
                 <span className="contact-text">
-                  <strong>ph:</strong> +91 90429 60912
+                  <strong>ph:</strong> <a href="tel:+919042960912" style={{ color: 'inherit', textDecoration: 'none' }}>+91 90429 60912</a>
                 </span>
               </li>
               <li className="contact-item">
-                <div className="whatsapp-icon-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <a 
+                  href={`https://wa.me/${WHATSAPP_NUMBER}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'inherit', textDecoration: 'none' }}
+                >
                   <svg 
                     viewBox="0 0 24 24" 
                     width="18" 
@@ -812,7 +817,7 @@ const Home = ({ user, onLogout }) => {
                   <span className="contact-text">
                     <strong>wph:</strong> +91 90429 60912
                   </span>
-                </div>
+                </a>
               </li>
               <li className="contact-item">
                 <Mail size={18} className="contact-icon" style={{ color: 'var(--gold-primary)' }} />

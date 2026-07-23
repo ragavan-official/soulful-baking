@@ -43,6 +43,7 @@ import cakeLayered from '../assets/cake_layered.png';
 import cakeBrownie from '../assets/cake_brownie.png';
 import fondantFigurines from '../assets/fondant_figurines.jpg';
 import cupcakeBouquet from '../assets/cupcake_bouquet.jpg';
+import cupOfLove from '../assets/cup_of_love.jpg';
 import peacockCake from '../assets/peacock_cake.jpg';
 import sculptedCake from '../assets/sculpted_cake.jpg';
 import workPregnantLady from '../assets/work_pregnant_lady.jpg';
@@ -274,8 +275,8 @@ const Home = ({ user, onLogout }) => {
             <TiltedCard maxRotation={10} scale={1.03}>
               <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
                 <img 
-                  src={cameraCake} 
-                  alt="Custom camera cake sculpting" 
+                  src={heroCardCake} 
+                  alt="Custom handcrafted fondant cake" 
                   className="hero-image"
                 />
               </div>
@@ -488,40 +489,9 @@ const Home = ({ user, onLogout }) => {
 
         <ScrollReveal y={40} delay={0.2}>
         <div className="signature-showcase-container">
-          {/* Feature 1: Custom Fondant Figurines */}
+          {/* Feature 1: Signature Cupcake Bouquet */}
           <ScrollReveal y={40} delay={0.15}>
             <div className="signature-row">
-              <div className="signature-img-box">
-                <img src={fondantFigurines} alt="Custom Fondant Figurines" />
-                <span className="signature-badge">Custom Handcrafted Art</span>
-              </div>
-              <div className="signature-content-box">
-                <h3 className="signature-item-title">Custom Fondant Figurines</h3>
-                <p className="signature-item-text">
-                  At Soulful Baking, we create custom handcrafted fondant figurines tailored to your requirements. Whether it’s a person, baby, couple, profession, hobby, pet, or any unique theme, we’ll bring your vision to life with attention to every detail.
-                </p>
-                <p className="signature-item-text">
-                  Simply place your order, and we’ll carefully pack and courier the figurines across India, ensuring they arrive safely and ready to decorate your cake.
-                </p>
-                <blockquote className="signature-quote">
-                  "Your imagination. Our craftsmanship. Delivered to your doorstep."
-                </blockquote>
-                <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for Custom Fondant Figurines.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-signature-order"
-                >
-                  <MessageCircle size={18} />
-                  <span>Order Now via WhatsApp</span>
-                </a>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* Feature 2: Signature Cupcake Bouquet */}
-          <ScrollReveal y={40} delay={0.15}>
-            <div className="signature-row reverse">
               <div className="signature-img-box">
                 <img src={cupcakeBouquet} alt="Signature Cupcake Bouquet" />
                 <span className="signature-badge">Edible Floral Artistry</span>
@@ -539,6 +509,37 @@ const Home = ({ user, onLogout }) => {
                 </blockquote>
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for Signature Cupcake Bouquet.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Feature 2: Everlasting Cup of Love */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row reverse">
+              <div className="signature-img-box">
+                <img src={cupOfLove} alt="Everlasting Cup of Love" />
+                <span className="signature-badge">Pioneered Signature Creation</span>
+              </div>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Everlasting Cup of Love ❤️</h3>
+                <p className="signature-item-text">
+                  A cup full of love, featuring our signature Tres Leches topped with edible art. We created this unique concept on 14 February 2026 as one of Soulful Baking’s signature creations.
+                </p>
+                <p className="signature-item-text">
+                  Based on our research, we’re proud to say that Soulful Baking pioneered this style in India.
+                </p>
+                <blockquote className="signature-quote">
+                  "Pioneered in India by Soulful Baking. Edible art in every cup."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for Everlasting Cup of Love.")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-signature-order"

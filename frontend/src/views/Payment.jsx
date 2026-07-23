@@ -273,7 +273,7 @@ const Payment = ({ user }) => {
                 {course?.title}
               </h4>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: '1.5' }}>
-                {course?.description || 'Get lifetime access to premium video lessons and recipes.'}
+                {course?.description || 'Access premium video lessons and recipes during your course validity period.'}
               </p>
             </div>
 

@@ -176,7 +176,7 @@ const CoursesCatalog = () => {
           <BlurText text="Available Masterclasses" delay={0.04} />
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-          <ShinyText text="Get lifetime access to premium video lessons and recipes" speed={7} />
+          <ShinyText text="Access premium video lessons and recipes during your course validity period" speed={7} />
         </p>
       </div>
 

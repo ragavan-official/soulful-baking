@@ -35,10 +35,22 @@ const Instagram = ({ size = 24, className, style }) => (
 
 // Asset imports
 import heroDessert from '../assets/hero_dessert.png';
+import heroCardCake from '../assets/hero_card_cake.jpg';
+import cameraCake from '../assets/camera_cake.jpg';
 import storyDessert from '../assets/story_dessert.png';
 import cakeStrawberry from '../assets/cake_strawberry.png';
 import cakeLayered from '../assets/cake_layered.png';
 import cakeBrownie from '../assets/cake_brownie.png';
+import fondantFigurines from '../assets/fondant_figurines.jpg';
+import cupcakeBouquet from '../assets/cupcake_bouquet.jpg';
+import peacockCake from '../assets/peacock_cake.jpg';
+import sculptedCake from '../assets/sculpted_cake.jpg';
+import workPregnantLady from '../assets/work_pregnant_lady.jpg';
+import workCricketer from '../assets/work_cricketer.jpg';
+import workMinion from '../assets/work_minion.jpg';
+import workRedDressGirl from '../assets/work_red_dress_girl.jpg';
+import workSoccerBoy from '../assets/work_soccer_boy.jpg';
+import shaminiFounder from '../assets/shamini_founder.jpg';
 
 const WHATSAPP_NUMBER = '919042960912';
 
@@ -172,6 +184,7 @@ const Home = ({ user, onLogout }) => {
             <Link to="/" className="nav-link active">Home</Link>
             <Link to="/courses" className="nav-link">Courses</Link>
             <Link to="/menu" className="nav-link">Menu</Link>
+            <a href="#sweet-moments" className="nav-link">Sweet Moments</a>
             <a href="#story" className="nav-link">Our Story</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
             <a href="#contact" className="nav-link">Contact</a>
@@ -234,28 +247,24 @@ const Home = ({ user, onLogout }) => {
           <div className="hero-content">
             <span className="hero-badge">
               <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
-              <ShinyText text="Premium Baking Academy" speed={3.5} />
+              <ShinyText text="ONLINE BAKING ACADEMY" speed={3.5} />
             </span>
             <h1 className="hero-title">
               <span className="visually-hidden">Learn Professional Online Baking Courses from Soulful Baking</span>
               <span aria-hidden="true">
-                <SplitText text="Sweet Moments" delay={0.06} />
-                <br />
-                <span className="highlight-text">
-                  <BlurText text="Start Here" delay={0.08} />
-                </span>
+                <SplitText text="Master the Art of Baking" delay={0.06} />
               </span>
             </h1>
             <p className="hero-description">
-              Unleash your inner chef with masterclass baking tutorials. Discover professional recipes, pastry techniques, and artisanal cake decoration with step-by-step guidance from shamini.
+              Master the art of baking and cake decorating with step-by-step tutorials by Shamini Arun. Learn professional recipes, cake structure, sculpting, and realistic fondant figurines, all in one place.
             </p>
             <div className="hero-cta-buttons">
               <button onClick={() => navigate('/courses')} className="btn-primary-glow">
                 Explore Masterclasses
                 <ArrowRight size={18} />
               </button>
-              <a href="#story" className="btn-secondary-outline">
-                Our Story
+              <a href="#sweet-moments" className="btn-secondary-outline">
+                Sweet Moments
               </a>
             </div>
           </div>
@@ -265,13 +274,49 @@ const Home = ({ user, onLogout }) => {
             <TiltedCard maxRotation={10} scale={1.03}>
               <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
                 <img 
-                  src={heroDessert} 
-                  alt="Crème caramel dessert with whipped cream" 
+                  src={cameraCake} 
+                  alt="Custom camera cake sculpting" 
                   className="hero-image"
                 />
               </div>
             </TiltedCard>
           </div>
+        </div>
+      </section>
+
+      {/* Sweet Moments Section */}
+      <section id="sweet-moments" className="sweet-moments-section">
+        <div className="sweet-moments-container">
+          <ScrollReveal y={30} delay={0.1}>
+            <div className="sweet-moments-content">
+              <span className="hero-badge" style={{ marginBottom: '1rem' }}>
+                <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
+                <ShinyText text="OUR PHILOSOPHY" speed={3.5} />
+              </span>
+              <h2 className="sweet-moments-title">Sweet Moments</h2>
+              <div className="sweet-moments-text">
+                <p>
+                  At Soulful Baking, we believe baking is more than a skill; it’s an art. Every cake tells a story, and every creation reflects passion, creativity, and craftsmanship. Our Online Baking Academy is designed to help aspiring bakers transform their passion into professional expertise.
+                </p>
+                <p>
+                  Whether you’re just beginning your baking journey or looking to master advanced cake artistry, our carefully curated courses guide you every step of the way. Learn professional recipes, cake structure, sculpting, realistic fondant figurines, and intricate decorating techniques through detailed, easy-to-follow lessons. With expert guidance from Shamini Arun, you’ll gain the confidence, knowledge, and skills to create bakery-quality cakes that are as beautiful as they are delicious.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal y={30} delay={0.2}>
+            <div className="sweet-moments-image-wrapper">
+              <TiltedCard maxRotation={10} scale={1.03}>
+                <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
+                  <img 
+                    src={heroCardCake} 
+                    alt="Custom handcrafted baby shower fondant cake" 
+                    className="sweet-moments-image"
+                  />
+                </div>
+              </TiltedCard>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -292,8 +337,8 @@ const Home = ({ user, onLogout }) => {
               <TiltedCard maxRotation={12} scale={1.03}>
                 <div className="story-image-card" style={{ position: 'relative' }}>
                   <img 
-                    src={storyDessert} 
-                    alt="Layered chocolate hazelnut cake slice" 
+                    src={shaminiFounder} 
+                    alt="Shamini Arun - Founder & Master Baker of Soulful Baking" 
                     className="story-image"
                   />
                   <div 
@@ -301,7 +346,7 @@ const Home = ({ user, onLogout }) => {
                       position: 'absolute',
                       bottom: '1rem',
                       left: '1rem',
-                      background: 'rgba(10, 5, 3, 0.75)',
+                      background: 'rgba(10, 5, 3, 0.85)',
                       backdropFilter: 'blur(12px)',
                       border: '1px solid var(--border-gold)',
                       borderRadius: '50px',
@@ -309,14 +354,14 @@ const Home = ({ user, onLogout }) => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.4rem',
-                      fontSize: '0.8rem',
+                      fontSize: '0.82rem',
                       color: 'var(--gold-light)',
                       fontWeight: '600',
                       boxShadow: '0 8px 20px rgba(0,0,0,0.5)'
                     }}
                   >
                     <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
-                    Handcrafted Daily
+                    Shamini Arun • Founder
                   </div>
                 </div>
               </TiltedCard>
@@ -326,23 +371,73 @@ const Home = ({ user, onLogout }) => {
           <div className="story-content-column">
             <ScrollReveal y={40} delay={0.25}>
               <span className="section-subtitle">
-                <ShinyText text="SINCE 2024" speed={3} />
+                <ShinyText text="MY STORY • EST. JUNE 17, 2024" speed={3} />
               </span>
               <h2 className="section-title">
-                <SplitText text="Sweet Moments" delay={0.06} />{' '}
+                <SplitText text="Crafted with Love," delay={0.06} />{' '}
                 <span className="highlight-text">
-                  <BlurText text="Baked Here" delay={0.08} />
+                  <BlurText text="Baked with Purpose" delay={0.08} />
                 </span>
               </h2>
-              <p className="story-text">
-                At Soulful Baking, baking is not just about combining flour, sugar, and yeast. It is a soulful journey of craftsmanship, passion, and precision. We curate premium online classes that take you from baking basics to creating complex wedding cakes and delicate french pastries.
+
+              <p className="story-text story-intro">
+                Hi, I’m <strong>Shamini Arun</strong>, the founder of <strong>Soulful Baking</strong>, established on June 17, 2024.
               </p>
+
               <p className="story-text">
-                Every course is carefully planned to give you the science behind the crust, the secret to a moist crumb, and visual walk-throughs that ensure your success in the kitchen.
+                My baking journey began when I was just 14 years old. What started as a simple hobby soon became a lifelong passion. I spent years learning, experimenting, and improving my skills, one cake at a time.
               </p>
-              <button onClick={() => navigate('/courses')} className="btn-secondary-link">
-                Browse All Courses <ChevronRight size={18} className="btn-arrow-animate" />
-              </button>
+
+              <p className="story-text">
+                Although I graduated in Computer Science Engineering and began my career in IT, my heart was always drawn to creativity. After marriage, I chose to dedicate my time to my family, but my love for baking never faded.
+              </p>
+
+              <p className="story-text">
+                For many years, I baked only for my family and friends. Seeing their smiles and hearing their appreciation brought me immense joy, but I never imagined turning my passion into a business.
+              </p>
+
+              <div className="story-quote-box">
+                <p className="story-quote-intro">Then one day, a friend said something that changed my life:</p>
+                <blockquote className="story-quote">
+                  “Why don’t you start a baking business? That way, we can enjoy your cakes whenever we want!”
+                </blockquote>
+              </div>
+
+              <p className="story-text">
+                Those simple words planted a seed. They made me realize that my passion could bring happiness not only to my loved ones but also to many others.
+              </p>
+
+              <p className="story-text story-highlight-paragraph">
+                And that’s how <strong>Soulful Baking</strong> was born on June 17, 2024.
+              </p>
+
+              <p className="story-text">
+                With determination, continuous learning, and countless hours of practice, I transformed my passion into my profession. Today, Soulful Baking is more than just a cake studio; it’s a place where creativity, artistry, and heartfelt craftsmanship come together.
+              </p>
+
+              <p className="story-text">
+                I specialize in custom cakes, fondant sculptures, and artistic cake designs, and I’m passionate about mentoring aspiring bakers through online and hands-on masterclasses. Every cake I create reflects my commitment to quality, creativity, and attention to detail.
+              </p>
+
+              <p className="story-text">
+                My vision is simple: to help people celebrate life’s special moments with unforgettable cakes and to inspire aspiring bakers to become confident cake artists.
+              </p>
+
+              <div className="story-outro-card">
+                <Heart size={20} className="story-heart-icon" />
+                <p className="story-outro-text">
+                  Thank you for being a part of my journey. Welcome to Soulful Baking, where every creation is made with love, passion, and purpose.
+                </p>
+              </div>
+
+              <div className="story-cta-group">
+                <button onClick={() => navigate('/courses')} className="btn-secondary-link">
+                  Browse Masterclasses <ChevronRight size={18} className="btn-arrow-animate" />
+                </button>
+                <button onClick={() => navigate('/menu')} className="btn-secondary-link">
+                  Explore Custom Cakes & Menu <ChevronRight size={18} className="btn-arrow-animate" />
+                </button>
+              </div>
             </ScrollReveal>
           </div>
         </div>
@@ -356,15 +451,15 @@ const Home = ({ user, onLogout }) => {
                   <Compass size={24} />
                 </div>
                 <h3 className="feature-title">Baking Fundamentals</h3>
-                <p className="feature-desc">Master the foundations of dough kneading, batter aeration, and precise oven scaling.</p>
+                <p className="feature-desc">Build a strong foundation by mastering essential baking techniques, ingredient handling, measuring methods, mixing, baking, and finishing skills.</p>
               </div>
 
               <div className="feature-card">
                 <div className="feature-icon-wrapper">
                   <Sparkles size={24} />
                 </div>
-                <h3 className="feature-title">Baking Science</h3>
-                <p className="feature-desc">Understand yeast chemistry, sugar caramelization, and structure builders like gluten and egg proteins.</p>
+                <h3 className="feature-title">The Science Behind Baking</h3>
+                <p className="feature-desc">Understand the chemistry behind every bake, from how ingredients interact to how temperature, gluten, and leavening agents create the perfect texture, structure, and flavour.</p>
               </div>
 
               <div className="feature-card">
@@ -392,51 +487,212 @@ const Home = ({ user, onLogout }) => {
         </ScrollReveal>
 
         <ScrollReveal y={40} delay={0.2}>
-          <div className="delicacies-grid">
-            {/* Card 1 */}
-            <div className="delicacy-card">
-              <div className="delicacy-image-wrapper">
-                <img src={cakeStrawberry} alt="Merro Chople Dessert" />
-                <div className="delicacy-overlay">
-                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
-                </div>
+        <div className="signature-showcase-container">
+          {/* Feature 1: Custom Fondant Figurines */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row">
+              <div className="signature-img-box">
+                <img src={fondantFigurines} alt="Custom Fondant Figurines" />
+                <span className="signature-badge">Custom Handcrafted Art</span>
               </div>
-              <div className="delicacy-info">
-                <span className="delicacy-category">Signature Pastry</span>
-                <h3 className="delicacy-title">Merro Chople</h3>
-                <p className="delicacy-desc">A mini chocolate gateau base layered with chocolate mousse, finished with a fresh strawberry and gold leaf garnish.</p>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Custom Fondant Figurines</h3>
+                <p className="signature-item-text">
+                  At Soulful Baking, we create custom handcrafted fondant figurines tailored to your requirements. Whether it’s a person, baby, couple, profession, hobby, pet, or any unique theme, we’ll bring your vision to life with attention to every detail.
+                </p>
+                <p className="signature-item-text">
+                  Simply place your order, and we’ll carefully pack and courier the figurines across India, ensuring they arrive safely and ready to decorate your cake.
+                </p>
+                <blockquote className="signature-quote">
+                  "Your imagination. Our craftsmanship. Delivered to your doorstep."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for Custom Fondant Figurines.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Feature 2: Signature Cupcake Bouquet */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row reverse">
+              <div className="signature-img-box">
+                <img src={cupcakeBouquet} alt="Signature Cupcake Bouquet" />
+                <span className="signature-badge">Edible Floral Artistry</span>
+              </div>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Signature Cupcake Bouquet</h3>
+                <p className="signature-item-text">
+                  Why gift a flower bouquet when you can gift one you can eat? Our Signature Cupcake Bouquet is where baking meets artistry. Handcrafted with realistic buttercream flowers, each bouquet is made fresh to order using delicious cupcakes.
+                </p>
+                <p className="signature-item-text">
+                  A beautiful and unique gift for birthdays, anniversaries, baby showers, Mother’s Day, or any special occasion.
+                </p>
+                <blockquote className="signature-quote">
+                  "Flowers are lovely, but edible flowers are unforgettable."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for Signature Cupcake Bouquet.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Feature 3: Realistic Whipped Cream Peacock Cake */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row">
+              <div className="signature-img-box">
+                <img src={peacockCake} alt="Realistic Whipped Cream Peacock Cake" />
+                <span className="signature-badge">Whipped Cream Innovation</span>
+              </div>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Realistic Whipped Cream Peacock Cake</h3>
+                <p className="signature-item-text">
+                  When I searched for a realistic peacock cake made entirely with whipped cream, I couldn’t find any references online. So, on 16 July 2026, I challenged myself to create one for my client.
+                </p>
+                <p className="signature-item-text">
+                  To this day, we haven’t found evidence of a similar design. Soulful Baking appears to be the first to create and share this style of realistic peacock tail using only whipped cream, without fondant.
+                </p>
+                <blockquote className="signature-quote">
+                  "Pioneered by Soulful Baking. Pure realistic whipped cream tail without fondant."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order for the Realistic Whipped Cream Peacock Cake.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Feature 4: Structured & Sculpted Cakes */}
+          <ScrollReveal y={40} delay={0.15}>
+            <div className="signature-row reverse">
+              <div className="signature-img-box">
+                <img src={sculptedCake} alt="Structured & Sculpted Cakes" />
+                <span className="signature-badge">Bespoke Structural Artistry</span>
+              </div>
+              <div className="signature-content-box">
+                <h3 className="signature-item-title">Structured & Sculpted Cakes</h3>
+                <p className="signature-item-text">
+                  Looking for a unique structured or sculpted cake for your special occasion? Let Soulful Baking create a masterpiece that makes your celebration even more memorable.
+                </p>
+                <p className="signature-item-text">
+                  From suspended gravity-defying designs to intricate 3D structural forms, every detail is engineered and baked to perfection.
+                </p>
+                <blockquote className="signature-quote">
+                  "Gravity-defying structure. Unforgettable centerpiece."
+                </blockquote>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to inquire about a custom Structured / Sculpted Cake.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-signature-order"
+                >
+                  <MessageCircle size={18} />
+                  <span>Order Now via WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+        </ScrollReveal>
+      </section>
+
+      {/* Custom Work Showcase Section (After Signature Delicacies) */}
+      <section id="custom-work" className="custom-work-section">
+        <ScrollReveal y={30} delay={0.1}>
+          <div className="section-header">
+            <span className="section-subtitle">Bespoke Handcrafted Gallery</span>
+            <h2 className="section-title text-center">Our Custom Work Showcase</h2>
+            <p className="section-desc">
+              From milestone celebrations to personalized sports & theme figurines, see how we transform memories and imagination into handcrafted edible art.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal y={40} delay={0.2}>
+          <div className="work-gallery-grid">
+            <div className="work-card">
+              <div className="work-image-wrapper">
+                <img src={workPregnantLady} alt="Maternity & Baby Shower Fondant Figurine" />
+                <div className="work-card-overlay">
+                  <span className="work-tag">Baby Shower / Maternity</span>
+                  <h4 className="work-title">Motherhood Celebration</h4>
+                </div>
               </div>
             </div>
 
-            {/* Card 2 */}
-            <div className="delicacy-card">
-              <div className="delicacy-image-wrapper">
-                <img src={cakeLayered} alt="Conoalut Beticina Honey Cake" />
-                <div className="delicacy-overlay">
-                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+            <div className="work-card">
+              <div className="work-image-wrapper">
+                <img src={workCricketer} alt="Personalized Cricketer Fondant Figurine" />
+                <div className="work-card-overlay">
+                  <span className="work-tag">Sports & Hobby Theme</span>
+                  <h4 className="work-title">Custom Cricketer</h4>
                 </div>
-              </div>
-              <div className="delicacy-info">
-                <span className="delicacy-category">Multi-layered Cake</span>
-                <h3 className="delicacy-title">Conoalut Beticina</h3>
-                <p className="delicacy-desc">Traditional Russian honey cake featuring ten thin caramelized biscuit layers sandwiching sour cream frosting.</p>
               </div>
             </div>
 
-            {/* Card 3 */}
-            <div className="delicacy-card">
-              <div className="delicacy-image-wrapper">
-                <img src={cakeBrownie} alt="Cosol Chis Brownie" />
-                <div className="delicacy-overlay">
-                  <button onClick={() => navigate('/courses')} className="btn-overlay-cta">Learn to Bake</button>
+            <div className="work-card">
+              <div className="work-image-wrapper">
+                <img src={workMinion} alt="Minion Birthday Party Figurine" />
+                <div className="work-card-overlay">
+                  <span className="work-tag">Cartoon & Theme Birthday</span>
+                  <h4 className="work-title">Minion Birthday Bash</h4>
                 </div>
               </div>
-              <div className="delicacy-info">
-                <span className="delicacy-category">Decadent Bar</span>
-                <h3 className="delicacy-title">Cosol Chis</h3>
-                <p className="delicacy-desc">A dense, chewy dark chocolate fudge brownie slab decorated with chocolate glaze and sea salt flakes.</p>
+            </div>
+
+            <div className="work-card">
+              <div className="work-image-wrapper">
+                <img src={workRedDressGirl} alt="Custom Portrait Figurine in Red Dress" />
+                <div className="work-card-overlay">
+                  <span className="work-tag">Bespoke Portrait</span>
+                  <h4 className="work-title">Elegant Doll Figurine</h4>
+                </div>
               </div>
             </div>
+
+            <div className="work-card">
+              <div className="work-image-wrapper">
+                <img src={workSoccerBoy} alt="Custom Football Player Figurine" />
+                <div className="work-card-overlay">
+                  <span className="work-tag">Sports Fanatic</span>
+                  <h4 className="work-title">Soccer Player Figurine</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="work-cta-container text-center">
+            <p className="work-cta-text">
+              Have a unique character, portrait, or theme in mind for your upcoming cake?
+            </p>
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I would like to inquire about a custom fondant figurine / creation.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-custom-wa-cta"
+            >
+              <MessageCircle size={18} />
+              <span>Discuss Your Custom Order on WhatsApp</span>
+            </a>
           </div>
         </ScrollReveal>
       </section>
@@ -457,9 +713,9 @@ const Home = ({ user, onLogout }) => {
               </p>
             </div>
             <div className="faq-card">
-              <h4 className="faq-question">Do I get lifetime access to the video lessons?</h4>
+              <h4 className="faq-question">How long do I get access to the video lessons?</h4>
               <p className="faq-answer">
-                Yes! Once you purchase a course, you will receive lifetime access to the video tutorials, downloadable recipes, and any future course updates at no extra cost.
+                Course access is provided during the specific validity period of each enrolled course.
               </p>
             </div>
             <div className="faq-card">
@@ -483,7 +739,7 @@ const Home = ({ user, onLogout }) => {
             <div className="faq-card">
               <h4 className="faq-question">Is a certificate provided after completion?</h4>
               <p className="faq-answer">
-                Yes, a digital Certificate of Completion is awarded to students who complete all modules and submit their final baking assignments for review.
+                Certificates of completion are awarded exclusively for our offline physical classes.
               </p>
             </div>
           </div>
@@ -532,7 +788,7 @@ const Home = ({ user, onLogout }) => {
                 <MapPin size={22} className="contact-icon" style={{ marginTop: '3px' }} />
                 <span className="contact-text">
                   New Perungalathur, Chennai,<br />
-                  Nedunkundram, Tamil Nadu 600063
+                  Alapakkam, Tamil Nadu 600063
                 </span>
               </li>
               <li className="contact-item">

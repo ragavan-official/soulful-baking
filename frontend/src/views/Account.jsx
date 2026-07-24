@@ -24,6 +24,7 @@ const getMediaUrl = (keyOrUrl) => {
 };
 
 const Account = ({ user, onLogout }) => {
+  const navigate = useNavigate();
   const [purchasedCourses, setPurchasedCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [avatarError, setAvatarError] = useState(false);

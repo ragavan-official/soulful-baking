@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LogOut, User, Mail, Calendar, ShieldAlert, Award, 
-  GraduationCap, Compass, Play
+  GraduationCap, Compass, Play, ShoppingBag
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import SplitText from '../components/SplitText';
@@ -224,13 +224,22 @@ const Account = ({ user, onLogout }) => {
                 </div>
               ))}
               
-              <button 
-                onClick={() => navigate('/courses')} 
-                className="btn-secondary" 
-                style={{ fontSize: '0.85rem', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '0.25rem' }}
-              >
-                <Compass size={14} /> Explore Catalog
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                <button 
+                  onClick={() => navigate('/courses')} 
+                  className="btn-secondary" 
+                  style={{ flex: 1, fontSize: '0.85rem', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <Compass size={14} /> Explore Catalog
+                </button>
+                <button 
+                  onClick={() => navigate('/menu')} 
+                  className="btn-secondary" 
+                  style={{ flex: 1, fontSize: '0.85rem', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                >
+                  <ShoppingBag size={14} /> Explore Menu
+                </button>
+              </div>
             </div>
           )}
         </div>

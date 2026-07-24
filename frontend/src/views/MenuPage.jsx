@@ -59,7 +59,7 @@ const MenuPage = ({ user, onLogout }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeSlideIndices, setActiveSlideIndices] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,7 +69,7 @@ const MenuPage = ({ user, onLogout }) => {
 
   useEffect(() => {
     setActiveSlideIndices({});
-  }, [searchQuery]);
+  }, [searchQuery, selectedCategory]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -134,19 +134,27 @@ const MenuPage = ({ user, onLogout }) => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  const allCategories = Array.from(new Set(menuItems.map(i => i.category || 'Specials').filter(Boolean)));
+
   const filtered = menuItems.filter(item => {
     const searchLow = searchQuery.toLowerCase();
+    const itemCat = item.category || 'Specials';
     
-    // Search in name, description, and bases
-    let matchSearch = !searchQuery || item.name.toLowerCase().includes(searchLow) || item.description?.toLowerCase().includes(searchLow);
+    const matchCategory = selectedCategory === 'All' || itemCat.toLowerCase() === selectedCategory.toLowerCase();
+    
+    let matchSearch = !searchQuery || 
+      item.name.toLowerCase().includes(searchLow) || 
+      item.description?.toLowerCase().includes(searchLow) ||
+      itemCat.toLowerCase().includes(searchLow);
+
     if (!matchSearch && item.bases) {
        matchSearch = item.bases.some(b => b.name.toLowerCase().includes(searchLow) || b.flavours.some(f => f.name.toLowerCase().includes(searchLow)));
     }
     
-    return matchSearch;
+    return matchCategory && matchSearch;
   });
 
-  const categories = Array.from(new Set(filtered.map(i => i.name).filter(Boolean)));
+  const categories = Array.from(new Set(filtered.map(i => i.category || 'Specials').filter(Boolean)));
 
   const menuSchema = {
     "@context": "https://schema.org",
@@ -268,7 +276,26 @@ const MenuPage = ({ user, onLogout }) => {
             )}
           </div>
 
-          {/* Category Pills Removed (Vertical Layout) */}
+          {/* Category Pills */}
+          {allCategories.length > 0 && (
+            <div className="menu-category-pills" style={{ marginTop: '1rem' }}>
+              <button
+                className={`menu-cat-pill ${selectedCategory === 'All' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('All')}
+              >
+                All Categories
+              </button>
+              {allCategories.map(cat => (
+                <button
+                  key={cat}
+                  className={`menu-cat-pill ${selectedCategory === cat ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -306,7 +333,7 @@ const MenuPage = ({ user, onLogout }) => {
             >
               {/* Build Slides for ALL Categories */}
               {categories.map((catName, catIdx) => {
-                const itemsInCat = filtered.filter(item => item.name === catName);
+                const itemsInCat = filtered.filter(item => (item.category || 'Specials') === catName);
                 if (itemsInCat.length === 0) return null;
 
                 const slides = [];
@@ -342,7 +369,7 @@ const MenuPage = ({ user, onLogout }) => {
                     document.getElementById(`menu-cat-${catIdx}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   } else if (!isFirstCategory) {
                     const prevCatName = categories[catIdx - 1];
-                    const prevItems = filtered.filter(item => item.name === prevCatName);
+                    const prevItems = filtered.filter(item => (item.category || 'Specials') === prevCatName);
                     let prevCount = 0;
                     prevItems.forEach(i => {
                       if (i.flavours?.length > 0) prevCount++;

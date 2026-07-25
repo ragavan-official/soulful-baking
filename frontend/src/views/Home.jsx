@@ -453,7 +453,7 @@ const Home = ({ user, onLogout }) => {
               </p>
 
               <p className="story-text story-highlight-paragraph">
-                And that’s how <strong>Soulful Baking</strong> was born on June 17, 2024.
+                And that’s how <strong>Soulful Baking</strong> was born.
               </p>
 
               <p className="story-text">

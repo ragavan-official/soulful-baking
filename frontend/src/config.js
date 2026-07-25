@@ -1,9 +1,9 @@
 let apiBaseUrl = import.meta.env.VITE_API_URL || '';
 
-// If running in browser on a non-localhost origin, do not use localhost/loopback API URLs
+// If running in browser on a production domain, use the live API backend URL
 if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-  if (apiBaseUrl.includes('localhost') || apiBaseUrl.includes('127.0.0.1')) {
-    apiBaseUrl = '';
+  if (!apiBaseUrl || apiBaseUrl.includes('localhost') || apiBaseUrl.includes('127.0.0.1')) {
+    apiBaseUrl = 'https://api.soulfulbaking.in';
   }
 }
 

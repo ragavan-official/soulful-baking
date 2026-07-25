@@ -38,6 +38,7 @@ const Instagram = ({ size = 24, className, style }) => (
 import heroDessert from '../assets/hero_dessert.png';
 import heroCardCake from '../assets/hero_card_cake.jpg';
 import cameraCake from '../assets/camera_cake.jpg';
+import birthdayQueenCake from '../assets/birthday_queen_cake.jpg';
 import storyDessert from '../assets/story_dessert.png';
 import cakeStrawberry from '../assets/cake_strawberry.png';
 import cakeLayered from '../assets/cake_layered.png';
@@ -225,6 +226,7 @@ const Home = ({ user, onLogout }) => {
             <Link to="/" className="nav-link active">Home</Link>
             <Link to="/courses" className="nav-link">Courses</Link>
             <Link to="/menu" className="nav-link">Menu</Link>
+            <a href="#sweet-moments" className="nav-link">Sweet Moments</a>
             <a href="#story" className="nav-link">Our Story</a>
             <a href="#promise" className="nav-link">Our Promise</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
@@ -258,6 +260,7 @@ const Home = ({ user, onLogout }) => {
             <Link to="/" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/courses" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Courses</Link>
             <Link to="/menu" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Menu</Link>
+            <a href="#sweet-moments" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Sweet Moments</a>
             <a href="#story" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Story</a>
             <a href="#promise" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Our Promise</a>
             <a href="#delicacies" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Signature Delicacies</a>
@@ -305,9 +308,9 @@ const Home = ({ user, onLogout }) => {
                 Explore Masterclasses
                 <ArrowRight size={18} />
               </button>
-              <button onClick={() => navigate('/menu')} className="btn-secondary-outline">
-                Explore Menu
-              </button>
+              <a href="#sweet-moments" className="btn-secondary-outline">
+                Sweet Moments
+              </a>
             </div>
           </div>
 
@@ -326,7 +329,41 @@ const Home = ({ user, onLogout }) => {
         </div>
       </section>
 
-
+      {/* Sweet Moments Section */}
+      <section id="sweet-moments" className="sweet-moments-section">
+        <div className="sweet-moments-container">
+          <ScrollReveal y={30} delay={0.1}>
+            <div className="sweet-moments-content">
+              <span className="hero-badge" style={{ marginBottom: '1rem' }}>
+                <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
+                <ShinyText text="OUR PHILOSOPHY" speed={3.5} />
+              </span>
+              <h2 className="sweet-moments-title">Sweet Moments</h2>
+              <div className="sweet-moments-text">
+                <p>
+                  At Soulful Baking, we believe baking is more than a skill; it’s an art. Every cake tells a story, and every creation reflects passion, creativity, and craftsmanship. Our Online Baking Academy is designed to help aspiring bakers transform their passion into professional expertise.
+                </p>
+                <p>
+                  Whether you’re just beginning your baking journey or looking to master advanced cake artistry, our carefully curated courses guide you every step of the way. Learn professional recipes, cake structure, sculpting, realistic fondant figurines, and intricate decorating techniques through detailed, easy-to-follow lessons. With expert guidance from Shamini Arun, you’ll gain the confidence, knowledge, and skills to create bakery-quality cakes that are as beautiful as they are delicious.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal y={30} delay={0.2}>
+            <div className="sweet-moments-image-wrapper">
+              <TiltedCard maxRotation={10} scale={1.03}>
+                <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
+                  <img 
+                    src={birthdayQueenCake} 
+                    alt="Custom Birthday Queen butterfly cake design" 
+                    className="sweet-moments-image"
+                  />
+                </div>
+              </TiltedCard>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
 
       {/* Story & Features Section */}
       <section 

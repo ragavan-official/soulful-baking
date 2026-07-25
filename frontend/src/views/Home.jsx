@@ -245,9 +245,9 @@ const Home = ({ user, onLogout }) => {
             )}
             
             <button 
-              className="mobile-menu-btn"
+              className="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

@@ -206,8 +206,8 @@ const Home = ({ user, onLogout }) => {
   return (
     <div className="home-page">
       <SEO 
-        title="Soulful Baking – Online Baking Courses | Cake, Brownie & Cookie Classes"
-        description="Learn professional baking with Soulful Baking. Explore online baking courses, cake recipes, baking classes, and premium bakery products."
+        title="Online Baking Courses & Homemade Cakes & Desserts | Soulful Baking"
+        description="Learn professional online baking courses and order homemade cakes & desserts from Soulful Baking. Expert baking classes and custom cakes."
         keywords="online baking course, cake making course, brownie course, cookie course, Soulful Baking, baking classes"
         canonicalUrl="https://www.soulfulbaking.in/"
         ogImage="https://www.soulfulbaking.in/logo.png"

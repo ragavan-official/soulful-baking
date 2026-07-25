@@ -414,7 +414,7 @@ const Home = ({ user, onLogout }) => {
           <div className="story-content-column">
             <ScrollReveal y={40} delay={0.25}>
               <span className="section-subtitle">
-                <ShinyText text="MY STORY • EST. JUNE 17, 2024" speed={3} />
+                <ShinyText text="MY STORY" speed={3} />
               </span>
               <h2 className="section-title">
                 <SplitText text="Crafted with Love," delay={0.06} />{' '}
@@ -424,7 +424,7 @@ const Home = ({ user, onLogout }) => {
               </h2>
 
               <p className="story-text story-intro">
-                Hi, I’m <strong>Shamini Arun</strong>, the founder of <strong>Soulful Baking</strong>, established on June 17, 2024.
+                Hi, I’m <strong>Shamini Arun</strong>, the founder of <strong>Soulful Baking</strong>.
               </p>
 
               <p className="story-text">

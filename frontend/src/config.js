@@ -1,4 +1,13 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+let apiBaseUrl = import.meta.env.VITE_API_URL || '';
+
+// If running in browser on a non-localhost origin, do not use localhost/loopback API URLs
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  if (apiBaseUrl.includes('localhost') || apiBaseUrl.includes('127.0.0.1')) {
+    apiBaseUrl = '';
+  }
+}
+
+export const API_BASE_URL = apiBaseUrl;
 
 export const parseResponse = async (response) => {
   const contentType = response.headers.get('content-type');

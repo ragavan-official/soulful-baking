@@ -308,9 +308,9 @@ const Home = ({ user, onLogout }) => {
                 Explore Masterclasses
                 <ArrowRight size={18} />
               </button>
-              <a href="#sweet-moments" className="btn-secondary-outline">
-                Sweet Moments
-              </a>
+              <button onClick={() => navigate('/menu')} className="btn-secondary-outline">
+                Explore Menu
+              </button>
             </div>
           </div>
 

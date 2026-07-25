@@ -426,7 +426,7 @@ const Home = ({ user, onLogout }) => {
               </h2>
 
               <p className="story-text story-intro">
-                Hi, I’m <strong>Shamini Arun</strong>, the founder of <strong>Soulful Baking</strong>.
+                Hi, I’m <strong>Shamini Arun</strong>, the founder of <strong>Soulful Baking</strong>, established on June 17, 2024.
               </p>
 
               <p className="story-text">

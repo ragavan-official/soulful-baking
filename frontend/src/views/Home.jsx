@@ -225,7 +225,6 @@ const Home = ({ user, onLogout }) => {
             <Link to="/" className="nav-link active">Home</Link>
             <Link to="/courses" className="nav-link">Courses</Link>
             <Link to="/menu" className="nav-link">Menu</Link>
-            <a href="#sweet-moments" className="nav-link">Sweet Moments</a>
             <a href="#story" className="nav-link">Our Story</a>
             <a href="#promise" className="nav-link">Our Promise</a>
             <a href="#delicacies" className="nav-link">Signature Delicacies</a>
@@ -244,9 +243,9 @@ const Home = ({ user, onLogout }) => {
             )}
             
             <button 
-              className="mobile-menu-toggle"
+              className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle Menu"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -293,9 +292,9 @@ const Home = ({ user, onLogout }) => {
               <ShinyText text="ONLINE BAKING ACADEMY" speed={3.5} />
             </span>
             <h1 className="hero-title">
-              <span className="visually-hidden">Learn Professional Online Baking Courses from Soulful Baking</span>
-              <span aria-hidden="true">
-                <SplitText text="Master the Art of Baking" delay={0.06} />
+              <SplitText text="Master the Art of" delay={0.05} />{' '}
+              <span className="highlight-text">
+                <BlurText text="Baking & Decorating" delay={0.08} />
               </span>
             </h1>
             <p className="hero-description">
@@ -306,9 +305,9 @@ const Home = ({ user, onLogout }) => {
                 Explore Masterclasses
                 <ArrowRight size={18} />
               </button>
-              <a href="#sweet-moments" className="btn-secondary-outline">
-                Sweet Moments
-              </a>
+              <button onClick={() => navigate('/menu')} className="btn-secondary-outline">
+                Explore Menu
+              </button>
             </div>
           </div>
 
@@ -327,41 +326,7 @@ const Home = ({ user, onLogout }) => {
         </div>
       </section>
 
-      {/* Sweet Moments Section */}
-      <section id="sweet-moments" className="sweet-moments-section">
-        <div className="sweet-moments-container">
-          <ScrollReveal y={30} delay={0.1}>
-            <div className="sweet-moments-content">
-              <span className="hero-badge" style={{ marginBottom: '1rem' }}>
-                <Sparkles size={14} style={{ color: 'var(--gold-primary)' }} />
-                <ShinyText text="OUR PHILOSOPHY" speed={3.5} />
-              </span>
-              <h2 className="sweet-moments-title">Sweet Moments</h2>
-              <div className="sweet-moments-text">
-                <p>
-                  At Soulful Baking, we believe baking is more than a skill; it’s an art. Every cake tells a story, and every creation reflects passion, creativity, and craftsmanship. Our Online Baking Academy is designed to help aspiring bakers transform their passion into professional expertise.
-                </p>
-                <p>
-                  Whether you’re just beginning your baking journey or looking to master advanced cake artistry, our carefully curated courses guide you every step of the way. Learn professional recipes, cake structure, sculpting, realistic fondant figurines, and intricate decorating techniques through detailed, easy-to-follow lessons. With expert guidance from Shamini Arun, you’ll gain the confidence, knowledge, and skills to create bakery-quality cakes that are as beautiful as they are delicious.
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
-          <ScrollReveal y={30} delay={0.2}>
-            <div className="sweet-moments-image-wrapper">
-              <TiltedCard maxRotation={10} scale={1.03}>
-                <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px' }}>
-                  <img 
-                    src={cameraCake} 
-                    alt="Custom Canon camera cake sculpting" 
-                    className="sweet-moments-image"
-                  />
-                </div>
-              </TiltedCard>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+
 
       {/* Story & Features Section */}
       <section 

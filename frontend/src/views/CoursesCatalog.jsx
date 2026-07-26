@@ -22,7 +22,7 @@ const getMediaUrl = (keyOrUrl) => {
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
 };
 
-const CoursesCatalog = () => {
+const CoursesCatalog = ({ user }) => {
   const [courses, setCourses] = useState([]);
   const [purchasedIds, setPurchasedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -91,12 +91,22 @@ const CoursesCatalog = () => {
       const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.message);
 
-      setSuccess('Course purchased successfully! Ready to learn.');
+      setSuccess('Course purchased successfully!');
       setPurchasedIds(prev => {
         const newSet = new Set(prev);
         newSet.add(courseId);
         return newSet;
       });
+
+      const targetCourse = courses.find(c => c._id === courseId);
+      const userName = user?.name || user?.username || 'Customer';
+      const userEmail = user?.email || 'N/A';
+      const courseTitle = targetCourse?.title || 'Baking Masterclass';
+
+      const waMsg = `Hi! I have successfully purchased the course: *${courseTitle}*\n- Name: *${userName}*\n- Email: *${userEmail}*`;
+      const waUrl = `https://wa.me/919042960912?text=${encodeURIComponent(waMsg)}`;
+
+      window.open(waUrl, '_blank');
 
       // Automatically redirect to player after a short delay
       setTimeout(() => {

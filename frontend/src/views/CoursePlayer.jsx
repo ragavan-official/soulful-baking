@@ -22,7 +22,7 @@ const getMediaUrl = (keyOrUrl) => {
   return `${API_BASE_URL}/api/media/${keyOrUrl}`;
 };
 
-const CoursePlayer = () => {
+const CoursePlayer = ({ user }) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
 
@@ -184,6 +184,16 @@ const CoursePlayer = () => {
                 setActiveVideoTitle(firstVid.title);
               }
             }
+
+            // Open WhatsApp with purchase details before viewing classroom
+            const userName = user?.name || user?.username || 'Customer';
+            const userEmail = user?.email || 'N/A';
+            const courseTitle = course?.title || freshCourse?.title || 'Baking Masterclass';
+
+            const waMsg = `Hi! I have successfully purchased the course: *${courseTitle}*\n- Name: *${userName}*\n- Email: *${userEmail}*`;
+            const waUrl = `https://wa.me/919042960912?text=${encodeURIComponent(waMsg)}`;
+
+            window.open(waUrl, '_blank');
 
             setTimeout(() => {
               setPaymentSuccess(false);

@@ -142,6 +142,17 @@ const Payment = ({ user }) => {
             });
 
             setSuccess(true);
+
+            // Open WhatsApp with purchase details before viewing dashboard
+            const userName = user?.name || user?.username || 'Customer';
+            const userEmail = user?.email || 'N/A';
+            const courseTitle = course?.title || 'Baking Masterclass';
+
+            const waMsg = `Hi! I have successfully purchased the course: *${courseTitle}*\n- Name: *${userName}*\n- Email: *${userEmail}*`;
+            const waUrl = `https://wa.me/919042960912?text=${encodeURIComponent(waMsg)}`;
+
+            window.open(waUrl, '_blank');
+
             setTimeout(() => navigate(`/courses/${courseId}`), 2500);
 
           } catch (err) {

@@ -2232,12 +2232,10 @@ tr:hover td {
 
 .menu-category-pills {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 0.6rem 0.5rem;
+  align-items: center;
   padding-bottom: 0.5rem;
 }
 

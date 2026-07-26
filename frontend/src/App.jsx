@@ -137,7 +137,7 @@ const App = () => {
           path="/courses"
           element={
             <RequireAuth user={user}>
-              <CoursesCatalog />
+              <CoursesCatalog user={user} />
             </RequireAuth>
           }
         />
@@ -145,7 +145,7 @@ const App = () => {
           path="/courses/:courseId"
           element={
             <RequireAuth user={user}>
-              <CoursePlayer />
+              <CoursePlayer user={user} />
             </RequireAuth>
           }
         />

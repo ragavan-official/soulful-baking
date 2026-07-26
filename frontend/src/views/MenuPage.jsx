@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, MessageCircle, ChevronRight, ChevronLeft, Search, Sparkles, Filter, X, Menu, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -135,21 +135,58 @@ const MenuPage = ({ user, onLogout }) => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const allCategories = Array.from(new Set(menuItems.map(i => i.category || 'Specials').filter(Boolean)));
+  const getItemPillTitle = (item) => {
+    if (item.description) {
+      const cleanDesc = item.description
+        .replace(/\s*\(Min\. Order:.*?\)/i, '')
+        .replace(/\s*\(1\/2 kg\)/i, '')
+        .trim();
+      
+      const nameLow = item.name.toLowerCase().trim();
+      if (['cake', 'cakes', 'cupcake', 'cup cake', 'cupcakes', 'brownie', 'brownies'].includes(nameLow)) {
+        if (cleanDesc) return cleanDesc;
+      }
+    }
+    return item.name.trim();
+  };
+
+  // Derive category pills directly from Base Types & Flavours (e.g. "Whipped cream cakes", "Swiss Buttercream cakes") & clean item titles
+  const allCategories = useMemo(() => {
+    const catSet = new Set();
+    menuItems.forEach(item => {
+      if (item.bases && item.bases.length > 0) {
+        item.bases.forEach(b => {
+          if (b.name && b.name.trim()) catSet.add(b.name.trim());
+        });
+      } else {
+        const title = getItemPillTitle(item);
+        if (title) catSet.add(title);
+      }
+    });
+    return Array.from(catSet);
+  }, [menuItems]);
 
   const filtered = menuItems.filter(item => {
     const searchLow = searchQuery.toLowerCase();
-    const itemCat = item.category || 'Specials';
-    
-    const matchCategory = selectedCategory === 'All' || itemCat.toLowerCase() === selectedCategory.toLowerCase();
-    
+    const selCatLow = selectedCategory.toLowerCase();
+
+    let matchCategory = selectedCategory === 'All';
+    if (!matchCategory) {
+      if (item.bases && item.bases.length > 0) {
+        matchCategory = item.bases.some(b => b.name && b.name.trim().toLowerCase() === selCatLow);
+      } else {
+        const title = getItemPillTitle(item).toLowerCase();
+        matchCategory = title === selCatLow || (item.category && item.category.toLowerCase() === selCatLow);
+      }
+    }
+
     let matchSearch = !searchQuery || 
       item.name.toLowerCase().includes(searchLow) || 
       item.description?.toLowerCase().includes(searchLow) ||
-      itemCat.toLowerCase().includes(searchLow);
+      (item.category && item.category.toLowerCase().includes(searchLow));
 
     if (!matchSearch && item.bases) {
-       matchSearch = item.bases.some(b => b.name.toLowerCase().includes(searchLow) || b.flavours.some(f => f.name.toLowerCase().includes(searchLow)));
+       matchSearch = item.bases.some(b => b.name.toLowerCase().includes(searchLow) || (b.flavours && b.flavours.some(f => f.name.toLowerCase().includes(searchLow))));
     }
     
     return matchCategory && matchSearch;
@@ -340,20 +377,28 @@ const MenuPage = ({ user, onLogout }) => {
                 const slides = [];
                 itemsInCat.forEach(item => {
                   let itemHasSlides = false;
-                  if (item.flavours && item.flavours.length > 0) {
-                    slides.push({ type: 'item', item });
-                    itemHasSlides = true;
-                  }
                   if (item.bases && item.bases.length > 0) {
                     item.bases.forEach(base => {
                       if (base.flavours && base.flavours.length > 0) {
-                        slides.push({ type: 'base', item, base });
-                        itemHasSlides = true;
+                        if (selectedCategory === 'All' || base.name.trim().toLowerCase() === selectedCategory.toLowerCase()) {
+                          slides.push({ type: 'base', item, base });
+                          itemHasSlides = true;
+                        }
                       }
                     });
                   }
+                  if (item.flavours && item.flavours.length > 0) {
+                    const title = getItemPillTitle(item);
+                    if (selectedCategory === 'All' || title.toLowerCase() === selectedCategory.toLowerCase() || (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase())) {
+                      slides.push({ type: 'item', item });
+                      itemHasSlides = true;
+                    }
+                  }
                   if (!itemHasSlides) {
-                    slides.push({ type: 'item', item });
+                    const title = getItemPillTitle(item);
+                    if (selectedCategory === 'All' || title.toLowerCase() === selectedCategory.toLowerCase() || (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase())) {
+                      slides.push({ type: 'item', item });
+                    }
                   }
                 });
 
@@ -398,19 +443,38 @@ const MenuPage = ({ user, onLogout }) => {
 
                 return (
                   <motion.div key={catName} id={`menu-cat-${catIdx}`} variants={itemVariants} className="menu-category-section">
-                    <div style={{ marginBottom: '0.8rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(229,169,60,0.2)' }}>
-                      <h2 className="menu-category-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.4rem', margin: 0 }}>
-                        {catName}
-                      </h2>
-                      {currentSlide.type === 'base' ? (
-                        <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
-                          {currentSlide.base.name}
-                        </p>
-                      ) : currentSlide.type === 'item' ? (
-                        <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
-                          {currentSlide.item.description || (currentSlide.item.bases && currentSlide.item.bases[0]?.name)}
-                        </p>
-                      ) : null}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.8rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(229,169,60,0.2)' }}>
+                      <div>
+                        <h2 className="menu-category-title" style={{ fontFamily: 'var(--font-serif)', color: 'var(--gold-primary)', fontSize: '1.4rem', margin: 0 }}>
+                          {catName}
+                        </h2>
+                        {currentSlide.type === 'base' ? (
+                          <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
+                            {currentSlide.base.name}
+                          </p>
+                        ) : currentSlide.type === 'item' ? (
+                          <p style={{ color: 'var(--gold-light)', fontSize: '0.95rem', margin: '0.4rem 0 0 0', fontWeight: '500', letterSpacing: '0.5px' }}>
+                            {currentSlide.item.description || (currentSlide.item.bases && currentSlide.item.bases[0]?.name)}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      {slides.length > 1 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                          <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem', fontFamily: 'var(--font-serif)' }}>
+                            {activeSlideIdx + 1} of {slides.length}
+                          </span>
+                          <button
+                            onClick={handleNext}
+                            style={{
+                              background: 'rgba(22,12,7,0.8)', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '8px', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', fontFamily: 'var(--font-serif)', fontSize: '0.9rem'
+                            }}
+                          >
+                            Next
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="menu-list-table-wrapper" style={{ overflowX: 'auto', background: 'rgba(20, 10, 5, 0.45)', borderRadius: '12px', border: '1px solid var(--border-gold)' }}>
                       <table className="menu-list-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
@@ -649,7 +713,7 @@ const MenuPage = ({ user, onLogout }) => {
                           onClick={handleNext}
                           style={{ 
                             visibility: showNext ? 'visible' : 'hidden',
-                            background: 'rgba(22,12,7,0.8)', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '8px', padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--font-serif)', fontSize: '1rem' 
+                            background: 'rgba(22,12,7,0.8)', border: '1px solid var(--border-gold)', color: 'var(--gold-primary)', borderRadius: '8px', padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem', transition: 'all 0.2s', fontFamily: 'var(--font-serif)', fontSize: '1rem' 
                           }}
                           onMouseOver={e => { e.currentTarget.style.background = 'var(--gold-primary)'; e.currentTarget.style.color = '#0a0503'; }}
                           onMouseOut={e => { e.currentTarget.style.background = 'rgba(22,12,7,0.8)'; e.currentTarget.style.color = 'var(--gold-primary)'; }}

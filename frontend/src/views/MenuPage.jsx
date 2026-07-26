@@ -338,15 +338,21 @@ const MenuPage = ({ user, onLogout }) => {
 
                 const slides = [];
                 itemsInCat.forEach(item => {
+                  let itemHasSlides = false;
                   if (item.flavours && item.flavours.length > 0) {
                     slides.push({ type: 'item', item });
+                    itemHasSlides = true;
                   }
                   if (item.bases && item.bases.length > 0) {
                     item.bases.forEach(base => {
                       if (base.flavours && base.flavours.length > 0) {
                         slides.push({ type: 'base', item, base });
+                        itemHasSlides = true;
                       }
                     });
+                  }
+                  if (!itemHasSlides) {
+                    slides.push({ type: 'item', item });
                   }
                 });
 
@@ -544,11 +550,74 @@ const MenuPage = ({ user, onLogout }) => {
                                   </tr>
                                 );
                               })}
-                              {(!currentSlide.item.flavours || currentSlide.item.flavours.length === 0) && (
-                                <tr>
-                                  <td colSpan="4" style={{ padding: '1rem', color: 'var(--text-secondary)' }}>No flavours added yet.</td>
-                                </tr>
-                              )}
+                              {(!currentSlide.item.flavours || currentSlide.item.flavours.length === 0) && (() => {
+                                const nameLower = currentSlide.item.name.toLowerCase();
+                                const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
+                                const isCake = !isCupcake && (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake'));
+                                const selectKey = `${currentSlide.item._id}-item-single`;
+                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : (isCupcake ? 6 : 1);
+                                const basePrice = currentSlide.item.price || 0;
+                                const displayPrice = basePrice * currentQty;
+
+                                return (
+                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.2s' }}>
+                                    <td style={{ padding: '1rem', paddingLeft: '1.5rem' }}>
+                                      <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.95rem' }}>{currentSlide.item.name}</div>
+                                      {currentSlide.item.description && (
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{currentSlide.item.description}</div>
+                                      )}
+                                    </td>
+                                    <td style={{ padding: '1rem' }}>
+                                      <select
+                                        value={currentQty}
+                                        onChange={e => setSelectedQuantities(prev => ({ ...prev, [selectKey]: parseFloat(e.target.value) }))}
+                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '130px' }}
+                                      >
+                                        {isCupcake ? (
+                                          <>
+                                            <option value="6" style={{ background: '#130a06' }}>Box of 6 (6 Pcs)</option>
+                                            <option value="12" style={{ background: '#130a06' }}>Box of 12 (12 Pcs)</option>
+                                            <option value="18" style={{ background: '#130a06' }}>18 Pcs</option>
+                                            <option value="24" style={{ background: '#130a06' }}>24 Pcs</option>
+                                            <option value="30" style={{ background: '#130a06' }}>30 Pcs</option>
+                                          </>
+                                        ) : isCake ? (
+                                          <>
+                                            <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
+                                            <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
+                                            <option value="1.5" style={{ background: '#130a06' }}>1.5 Kg</option>
+                                            <option value="2" style={{ background: '#130a06' }}>2 Kg</option>
+                                            <option value="3" style={{ background: '#130a06' }}>3 Kg</option>
+                                            <option value="5" style={{ background: '#130a06' }}>5 Kg</option>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <option value="1" style={{ background: '#130a06' }}>1 Qty</option>
+                                            <option value="2" style={{ background: '#130a06' }}>2 Qty</option>
+                                            <option value="3" style={{ background: '#130a06' }}>3 Qty</option>
+                                            <option value="4" style={{ background: '#130a06' }}>4 Qty</option>
+                                            <option value="5" style={{ background: '#130a06' }}>5 Qty</option>
+                                          </>
+                                        )}
+                                      </select>
+                                    </td>
+                                    <td style={{ padding: '1rem', fontWeight: '600', color: 'var(--gold-light)', fontSize: '1rem' }}>
+                                      ₹{displayPrice}
+                                    </td>
+                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                      <button
+                                        onClick={() => openWhatsApp(currentSlide.item, null, null, currentQty)}
+                                        style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', border: 'none', color: '#fff', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                                      >
+                                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.436 0 9.851-4.415 9.854-9.857.001-2.636-1.024-5.113-2.887-6.978C16.368 1.95 13.882.925 11.25.925c-5.438 0-9.853 4.414-9.856 9.856-.001 1.761.47 3.473 1.362 5.006l-1.012 3.7 3.8-.996zm13.155-7.142c-.29-.145-1.713-.847-1.978-.943-.265-.097-.459-.145-.651.145-.193.291-.748.944-.917 1.137-.168.193-.337.217-.627.072-2.91-1.454-4.81-3.411-5.585-4.743-.204-.352-.022-.544.15-.716.154-.155.337-.393.507-.589.17-.196.226-.338.338-.564.112-.226.056-.423-.028-.568-.084-.145-.651-1.568-.891-2.146-.233-.56-.47-.482-.651-.492-.168-.008-.362-.01-.555-.01-.193 0-.507.072-.772.361-.265.291-1.012.989-1.012 2.41 0 1.42 1.037 2.793 1.182 2.988.145.195 2.04 3.117 4.943 4.372.69.298 1.23.477 1.65.611.693.22 1.325.19 1.823.115.556-.083 1.713-.699 1.954-1.374.24-.675.24-1.253.168-1.374-.072-.12-.265-.193-.555-.338z"/>
+                                        </svg>
+                                        Order
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })()}
                             </React.Fragment>
                           )}
                         </tbody>

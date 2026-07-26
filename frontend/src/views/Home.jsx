@@ -308,7 +308,7 @@ const Home = ({ user, onLogout }) => {
                 Explore Masterclasses
                 <ArrowRight size={18} />
               </button>
-              <button onClick={() => navigate('/menu')} className="btn-secondary-outline">
+              <button onClick={() => window.location.href = 'https://www.soulfulbaking.in/menu'} className="btn-secondary-outline">
                 Explore Menu
               </button>
             </div>
@@ -479,7 +479,7 @@ const Home = ({ user, onLogout }) => {
                 <button onClick={() => navigate('/courses')} className="btn-secondary-link">
                   Browse Masterclasses <ChevronRight size={18} className="btn-arrow-animate" />
                 </button>
-                <button onClick={() => navigate('/menu')} className="btn-secondary-link">
+                <button onClick={() => window.location.href = 'https://www.soulfulbaking.in/menu'} className="btn-secondary-link">
                   Explore Custom Cakes & Menu <ChevronRight size={18} className="btn-arrow-animate" />
                 </button>
               </div>

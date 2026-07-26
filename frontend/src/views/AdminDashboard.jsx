@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, Shield, UserCheck, ShieldAlert, LogOut, ArrowLeft, 
   BookOpen, Plus, Edit2, Trash2, Film, Calendar, DollarSign, 
-  UploadCloud, AlertCircle, Play, X, CheckCircle, ShoppingBag, ToggleLeft, ToggleRight, Image
+  UploadCloud, AlertCircle, Play, X, CheckCircle, ShoppingBag, ToggleLeft, ToggleRight, Image, Search
 } from 'lucide-react';
 import Logo from '../components/Logo';
 import ShinyText from '../components/ShinyText';
@@ -72,6 +72,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   
   // Tab data
   const [users, setUsers] = useState([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   const [stats, setStats] = useState({ totalUsers: 0, adminCount: 0, userCount: 0 });
   const [courses, setCourses] = useState([]);
   const [purchases, setPurchases] = useState([]);
@@ -1044,9 +1045,56 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
 
           <div className="table-card">
-            <div className="table-header-row">
-              <h2 className="table-title">Registered Accounts</h2>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Total: {users.length} accounts</span>
+            <div className="table-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 className="table-title" style={{ margin: 0 }}>Registered Accounts</h2>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  {userSearchQuery ? `Showing ${users.filter(item => {
+                    const q = userSearchQuery.toLowerCase().trim();
+                    return item.name?.toLowerCase().includes(q) || item.email?.toLowerCase().includes(q) || item.role?.toLowerCase().includes(q) || (item.googleId ? 'google oauth' : 'credentials').includes(q);
+                  }).length} of ${users.length} accounts` : `Total: ${users.length} accounts`}
+                </span>
+              </div>
+              <div style={{ position: 'relative', minWidth: '260px' }}>
+                <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-primary)', opacity: 0.7 }} />
+                <input
+                  type="text"
+                  placeholder="Search user by name, email, or role..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 2.2rem 0.5rem 2.4rem',
+                    background: 'rgba(20, 10, 5, 0.6)',
+                    border: '1px solid var(--border-gold)',
+                    borderRadius: '8px',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    outline: 'none',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+                {userSearchQuery && (
+                  <button
+                    onClick={() => setUserSearchQuery('')}
+                    style={{
+                      position: 'absolute',
+                      right: '0.6rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      padding: '0.2rem',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="table-container">
               <table>
@@ -1061,53 +1109,74 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((item) => {
-                    const isProtectedAdmin = item.email === 'query@soulfulbaking.in' || item.email === 'soulfulbaking.shamini@gmail.com';
-                    return (
-                      <tr key={item._id}>
-                        <td>
-                          <UserAvatarCell avatar={item.avatar} name={item.name} />
+                  {(() => {
+                    const filteredUsers = users.filter((item) => {
+                      if (!userSearchQuery.trim()) return true;
+                      const q = userSearchQuery.toLowerCase().trim();
+                      return item.name?.toLowerCase().includes(q) ||
+                             item.email?.toLowerCase().includes(q) ||
+                             item.role?.toLowerCase().includes(q) ||
+                             (item.googleId ? 'google oauth' : 'credentials').includes(q);
+                    });
+
+                    if (filteredUsers.length === 0) {
+                      return (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                            No accounts found matching "{userSearchQuery}"
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return filteredUsers.map((item) => {
+                      const isProtectedAdmin = item.email === 'query@soulfulbaking.in' || item.email === 'soulfulbaking.shamini@gmail.com';
+                      return (
+                        <tr key={item._id}>
+                          <td>
+                            <UserAvatarCell avatar={item.avatar} name={item.name} />
+                          </td>
+                          <td style={{ fontWeight: '500' }}>{item.name}</td>
+                          <td>{item.email}</td>
+                          <td>
+                            {isProtectedAdmin || !isAdmin ? (
+                              <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
+                            ) : (
+                            <select 
+                              value={item.role} 
+                              onChange={(e) => handleRoleChange(item._id, e.target.value)}
+                              style={{ 
+                                background: 'rgba(22, 12, 7, 0.8)',
+                                color: item.role === 'admin' ? '#ff7b7c' : item.role === 'employee' ? '#6eff9f' : 'var(--gold-primary)',
+                                border: '1px solid var(--border-gold)',
+                                padding: '0.35rem 1.5rem 0.35rem 0.75rem',
+                                borderRadius: '6px',
+                                outline: 'none',
+                                cursor: 'pointer',
+                                textTransform: 'uppercase',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                letterSpacing: '0.5px'
+                              }}
+                            >
+                              <option value="user">USER</option>
+                              <option value="employee">EMPLOYEE</option>
+                              <option value="admin">ADMIN</option>
+                            </select>
+                          )}
                         </td>
-                        <td style={{ fontWeight: '500' }}>{item.name}</td>
-                        <td>{item.email}</td>
                         <td>
-                          {isProtectedAdmin || !isAdmin ? (
-                            <span className={`role-tag ${item.role === 'admin' ? 'role-admin' : item.role === 'employee' ? 'role-employee' : 'role-user'}`}>{item.role}</span>
-                          ) : (
-                          <select 
-                            value={item.role} 
-                            onChange={(e) => handleRoleChange(item._id, e.target.value)}
-                            style={{ 
-                              background: 'rgba(22, 12, 7, 0.8)',
-                              color: item.role === 'admin' ? '#ff7b7c' : item.role === 'employee' ? '#6eff9f' : 'var(--gold-primary)',
-                              border: '1px solid var(--border-gold)',
-                              padding: '0.35rem 1.5rem 0.35rem 0.75rem',
-                              borderRadius: '6px',
-                              outline: 'none',
-                              cursor: 'pointer',
-                              textTransform: 'uppercase',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              letterSpacing: '0.5px'
-                            }}
-                          >
-                            <option value="user">USER</option>
-                            <option value="employee">EMPLOYEE</option>
-                            <option value="admin">ADMIN</option>
-                          </select>
-                        )}
-                      </td>
-                      <td>
-                        <span style={{ fontSize: '0.8rem', color: item.googleId ? 'var(--gold-light)' : 'var(--text-secondary)' }}>
-                          {item.googleId ? 'Google OAuth' : 'Credentials'}
-                        </span>
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                        {new Date(item.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  );
-                })}
+                          <span style={{ fontSize: '0.8rem', color: item.googleId ? 'var(--gold-light)' : 'var(--text-secondary)' }}>
+                            {item.googleId ? 'Google OAuth' : 'Credentials'}
+                          </span>
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                          {new Date(item.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
                 </tbody>
               </table>
             </div>

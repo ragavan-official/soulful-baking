@@ -66,6 +66,7 @@ const MenuPage = ({ user, onLogout }) => {
   const [selectedFlavours, setSelectedFlavours] = useState({});
   const [selectedBases, setSelectedBases] = useState({});
   const [selectedQuantities, setSelectedQuantities] = useState({});
+  const [activeSlideIndices, setActiveSlideIndices] = useState({});
 
   useEffect(() => {
     setActiveSlideIndices({});

@@ -148,13 +148,17 @@ async function seedAdmin() {
     const adminUser = await User.findOne({ email: adminEmail });
 
     if (adminUser) {
-      console.log('Admin user exists. Syncing password and role...');
-      // Sync password to Shaminisha@28 and role to admin
-      adminUser.password = 'Shaminisha@28';
-      adminUser.role = 'admin';
-      adminUser.name = adminUser.name || 'Shamini Admin';
-      await adminUser.save();
-      console.log('Admin user updated and verified.');
+      const isMatch = await adminUser.comparePassword('Shaminisha@28');
+      if (!isMatch || adminUser.role !== 'admin') {
+        console.log('Admin user exists. Syncing password and role...');
+        if (!isMatch) adminUser.password = 'Shaminisha@28';
+        adminUser.role = 'admin';
+        adminUser.name = adminUser.name || 'Shamini Admin';
+        await adminUser.save();
+        console.log('Admin user updated and verified.');
+      } else {
+        console.log('Admin user verified.');
+      }
     } else {
       console.log('Admin user does not exist. Seeding default admin...');
       const newAdmin = new User({

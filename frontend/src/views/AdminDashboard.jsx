@@ -114,6 +114,8 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [courseValidityDays, setCourseValidityDays] = useState('365');
   const [courseRecipePdf, setCourseRecipePdf] = useState('');
   const [isUploadingRecipePdf, setIsUploadingRecipePdf] = useState(false);
+  const [zoomLink, setZoomLink] = useState('');
+  const [whatsappLink, setWhatsappLink] = useState('');
   const [courseLink, setCourseLink] = useState('');
   const [courseInstructor, setCourseInstructor] = useState('Jeyadra Vijayselvan');
   const [courseLanguage, setCourseLanguage] = useState('English');
@@ -626,6 +628,8 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseVideos([]);
     setCourseValidityDays('365');
     setCourseRecipePdf('');
+    setZoomLink('');
+    setWhatsappLink('');
     setCourseLink('');
     setCourseInstructor('Jeyadra Vijayselvan');
     setCourseLanguage('English');
@@ -642,6 +646,8 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseVideos(course.videos || []);
     setCourseValidityDays(course.validityDays !== undefined ? String(course.validityDays) : '365');
     setCourseRecipePdf(course.recipePdf || '');
+    setZoomLink(course.zoomLink || course.courseLink || '');
+    setWhatsappLink(course.whatsappLink || '');
     setCourseLink(course.courseLink || '');
     setCourseInstructor(course.instructor || 'Jeyadra Vijayselvan');
     setCourseLanguage(course.language || 'English');
@@ -838,7 +844,9 @@ const AdminDashboard = ({ user, onLogout }) => {
           videos: courseVideos,
           validityDays: parseInt(courseValidityDays) || 365,
           recipePdf: courseRecipePdf,
-          courseLink: courseLink,
+          zoomLink: zoomLink,
+          whatsappLink: whatsappLink,
+          courseLink: zoomLink || whatsappLink || courseLink,
           instructor: courseInstructor,
           language: courseLanguage
         })
@@ -1966,18 +1974,34 @@ const AdminDashboard = ({ user, onLogout }) => {
               </div>
 
               <div className="input-group">
-                <label className="input-label" htmlFor="courseLink">Course Link (URL)</label>
+                <label className="input-label" htmlFor="zoomLink">Online Class Zoom Meeting Link (URL)</label>
                 <input 
-                  id="courseLink"
+                  id="zoomLink"
                   type="text" 
                   className="input-field" 
                   style={{ paddingLeft: '1rem' }}
-                  placeholder="e.g. https://chat.whatsapp.com/... or https://zoom.us/..."
-                  value={courseLink}
-                  onChange={e => setCourseLink(e.target.value)}
+                  placeholder="e.g. https://zoom.us/j/123456789..."
+                  value={zoomLink}
+                  onChange={e => setZoomLink(e.target.value)}
                 />
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
-                  This link (e.g., WhatsApp Group, Zoom, Drive link) will be unlocked and displayed to students after paying for the course.
+                  Zoom meeting link for online live class. Unlocked and displayed to students after paying for the course.
+                </span>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label" htmlFor="whatsappLink">WhatsApp Group Link (URL)</label>
+                <input 
+                  id="whatsappLink"
+                  type="text" 
+                  className="input-field" 
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="e.g. https://chat.whatsapp.com/..."
+                  value={whatsappLink}
+                  onChange={e => setWhatsappLink(e.target.value)}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', marginTop: '0.25rem', display: 'block', fontWeight: '500' }}>
+                  join whatsapp group for further details (unlocked after payment)
                 </span>
               </div>
 

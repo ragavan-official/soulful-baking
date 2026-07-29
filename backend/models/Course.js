@@ -52,6 +52,14 @@ const courseSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  zoomLink: {
+    type: String,
+    default: ''
+  },
+  whatsappLink: {
+    type: String,
+    default: ''
+  },
   courseLink: {
     type: String,
     default: ''

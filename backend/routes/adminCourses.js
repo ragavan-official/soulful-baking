@@ -24,7 +24,7 @@ router.get('/courses', async (req, res) => {
 // @desc    Create a new course
 router.post('/courses', async (req, res) => {
   try {
-    const { title, description, price, thumbnail, videos, validityDays, recipePdf, courseLink, instructor, language } = req.body;
+    const { title, description, price, thumbnail, videos, validityDays, recipePdf, courseLink, zoomLink, whatsappLink, instructor, language } = req.body;
 
     if (!title || price === undefined) {
       return res.status(400).json({ message: 'Title and price are required' });
@@ -38,7 +38,9 @@ router.post('/courses', async (req, res) => {
       videos: videos || [],
       validityDays: validityDays !== undefined ? Number(validityDays) : 365,
       recipePdf: recipePdf || '',
-      courseLink: courseLink || '',
+      zoomLink: zoomLink !== undefined ? zoomLink : (courseLink || ''),
+      whatsappLink: whatsappLink || '',
+      courseLink: courseLink !== undefined ? courseLink : (zoomLink || ''),
       instructor: instructor || 'Jeyadra Vijayselvan',
       language: language || 'English'
     });
@@ -55,7 +57,7 @@ router.post('/courses', async (req, res) => {
 // @desc    Update course details and associated videos
 router.put('/courses/:id', async (req, res) => {
   try {
-    const { title, description, price, thumbnail, videos, validityDays, recipePdf, courseLink, instructor, language } = req.body;
+    const { title, description, price, thumbnail, videos, validityDays, recipePdf, courseLink, zoomLink, whatsappLink, instructor, language } = req.body;
 
     if (!title || price === undefined) {
       return res.status(400).json({ message: 'Title and price are required' });
@@ -71,7 +73,9 @@ router.put('/courses/:id', async (req, res) => {
         videos: videos || [],
         validityDays: validityDays !== undefined ? Number(validityDays) : 365,
         recipePdf: recipePdf !== undefined ? recipePdf : '',
-        courseLink: courseLink !== undefined ? courseLink : '',
+        zoomLink: zoomLink !== undefined ? zoomLink : (courseLink !== undefined ? courseLink : ''),
+        whatsappLink: whatsappLink !== undefined ? whatsappLink : '',
+        courseLink: courseLink !== undefined ? courseLink : (zoomLink !== undefined ? zoomLink : ''),
         instructor: instructor || 'Jeyadra Vijayselvan',
         language: language || 'English'
       },

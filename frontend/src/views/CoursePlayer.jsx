@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Play, Lock, Clock, Calendar, ArrowLeft, Film, AlertTriangle, 
-  FileText, DownloadCloud, Sparkles, AlertCircle, CheckCircle2, ShieldCheck, ShoppingBag, ExternalLink, Link as LinkIcon
+  FileText, DownloadCloud, Sparkles, AlertCircle, CheckCircle2, ShieldCheck, ShoppingBag, ExternalLink, Link as LinkIcon, Video, MessageCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL, parseResponse } from '../config';
@@ -264,19 +264,34 @@ const CoursePlayer = ({ user }) => {
     }
   };
 
-  const handleCourseLinkClick = () => {
+  const handleZoomLinkClick = () => {
     if (!course.isPurchased) {
-      // Trigger Razorpay payment directly when user clicks locked Course Link
       handlePaymentSubmit();
       return;
     }
-    if (course.courseLink) {
-      const url = course.courseLink.startsWith('http://') || course.courseLink.startsWith('https://') 
-        ? course.courseLink 
-        : `https://${course.courseLink}`;
+    const targetLink = course.zoomLink || course.courseLink;
+    if (targetLink) {
+      const url = targetLink.startsWith('http://') || targetLink.startsWith('https://') 
+        ? targetLink 
+        : `https://${targetLink}`;
       window.open(url, '_blank');
     } else {
-      alert('No course link configured for this course yet.');
+      alert('No Zoom class meeting link configured for this course yet.');
+    }
+  };
+
+  const handleWhatsappLinkClick = () => {
+    if (!course.isPurchased) {
+      handlePaymentSubmit();
+      return;
+    }
+    if (course.whatsappLink) {
+      const url = course.whatsappLink.startsWith('http://') || course.whatsappLink.startsWith('https://') 
+        ? course.whatsappLink 
+        : `https://${course.whatsappLink}`;
+      window.open(url, '_blank');
+    } else {
+      alert('No WhatsApp group link configured for this course yet.');
     }
   };
 
@@ -845,42 +860,87 @@ const CoursePlayer = ({ user }) => {
                 </div>
               </div>
 
-              {(course.hasCourseLink || course.courseLink) && (
+              {/* Online Class Zoom Meeting Link */}
+              {(course.hasZoomLink || course.zoomLink || course.courseLink) && (
                 <>
                   <div className="course-detail-section-heading" style={{ marginTop: '2.5rem' }}>
                     <span className="course-detail-chevron-icon">▶</span>
-                    <span>Course Link</span>
+                    <span>Online Live Class</span>
                   </div>
 
                   <div 
                     className="course-detail-media-card"
-                    onClick={handleCourseLinkClick}
+                    onClick={handleZoomLinkClick}
                     style={{ cursor: 'pointer' }}
-                    title={!course.isPurchased ? "Click to pay & unlock course link via Razorpay" : "Click to open course link"}
+                    title={!course.isPurchased ? "Click to pay & unlock Zoom class meeting via Razorpay" : "Click to open Zoom class meeting"}
                   >
                     <div className="course-detail-media-left">
-                      <div className="course-detail-square-icon-btn">
-                        <LinkIcon size={16} />
+                      <div className="course-detail-square-icon-btn" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
+                        <Video size={16} />
                       </div>
                       <div>
                         <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                          Course Access Link
+                          Online Class Zoom Meeting
                         </div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
-                          {course.isPurchased ? (course.courseLink || 'Click to open external course link') : 'Unlocked after payment'}
+                          {course.isPurchased ? (course.zoomLink || course.courseLink || 'Click to join Zoom meeting') : 'Unlocked after payment'}
                         </div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {course.isPurchased ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#3b82f6', fontSize: '0.85rem', fontWeight: '600' }}>
                           <ExternalLink size={16} />
-                          <span>Open Link</span>
+                          <span>Join Class</span>
                         </div>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600', background: 'rgba(229, 169, 60, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(229, 169, 60, 0.25)' }}>
                           <Lock size={14} />
                           <span>Unlock Link</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* WhatsApp Group Link */}
+              {(course.hasWhatsappLink || course.whatsappLink) && (
+                <>
+                  <div className="course-detail-section-heading" style={{ marginTop: '1.5rem' }}>
+                    <span className="course-detail-chevron-icon">▶</span>
+                    <span>WhatsApp Group</span>
+                  </div>
+
+                  <div 
+                    className="course-detail-media-card"
+                    onClick={handleWhatsappLinkClick}
+                    style={{ cursor: 'pointer' }}
+                    title={!course.isPurchased ? "Click to pay & unlock WhatsApp group link via Razorpay" : "Click to join WhatsApp group"}
+                  >
+                    <div className="course-detail-media-left">
+                      <div className="course-detail-square-icon-btn" style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25D366' }}>
+                        <MessageCircle size={16} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                          WhatsApp Group Link
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#25D366', marginTop: '0.15rem', fontWeight: '500' }}>
+                          join whatsapp group for further details {course.isPurchased ? '' : '(Unlocked after payment)'}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {course.isPurchased ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#25D366', fontSize: '0.85rem', fontWeight: '600' }}>
+                          <ExternalLink size={16} />
+                          <span>Join Group</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600', background: 'rgba(229, 169, 60, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(229, 169, 60, 0.25)' }}>
+                          <Lock size={14} />
+                          <span>Unlock Group</span>
                         </div>
                       )}
                     </div>

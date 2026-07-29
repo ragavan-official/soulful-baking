@@ -114,6 +114,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [courseValidityDays, setCourseValidityDays] = useState('365');
   const [courseRecipePdf, setCourseRecipePdf] = useState('');
   const [isUploadingRecipePdf, setIsUploadingRecipePdf] = useState(false);
+  const [courseLink, setCourseLink] = useState('');
   const [courseInstructor, setCourseInstructor] = useState('Jeyadra Vijayselvan');
   const [courseLanguage, setCourseLanguage] = useState('English');
   
@@ -625,6 +626,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseVideos([]);
     setCourseValidityDays('365');
     setCourseRecipePdf('');
+    setCourseLink('');
     setCourseInstructor('Jeyadra Vijayselvan');
     setCourseLanguage('English');
     setUploadError('');
@@ -640,6 +642,7 @@ const AdminDashboard = ({ user, onLogout }) => {
     setCourseVideos(course.videos || []);
     setCourseValidityDays(course.validityDays !== undefined ? String(course.validityDays) : '365');
     setCourseRecipePdf(course.recipePdf || '');
+    setCourseLink(course.courseLink || '');
     setCourseInstructor(course.instructor || 'Jeyadra Vijayselvan');
     setCourseLanguage(course.language || 'English');
     setUploadError('');
@@ -835,6 +838,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           videos: courseVideos,
           validityDays: parseInt(courseValidityDays) || 365,
           recipePdf: courseRecipePdf,
+          courseLink: courseLink,
           instructor: courseInstructor,
           language: courseLanguage
         })
@@ -1959,6 +1963,22 @@ const AdminDashboard = ({ user, onLogout }) => {
                     Uploaded PDF: <a href={getMediaUrl(courseRecipePdf)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-light)', textDecoration: 'underline' }}>{courseRecipePdf}</a>
                   </div>
                 )}
+              </div>
+
+              <div className="input-group">
+                <label className="input-label" htmlFor="courseLink">Course Link (URL)</label>
+                <input 
+                  id="courseLink"
+                  type="text" 
+                  className="input-field" 
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="e.g. https://chat.whatsapp.com/... or https://zoom.us/..."
+                  value={courseLink}
+                  onChange={e => setCourseLink(e.target.value)}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
+                  This link (e.g., WhatsApp Group, Zoom, Drive link) will be unlocked and displayed to students after paying for the course.
+                </span>
               </div>
 
               <div className="input-group">

@@ -52,6 +52,10 @@ const courseSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  courseLink: {
+    type: String,
+    default: ''
+  },
   instructor: {
     type: String,
     default: 'Jeyadra Vijayselvan'

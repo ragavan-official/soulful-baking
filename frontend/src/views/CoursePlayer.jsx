@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Play, Lock, Clock, Calendar, ArrowLeft, Film, AlertTriangle, 
-  FileText, DownloadCloud, Sparkles, AlertCircle, CheckCircle2, ShieldCheck, ShoppingBag
+  FileText, DownloadCloud, Sparkles, AlertCircle, CheckCircle2, ShieldCheck, ShoppingBag, ExternalLink, Link as LinkIcon
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL, parseResponse } from '../config';
@@ -261,6 +261,22 @@ const CoursePlayer = ({ user }) => {
       window.open(course.recipePdfUrl, '_blank');
     } else {
       alert('No Recipe PDF guide available for this course yet.');
+    }
+  };
+
+  const handleCourseLinkClick = () => {
+    if (!course.isPurchased) {
+      // Trigger Razorpay payment directly when user clicks locked Course Link
+      handlePaymentSubmit();
+      return;
+    }
+    if (course.courseLink) {
+      const url = course.courseLink.startsWith('http://') || course.courseLink.startsWith('https://') 
+        ? course.courseLink 
+        : `https://${course.courseLink}`;
+      window.open(url, '_blank');
+    } else {
+      alert('No course link configured for this course yet.');
     }
   };
 
@@ -828,6 +844,49 @@ const CoursePlayer = ({ user }) => {
                   )}
                 </div>
               </div>
+
+              {(course.hasCourseLink || course.courseLink) && (
+                <>
+                  <div className="course-detail-section-heading" style={{ marginTop: '2.5rem' }}>
+                    <span className="course-detail-chevron-icon">▶</span>
+                    <span>Course Link</span>
+                  </div>
+
+                  <div 
+                    className="course-detail-media-card"
+                    onClick={handleCourseLinkClick}
+                    style={{ cursor: 'pointer' }}
+                    title={!course.isPurchased ? "Click to pay & unlock course link via Razorpay" : "Click to open course link"}
+                  >
+                    <div className="course-detail-media-left">
+                      <div className="course-detail-square-icon-btn">
+                        <LinkIcon size={16} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '500', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                          Course Access Link
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                          {course.isPurchased ? (course.courseLink || 'Click to open external course link') : 'Unlocked after payment'}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {course.isPurchased ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600' }}>
+                          <ExternalLink size={16} />
+                          <span>Open Link</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--gold-primary)', fontSize: '0.85rem', fontWeight: '600', background: 'rgba(229, 169, 60, 0.1)', padding: '0.3rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(229, 169, 60, 0.25)' }}>
+                          <Lock size={14} />
+                          <span>Unlock Link</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {filteredOtherCourses.length > 0 && (
                 <div>

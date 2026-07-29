@@ -49,47 +49,79 @@ app.use(
 );
 app.use(express.json());
 
-// ─── MongoDB connection with auto-retry ──────────────────────────────────────
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/soulful_baking';
+// ─── MongoDB connection with auto-retry & local fallback ────────────────────
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://soulful_baking:Qwertyuiop@cluster0.jpza42m.mongodb.net/soulful_baking?appName=Cluster0';
+const LOCAL_MONGODB_URI = 'mongodb://127.0.0.1:27017/soulful_baking';
 
 const MONGO_OPTIONS = {
-  serverSelectionTimeoutMS: 10000,  // give up selecting a server after 10s
+  serverSelectionTimeoutMS: 5000,   // give up selecting server after 5s
   socketTimeoutMS: 45000,           // close idle sockets after 45s
-  connectTimeoutMS: 10000,          // initial TCP connection timeout
+  connectTimeoutMS: 5000,           // initial TCP connection timeout
   heartbeatFrequencyMS: 10000,      // check server health every 10s
   maxPoolSize: 10,
   retryWrites: true,
 };
 
 let _adminSeeded = false;
+let isConnecting = false;
 
 async function connectDB(retryCount = 0) {
+  if (isConnecting) return;
+  isConnecting = true;
+
   const MAX_RETRIES = 10;
-  const RETRY_DELAY_MS = Math.min(1000 * 2 ** retryCount, 30000); // exponential back-off, max 30s
+  const RETRY_DELAY_MS = Math.min(1000 * 2 ** retryCount, 15000);
 
   try {
+    if (mongoose.connection.readyState === 1) {
+      isConnecting = false;
+      return;
+    }
     await mongoose.connect(MONGODB_URI, MONGO_OPTIONS);
-    console.log('Connected to MongoDB successfully');
+    console.log('[MongoDB] Connected to Primary MongoDB successfully');
     if (!_adminSeeded) {
       await seedAdmin();
       _adminSeeded = true;
     }
   } catch (err) {
-    console.error(`[MongoDB] Connection failed (attempt ${retryCount + 1}):`, err.message);
+    console.error(`[MongoDB] Primary connection failed (attempt ${retryCount + 1}):`, err.message);
+
+    // Try local fallback if primary fails
+    if (MONGODB_URI !== LOCAL_MONGODB_URI) {
+      try {
+        console.log('[MongoDB] Attempting fallback to local MongoDB:', LOCAL_MONGODB_URI);
+        await mongoose.connect(LOCAL_MONGODB_URI, MONGO_OPTIONS);
+        console.log('[MongoDB] Connected to Local MongoDB successfully');
+        if (!_adminSeeded) {
+          await seedAdmin();
+          _adminSeeded = true;
+        }
+        isConnecting = false;
+        return;
+      } catch (localErr) {
+        console.error('[MongoDB] Local fallback also failed:', localErr.message);
+      }
+    }
+
     if (retryCount < MAX_RETRIES) {
       console.log(`[MongoDB] Retrying in ${RETRY_DELAY_MS / 1000}s...`);
+      isConnecting = false;
       setTimeout(() => connectDB(retryCount + 1), RETRY_DELAY_MS);
     } else {
-      console.error('[MongoDB] Max retries reached. Server will keep running but DB is unavailable.');
+      console.error('[MongoDB] Max retries reached. Server will keep running.');
+      isConnecting = false;
     }
+    return;
   }
+  isConnecting = false;
 }
 
 // Mongoose connection event listeners
 mongoose.connection.on('disconnected', () => {
-  console.warn('[MongoDB] Disconnected. Attempting to reconnect...');
-  if (mongoose.connection.readyState === 0) {
-    setTimeout(() => connectDB(), 3000);
+  console.warn('[MongoDB] Disconnected.');
+  if (mongoose.connection.readyState === 0 && !isConnecting) {
+    console.log('Attempting to reconnect in 5s...');
+    setTimeout(() => connectDB(), 5000);
   }
 });
 mongoose.connection.on('reconnected', () => console.log('[MongoDB] Reconnected successfully'));

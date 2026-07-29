@@ -109,9 +109,8 @@ const MenuPage = ({ user, onLogout }) => {
     const hasFlavours = item.flavours && item.flavours.length > 0;
     const hasBases = item.bases && item.bases.length > 0;
     const nameLower = item.name.toLowerCase();
-    const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
-    const isCake = !isCupcake && (hasFlavours || hasBases || item.category?.toLowerCase().includes('cake'));
-    const unitLabel = isCupcake ? 'Pcs (Box)' : (isCake ? 'Kg' : 'Qty');
+    const isCake = (hasFlavours || hasBases || item.category?.toLowerCase().includes('cake') || nameLower.includes('cake')) && !nameLower.includes('cupcake') && !nameLower.includes('cup cake');
+    const unitLabel = isCake ? 'Kg' : 'Qty';
 
     let total;
     if (hasBases && selectedFlavour) {
@@ -553,10 +552,9 @@ const MenuPage = ({ user, onLogout }) => {
                             <React.Fragment>
                               {currentSlide.item.flavours && currentSlide.item.flavours.map((flav, fIdx) => {
                                 const nameLower = currentSlide.item.name.toLowerCase();
-                                const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
-                                const isCake = !isCupcake && (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake'));
+                                const isCake = (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake')) && !nameLower.includes('cupcake') && !nameLower.includes('cup cake');
                                 const selectKey = `${currentSlide.item._id}-legacy-${flav.name}`;
-                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : (isCupcake ? 6 : 1);
+                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : 1;
                                 const displayPrice = flav.price * currentQty;
                                 
                                 return (
@@ -568,17 +566,9 @@ const MenuPage = ({ user, onLogout }) => {
                                       <select
                                         value={currentQty}
                                         onChange={e => setSelectedQuantities(prev => ({ ...prev, [selectKey]: parseFloat(e.target.value) }))}
-                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '130px' }}
+                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '110px' }}
                                       >
-                                        {isCupcake ? (
-                                          <>
-                                            <option value="6" style={{ background: '#130a06' }}>Box of 6 (6 Pcs)</option>
-                                            <option value="12" style={{ background: '#130a06' }}>Box of 12 (12 Pcs)</option>
-                                            <option value="18" style={{ background: '#130a06' }}>18 Pcs</option>
-                                            <option value="24" style={{ background: '#130a06' }}>24 Pcs</option>
-                                            <option value="30" style={{ background: '#130a06' }}>30 Pcs</option>
-                                          </>
-                                        ) : isCake ? (
+                                        {isCake ? (
                                           <>
                                             <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
                                             <option value="1" style={{ background: '#130a06' }}>1 Kg</option>
@@ -617,10 +607,9 @@ const MenuPage = ({ user, onLogout }) => {
                               })}
                               {(!currentSlide.item.flavours || currentSlide.item.flavours.length === 0) && (() => {
                                 const nameLower = currentSlide.item.name.toLowerCase();
-                                const isCupcake = nameLower.includes('cupcake') || nameLower.includes('cup cake');
-                                const isCake = !isCupcake && (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake'));
+                                const isCake = (currentSlide.item.category?.toLowerCase().includes('cake') || nameLower.includes('cake')) && !nameLower.includes('cupcake') && !nameLower.includes('cup cake');
                                 const selectKey = `${currentSlide.item._id}-item-single`;
-                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : (isCupcake ? 6 : 1);
+                                const currentQty = selectedQuantities[selectKey] !== undefined ? selectedQuantities[selectKey] : 1;
                                 const basePrice = currentSlide.item.price || 0;
                                 const displayPrice = basePrice * currentQty;
 
@@ -636,17 +625,9 @@ const MenuPage = ({ user, onLogout }) => {
                                       <select
                                         value={currentQty}
                                         onChange={e => setSelectedQuantities(prev => ({ ...prev, [selectKey]: parseFloat(e.target.value) }))}
-                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '130px' }}
+                                        style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid var(--border-gold)', color: 'var(--text-primary)', borderRadius: '6px', padding: '0.3rem 0.5rem', outline: 'none', fontSize: '0.8rem', cursor: 'pointer', width: '110px' }}
                                       >
-                                        {isCupcake ? (
-                                          <>
-                                            <option value="6" style={{ background: '#130a06' }}>Box of 6 (6 Pcs)</option>
-                                            <option value="12" style={{ background: '#130a06' }}>Box of 12 (12 Pcs)</option>
-                                            <option value="18" style={{ background: '#130a06' }}>18 Pcs</option>
-                                            <option value="24" style={{ background: '#130a06' }}>24 Pcs</option>
-                                            <option value="30" style={{ background: '#130a06' }}>30 Pcs</option>
-                                          </>
-                                        ) : isCake ? (
+                                        {isCake ? (
                                           <>
                                             <option value="0.5" style={{ background: '#130a06' }}>0.5 Kg</option>
                                             <option value="1" style={{ background: '#130a06' }}>1 Kg</option>

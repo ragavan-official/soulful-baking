@@ -101,6 +101,8 @@ router.get('/:id', async (req, res) => {
         isExpired: false,
         recipePdf: courseObj.recipePdf ? 'locked' : '',
         hasRecipePdf: !!courseObj.recipePdf,
+        courseLink: courseObj.courseLink ? 'locked' : '',
+        hasCourseLink: !!courseObj.courseLink,
         videos: courseObj.videos.map(v => ({
           _id: v._id,
           title: v.title,
@@ -125,6 +127,8 @@ router.get('/:id', async (req, res) => {
         expiresAt,
         recipePdf: courseObj.recipePdf ? 'locked' : '',
         hasRecipePdf: !!courseObj.recipePdf,
+        courseLink: courseObj.courseLink ? 'locked' : '',
+        hasCourseLink: !!courseObj.courseLink,
         videos: courseObj.videos.map(v => ({
           _id: v._id,
           title: v.title,
@@ -174,7 +178,9 @@ router.get('/:id', async (req, res) => {
       videos: processedVideos,
       recipePdf: courseObj.recipePdf || '',
       recipePdfUrl: courseObj.recipePdf ? `${backendBaseUrl}/api/media/${courseObj.recipePdf}` : '',
-      hasRecipePdf: !!courseObj.recipePdf
+      hasRecipePdf: !!courseObj.recipePdf,
+      courseLink: courseObj.courseLink || '',
+      hasCourseLink: !!courseObj.courseLink
     });
 
   } catch (error) {

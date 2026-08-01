@@ -795,7 +795,8 @@ tr:hover td {
   margin-bottom: 1.5rem;
 }
 
-.highlight-text {
+.highlight-text,
+.highlight-text * {
   background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
   -webkit-background-clip: text;
   background-clip: text;

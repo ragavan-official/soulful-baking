@@ -297,7 +297,7 @@ const Home = ({ user, onLogout }) => {
             <h1 className="hero-title">
               <SplitText text="Master the Art of" delay={0.05} />{' '}
               <span className="highlight-text">
-                <BlurText text="Baking & Decorating" delay={0.08} />
+                <SplitText text="Baking" delay={0.08} />
               </span>
             </h1>
             <p className="hero-description">
